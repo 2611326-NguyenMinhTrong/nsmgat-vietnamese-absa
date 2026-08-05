@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nsmgat"
+version = "0.1.0"
+description = "Neuro-Symbolic Multi-Graph Network cho ACSA tieng Viet"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]

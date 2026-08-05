@@ -1,0 +1,36 @@
+# [S0.1] Nguon: pLan/PLAN_NSMGAT.md muc S0.1
+
+# Tai lieu ca nhan / de tai - KHONG day len GitHub (yeu cau hoc vien)
+/pLan/
+/docs/
+**/README.md
+
+data/raw/
+data/cache/
+results/*/*.pt
+checkpoints/
+__pycache__/
+*.egg-info/
+.ipynb_checkpoints/
+
+# chuan Python / OS thong thuong
+*.pyc
+.venv/
+venv/
+.env
+.DS_Store
+Thumbs.db
+
+# LaTeX build artifacts (paper/, slides/, thesis/)
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.nav
+*.snm
+*.toc
+*.vrb

@@ -1,0 +1,16 @@
+# [S0.1] Dependencies cho du an nsmgat
+# Nguon: pLan/PLAN_NSMGAT.md muc S0.1. Ghim version chinh xac bang `pip freeze`
+# vao cuoi du an (S7.6) de bao dam tai lap duoc.
+
+torch>=2.0
+transformers>=4.35
+datasets
+py_vncorenlp
+scikit-learn
+pyyaml
+tqdm
+pandas
+numpy
+pytest
+matplotlib
+seaborn
