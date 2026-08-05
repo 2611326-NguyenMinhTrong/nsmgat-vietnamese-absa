@@ -1,2 +1,36 @@
-# [S0.4] Cau hinh huan luyen dung chung (seed, data, model, train, output)
-# TODO: dien cau hinh theo pLan/PLAN_NSMGAT.md (muc S0.4)
+# Cau hinh nen dung chung cho MOI thi nghiem cua du an.
+# Cac config con (configs/phobert.yaml, senticgcn.yaml, nsmgat.yaml, ...)
+# ke thua file nay bang khoa "extends: base.yaml" (xem nsmgat.train.load_config),
+# chi can ghi de truong nao can doi.
+
+seed: 42
+device: cuda # tu dong lui ve cpu neu khong co GPU (xem trainer.resolve_device)
+
+data:
+  train_path: data/processed/visfd_train.jsonl
+  dev_path: data/processed/visfd_dev.jsonl
+  test_path: data/processed/visfd_test.jsonl
+  diagnostic_path: data/diagnostic/diagnostic_300.jsonl
+
+model:
+  name: dummy
+  encoder_name: vinai/phobert-base-v2
+  dropout: 0.1
+  hidden_dim: 768
+
+train:
+  epochs: 8
+  batch_size: 32
+  lr: 2.0e-5
+  encoder_lr: 2.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  max_grad_norm: 1.0
+  early_stop_patience: 3
+  max_seq_len: 128
+  use_amp: false
+
+output:
+  results_dir: results
+  ckpt_dir: checkpoints
+  save_best: true

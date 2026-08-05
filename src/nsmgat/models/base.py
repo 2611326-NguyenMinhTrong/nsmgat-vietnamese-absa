@@ -18,11 +18,18 @@ class BaseModel(nn.Module, ABC):
 
     `batch` (sinh ra tu collate_fn trong data/dataset.py) chua cac key:
       - input_ids, attention_mask: token hoa cau (+ khia canh, sentence-pair)
-      - aspect_ids: chi so/embedding khia canh (tuy tung model su dung)
+      - aspect_text: chuoi khia canh goc (vd "BATTERY"); tung model tu
+        quyet dinh cach dung (nhung vao sentence-pair, tra cuu embedding, ...)
+      - uid, word_ids, phenomenon: thong tin phu (list thuong, khong phai tensor)
       - edge_index, edge_type, edge_conf, edge_view: do thi da gop batch
         theo kieu block-diagonal; co the rong voi baseline khong dung do thi
       - labels: nhan vang, shape (B,)
       - n_tokens: so token thuc cua tung mau trong batch
+
+    Ghi chu (S0.4): ban dau S0.2 du kien key "aspect_ids", nhung dataset.py
+    (S0.4) tra ve "aspect_text" (chuoi tho) de linh hoat hon - sua lai
+    docstring nay cho khop thuc te. Day chi la sua mo ta, KHONG doi chu ky
+    ham forward()/explain()/count_params() ben duoi.
     """
 
     @abstractmethod
