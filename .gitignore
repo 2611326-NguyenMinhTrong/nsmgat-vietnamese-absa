@@ -7,8 +7,12 @@
 
 data/raw/
 data/cache/
+data/processed/*.jsonl
 results/*/*.pt
 checkpoints/
+
+# VnCoreNLP: jar + model tai ve tu dong o S0.3 (~100MB, tai nguyen ben thu 3)
+/vncorenlp/
 __pycache__/
 *.egg-info/
 .ipynb_checkpoints/
@@ -20,6 +24,9 @@ venv/
 .env
 .DS_Store
 Thumbs.db
+
+# Claude Code harness (local, khong lien quan ma nguon)
+.claude/
 
 # LaTeX build artifacts (paper/, slides/, thesis/)
 *.aux
