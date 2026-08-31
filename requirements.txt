@@ -14,3 +14,6 @@ numpy
 pytest
 matplotlib
 seaborn
+
+# [CD1.1] Sinh tai lieu Word theo dinh dang UTE (scripts/ute_docx.py)
+python-docx>=1.1
