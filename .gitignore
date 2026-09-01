@@ -3,6 +3,8 @@
 # Tai lieu ca nhan / de tai - KHONG day len GitHub (yeu cau hoc vien)
 /pLan/
 /docs/
+/forms/
+*/user-require/
 **/README.md
 
 data/raw/
@@ -41,3 +43,7 @@ Thumbs.db
 *.snm
 *.toc
 *.vrb
+
+# Word: file tam va file khoa khi dang mo tai lieu
+~$*
+~WRL*.tmp

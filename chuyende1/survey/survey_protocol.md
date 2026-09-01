@@ -133,3 +133,15 @@ python scripts/survey_tools.py validate   # cấu trúc file có hợp lệ khô
 python scripts/survey_tools.py stats      # tiến độ: phủ 6 nhóm tới đâu, kiểm chứng bao nhiêu
 python scripts/survey_tools.py table      # sinh bảng 3.9 (chỉ từ dòng đã kiểm chứng)
 ```
+
+## 8. Bài báo quan trọng — gắn cờ bắt buộc đọc kỹ
+
+Ngoài kiểm chứng để đưa vào Bảng 3.9, một số ít công trình (5–10 bài) quan trọng hơn hẳn
+phần còn lại — loại mà nếu bảo vệ bị hỏi sâu mà không trả lời được thì mất điểm ngay. Những
+bài đó được theo dõi riêng ở
+[`chuyende1/survey/doc_bat_buoc.md`](doc_bat_buoc.md).
+
+Quy tắc gắn cờ và tiêu chí "quan trọng": xem `README.md` mục "Quy định riêng của học viên"
+phần D. Tóm tắt: mỗi khi phát hiện một bài như vậy, phải (1) thêm vào `doc_bat_buoc.md`,
+(2) thêm dòng vào ma trận này nếu chưa có, (3) **nói rõ ngay trong câu trả lời** và yêu cầu
+học viên đọc kỹ — không âm thầm thêm vào rồi đi tiếp.

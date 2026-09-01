@@ -50,7 +50,7 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 
 | Đường dẫn | Nội dung |
 |---|---|
-| `chuyende1/survey/` | Giao thức khảo sát, ma trận phân loại, phân tích khoảng trống |
+| `chuyende1/survey/` | Giao thức khảo sát, ma trận phân loại, phân tích khoảng trống, danh sách đọc bắt buộc (`doc_bat_buoc.md`) |
 | `chuyende1/report/` | Cuốn `.docx` nộp + `reference.docx` (style UTE) |
 | `chuyende1/tables/` | Bảng xuất ra để dán vào báo cáo |
 | `chuyende1/figures/` | Hình, biểu đồ của báo cáo |
