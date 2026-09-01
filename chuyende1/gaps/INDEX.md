@@ -26,6 +26,7 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | [GAP-002](GAP-002_senticgcn-can-tu-dien-cam-xuc.md) | 27/08/2026 | Phương pháp | **Nghiêm trọng** | Sentic-GCN cần từ điển cảm xúc tiếng Việt, nhưng bước dựng từ điển (S2.1) thuộc CĐ2 | 🔴 Mở |
 | [GAP-003](GAP-003_llm-3-seed-vo-nghia.md) | 27/08/2026 | Phương pháp | **Nghiêm trọng** | Chạy `llm_zs` 3 seed ở temperature 0 cho std = 0 giả tạo | 🔴 Mở |
 | [GAP-004](GAP-004_lech-ten-thi-nghiem-llm.md) | 27/08/2026 | Tài liệu | Nhẹ | Plan gốc ghi `results/gpt4o_zeroshot/`, plan CĐ1 ghi `results/llm_zs/` | 🔴 Mở |
+| [GAP-005](GAP-005_sai-ten-hoc-vien-va-hoc-vi-gvhd.md) | 27/08/2026 | Tài liệu | **Nghiêm trọng** | Sai tên học viên (Trọng → **Trộng**) và sai học vị GVHD (ThS. → **TS.**) trên 5 file, gồm cả bìa và phiếu sắp gửi Cô | 🟡 Còn 1 file `.docx` chờ sinh lại |
 
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
@@ -37,7 +38,12 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 |---|---|---|---|
 | Kế hoạch | 0 | 0 | 0 |
 | Code | 0 | 0 | 0 |
-| Tài liệu | 2 | 1 | 1 |
+| Tài liệu | 3 | 1 | 2 |
 | Số liệu | 0 | 0 | 0 |
 | Phương pháp | 2 | 0 | 2 |
-| **Tổng** | **4** | **1** | **3** |
+| **Tổng** | **5** | **1** | **4** |
+
+**Mẫu hỏng lặp lại — đáng chú ý:** GAP-004 và GAP-005 cùng một cơ chế — *một giá trị sai
+hoặc lệch ở nguồn lan âm thầm ra mọi thứ dẫn xuất từ nó*. Cùng cơ chế với lý do
+`metrics.json` được đóng băng làm nguồn duy nhất. Khi thấy một giá trị xuất hiện ở nhiều
+file, hỏi ngay: **file nào là nguồn, và ai đã kiểm chứng nguồn đó?**

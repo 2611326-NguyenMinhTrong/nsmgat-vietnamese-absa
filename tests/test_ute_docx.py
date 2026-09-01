@@ -146,6 +146,19 @@ def test_bia_ghi_dung_nganh_va_ma_so(skeleton):
     assert "CHUYÊN ĐỀ" in text
 
 
+def test_bia_ghi_dung_ten_hoc_vien_va_hoc_vi_gvhd(skeleton):
+    """GAP-005: tên học viên và học vị GVHD từng bị sai, lan ra cả bìa lẫn phiếu gửi Cô.
+
+    Chốt giá trị đúng và cấm chuỗi sai quay lại. Đây là thông tin về người thật —
+    không suy đoán, không chép lại từ file cũ.
+    """
+    text = "\n".join(p.text for p in skeleton.paragraphs[:40])
+    assert "NGUYỄN MINH TRỘNG" in text, "sai tên học viên"
+    assert "TS. PHAN THỊ HUYỀN TRANG" in text, "sai học vị GVHD"
+    assert "TRỌNG" not in text, "tên học viên là Trộng, không phải Trọng"
+    assert "ThS." not in text, "GVHD là Tiến sĩ, không phải Thạc sĩ"
+
+
 def test_khung_con_nguyen_cac_cho_trong_todo(skeleton):
     """Khung mới dựng phải còn TODO; hết TODO là điều kiện nộp, không phải điều kiện dựng."""
     todos = [p.text for p in skeleton.paragraphs if p.text.startswith("[TODO:")]

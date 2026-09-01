@@ -2,9 +2,9 @@
 
 ## Về danh sách mô hình baseline cho Chuyên đề 1
 
-**Kính gửi:** ThS. Phan Thị Huyền Trang
+**Kính gửi:** TS. Phan Thị Huyền Trang
 
-**Học viên:** Nguyễn Minh Trọng — MSHV 2611326
+**Học viên:** Nguyễn Minh Trộng — MSHV 2611326
 
 **Ngành:** Khoa học máy tính — Mã số 8480101
 
@@ -212,7 +212,7 @@ Em xin chân thành cảm ơn Cô đã dành thời gian đọc và cho ý kiế
 
 *Học viên*
 
-*Nguyễn Minh Trọng*
+*Nguyễn Minh Trộng*
 
 ---
 
