@@ -205,6 +205,60 @@ def test_sync_all_chan_dung_1_file_khong_anh_huong_file_kia(tmp_path):
     assert manifest["reference.docx"]["nguon"] == NGUON_SINH
 
 
+def test_file_bi_khoa_khong_lam_hong_manifest(tmp_path, monkeypatch, capsys):
+    """File đang mở trong Word -> PermissionError. Không được để exception thoát
+    ra ngoài: nếu thoát, manifest không kịp lưu và file đã ghi xong trước đó sẽ
+    bị coi là 'đã sửa tay' ở lần chạy sau -> chặn oan.
+
+    Đây là lỗi thật gặp phải ngày 02/09/2026 khi sinh lại bìa lúc Word đang mở.
+    """
+    import build_cd1_report
+
+    sync_all(tmp_path)  # lần đầu: tạo cả 2 file + manifest
+    manifest_truoc = load_manifest(tmp_path)
+
+    # Giả lập Word khoá đúng file thứ hai trong danh sách
+    goc = build_cd1_report.sync_generated_file
+
+    def khoa_file_thu_hai(name, *args, **kwargs):
+        if name == "ChuyenDe1_NguyenMinhTrong.docx":
+            raise PermissionError(13, "Permission denied")
+        return goc(name, *args, **kwargs)
+
+    monkeypatch.setattr(build_cd1_report, "sync_generated_file", khoa_file_thu_hai)
+
+    code = sync_all(tmp_path)
+
+    assert code == 1
+    assert "ĐANG BỊ KHOÁ" in capsys.readouterr().out
+    # Manifest vẫn phải được lưu, và mục của file ghi thành công vẫn hợp lệ
+    manifest_sau = load_manifest(tmp_path)
+    assert manifest_sau["reference.docx"]["nguon"] == NGUON_SINH
+    assert manifest_sau["ChuyenDe1_NguyenMinhTrong.docx"] == manifest_truoc["ChuyenDe1_NguyenMinhTrong.docx"]
+
+
+def test_sau_khi_mo_khoa_thi_khong_bi_chan_oan(tmp_path, monkeypatch):
+    """Nối tiếp test trên: sau khi đóng Word, chạy lại phải chạy trơn, không
+    được báo 'đã sửa tay' với file vừa bị khoá hụt."""
+    import build_cd1_report
+
+    sync_all(tmp_path)
+    goc = build_cd1_report.sync_generated_file
+
+    def khoa_mot_lan(name, *args, **kwargs):
+        if name == "reference.docx":
+            raise PermissionError(13, "Permission denied")
+        return goc(name, *args, **kwargs)
+
+    monkeypatch.setattr(build_cd1_report, "sync_generated_file", khoa_mot_lan)
+    sync_all(tmp_path)
+
+    monkeypatch.setattr(build_cd1_report, "sync_generated_file", goc)  # "đóng Word"
+    code = sync_all(tmp_path)
+
+    assert code == 0, "không được chặn oan sau khi file hết bị khoá"
+
+
 def test_sync_all_bao_ve_toan_bo_khi_adopt(tmp_path):
     sync_all(tmp_path)
     edit_paragraph(tmp_path / "ChuyenDe1_NguyenMinhTrong.docx", "noi dung that cua hoc vien")

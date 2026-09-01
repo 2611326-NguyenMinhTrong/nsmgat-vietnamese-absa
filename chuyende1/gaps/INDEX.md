@@ -23,10 +23,11 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | ID | Ngày | Loại | Mức độ | Tóm tắt | Trạng thái |
 |---|---|---|---|---|---|
 | [GAP-001](GAP-001_ranh-gioi-layers-py.md) | 27/08/2026 | Tài liệu | Nhẹ | `MODULE.md` cấm CĐ1 động `models/layers.py`, nhưng S1.2 yêu cầu CD1.5 phải tạo `GCNLayer` trong đó | ✅ Đã sửa |
-| [GAP-002](GAP-002_senticgcn-can-tu-dien-cam-xuc.md) | 27/08/2026 | Phương pháp | **Nghiêm trọng** | Sentic-GCN cần từ điển cảm xúc tiếng Việt, nhưng bước dựng từ điển (S2.1) thuộc CĐ2 | 🔴 Mở |
+| [GAP-002](GAP-002_senticgcn-can-tu-dien-cam-xuc.md) | 27/08/2026 | Phương pháp | ~~Nghiêm trọng~~ → **Nhẹ** | Sentic-GCN cần từ điển cảm xúc tiếng Việt | 🟡 Nhẹ đi nhờ GAP-006: bản duyệt có sẵn `asgcn` (cú pháp thuần) và `lexicon` (đo trực tiếp chất lượng từ điển) |
 | [GAP-003](GAP-003_llm-3-seed-vo-nghia.md) | 27/08/2026 | Phương pháp | **Nghiêm trọng** | Chạy `llm_zs` 3 seed ở temperature 0 cho std = 0 giả tạo | 🔴 Mở |
-| [GAP-004](GAP-004_lech-ten-thi-nghiem-llm.md) | 27/08/2026 | Tài liệu | Nhẹ | Plan gốc ghi `results/gpt4o_zeroshot/`, plan CĐ1 ghi `results/llm_zs/` | 🔴 Mở |
+| [GAP-004](GAP-004_lech-ten-thi-nghiem-llm.md) | 27/08/2026 | Tài liệu | Nhẹ | Lệch tên `gpt4o_zeroshot` vs `llm_zs` | ✅ **Đã đóng** — bản GVHD duyệt chỉ đích danh GPT-4o, giữ tên gốc `gpt4o_zeroshot` |
 | [GAP-005](GAP-005_sai-ten-hoc-vien-va-hoc-vi-gvhd.md) | 27/08/2026 | Tài liệu | **Nghiêm trọng** | Sai tên học viên (Trọng → **Trộng**) và sai học vị GVHD (ThS. → **TS.**) trên 5 file, gồm cả bìa và phiếu sắp gửi Cô | 🟡 Còn 1 file `.docx` chờ sinh lại |
+| [GAP-006](GAP-006_khong-doc-tai-lieu-gvhd-da-duyet.md) | 02/09/2026 | Kế hoạch | **Nghiêm trọng** | Lập plan 15 tuần mà không hỏi "đã có tài liệu nào GVHD duyệt chưa?" → thiếu hẳn baseline `asgcn`, tự đặt tên đề tài khác bản chính thức | 🟡 Đang sửa |
 
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
@@ -34,16 +35,16 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 
 ## Thống kê *(cập nhật khi viết Chương 6)*
 
-| Loại | Số lượng | Đã sửa | Còn mở |
+| Loại | Số lượng | Đã sửa/đóng | Còn mở |
 |---|---|---|---|
-| Kế hoạch | 0 | 0 | 0 |
+| Kế hoạch | 1 | 0 | 1 |
 | Code | 0 | 0 | 0 |
-| Tài liệu | 3 | 1 | 2 |
+| Tài liệu | 3 | 2 | 1 |
 | Số liệu | 0 | 0 | 0 |
-| Phương pháp | 2 | 0 | 2 |
-| **Tổng** | **5** | **1** | **4** |
+| Phương pháp | 2 | 0 | 2 (1 đã nhẹ đi) |
+| **Tổng** | **6** | **2** | **4** |
 
-**Mẫu hỏng lặp lại — đáng chú ý:** GAP-004 và GAP-005 cùng một cơ chế — *một giá trị sai
+**Mẫu hỏng lặp lại — đáng chú ý:** GAP-004, GAP-005 và GAP-006 cùng một cơ chế — *một giá trị sai
 hoặc lệch ở nguồn lan âm thầm ra mọi thứ dẫn xuất từ nó*. Cùng cơ chế với lý do
 `metrics.json` được đóng băng làm nguồn duy nhất. Khi thấy một giá trị xuất hiện ở nhiều
 file, hỏi ngay: **file nào là nguồn, và ai đã kiểm chứng nguồn đó?**

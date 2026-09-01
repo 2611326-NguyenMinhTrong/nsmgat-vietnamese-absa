@@ -89,9 +89,34 @@ TABLE_COLUMNS = [
 ]
 
 
+class MalformedCSV(Exception):
+    """File CSV sai cấu trúc — số cột của một dòng không khớp header.
+
+    Hay gặp nhất: ghi chú có chứa dấu phẩy mà không đặt trong dấu nháy kép.
+    Excel tự xử lý đúng, nhưng sửa bằng text editor thì rất dễ vấp.
+    """
+
+
 def load_rows(path: Path = DEFAULT_CSV) -> list[dict[str, str]]:
     with path.open(encoding="utf-8", newline="") as fh:
-        return [{k: (v or "").strip() for k, v in row.items()} for row in csv.DictReader(fh)]
+        reader = csv.reader(fh)
+        try:
+            header = next(reader)
+        except StopIteration:
+            return []
+
+        rows = []
+        for line_no, values in enumerate(reader, start=2):
+            if not values:
+                continue
+            if len(values) != len(header):
+                raise MalformedCSV(
+                    f"Dòng {line_no}: có {len(values)} cột, header có {len(header)} cột.\n"
+                    f"  Nguyên nhân hay gặp: ô ghi_chu chứa dấu phẩy mà không đặt trong \"...\".\n"
+                    f"  Nội dung dòng: {','.join(values)[:120]}..."
+                )
+            rows.append({k: (v or "").strip() for k, v in zip(header, values)})
+        return rows
 
 
 def is_verified(row: dict[str, str]) -> bool:
@@ -287,7 +312,12 @@ def main(argv: list[str] | None = None) -> int:
 
     with args.csv.open(encoding="utf-8", newline="") as fh:
         columns = next(csv.reader(fh))
-    rows = load_rows(args.csv)
+
+    try:
+        rows = load_rows(args.csv)
+    except MalformedCSV as err:
+        print(f"FILE CSV SAI CẤU TRÚC\n\n{err}", file=sys.stderr)
+        return 1
 
     if args.command == "validate":
         return cmd_validate(rows, columns)

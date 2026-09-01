@@ -66,12 +66,18 @@ GVHD = "TS. PHAN THỊ HUYỀN TRANG"
 NGANH = "KHOA HỌC MÁY TÍNH"
 MA_SO = "8480101"
 
-# Bản nháp — mẫu bìa (Phần III Phụ lục 1) yêu cầu đặt trong ngoặc kép.
-# Chốt với GVHD trước khi in: xem câu hỏi mục 11 của PLAN_CHUYENDE1.md.
+# Tên đề tài CHÍNH THỨC, chép nguyên văn từ bản đã được GVHD duyệt:
+#   docs/Tom_Tat_Dinh_Huong_Final.docx — mục "Tên chuyên đề"
+# KHÔNG tự đặt lại. Mẫu bìa (Phần III Phụ lục 1) yêu cầu đặt trong ngoặc kép.
 HUONG_NGHIEN_CUU = (
-    "Phân tích cảm xúc theo khía cạnh cho tiếng Việt: khảo sát, "
-    "đánh giá thực nghiệm các mô hình tiên tiến và định hướng cải tiến"
+    "Mạng Neuro-Symbolic đa đồ thị với mô hình hóa tường minh phủ định và chuyển ý "
+    "cho phân loại cảm xúc theo khía cạnh tiếng Việt"
 )
+HUONG_NGHIEN_CUU_EN = (
+    "A Neuro-Symbolic Multi-Graph Network with Explicit Modeling of Negation "
+    "and Contrast for Vietnamese Aspect-Category Sentiment Analysis"
+)
+KHOA = "2026A"
 
 # --- Cấu trúc cuốn báo cáo ----------------------------------------------------
 # (tiêu đề chương, ngân sách trang, [(tiêu đề mục, việc cần điền), ...])
@@ -195,7 +201,7 @@ def build_cover(doc) -> None:
 
     para = add_paragraph(doc, f"“{HUONG_NGHIEN_CUU}”", align=CENTER, bold=True)
     para.runs[0].font.size = SIZE
-    add_todo(doc, "CD1.1 — xác nhận tên hướng nghiên cứu với GVHD trước khi in bìa").alignment = CENTER
+    add_paragraph(doc, f"({HUONG_NGHIEN_CUU_EN})", align=CENTER, italic=True)
 
     for _ in range(3):
         add_paragraph(doc)
@@ -211,7 +217,7 @@ def build_cover(doc) -> None:
     for _ in range(4):
         add_paragraph(doc)
 
-    add_paragraph(doc, f"Học viên: {HOC_VIEN} — MSHV {MSHV}", align=CENTER)
+    add_paragraph(doc, f"Học viên: {HOC_VIEN} — MSHV {MSHV} — Khoá {KHOA}", align=CENTER)
     add_paragraph(doc, f"Giảng viên hướng dẫn: {GVHD}", align=CENTER)
 
     for _ in range(4):
@@ -527,24 +533,46 @@ def sync_all(out_dir: Path, *, force: bool = False, adopt: bool = False) -> int:
 
     manifest = load_manifest(out_dir)
     blocked = []
+    locked = []
 
-    for name, build_doc in targets:
-        outcome = sync_generated_file(name, build_doc, out_dir, manifest, force=force, adopt=adopt)
-        path = out_dir / name
+    try:
+        for name, build_doc in targets:
+            path = out_dir / name
+            try:
+                outcome = sync_generated_file(name, build_doc, out_dir, manifest, force=force, adopt=adopt)
+            except PermissionError:
+                # Gần như luôn là file đang mở trong Word (Word khoá ghi).
+                # KHÔNG để exception thoát ra ngoài: nếu thoát, manifest sẽ không
+                # được lưu và những file đã ghi thành công trước đó sẽ bị coi là
+                # "đã sửa tay" ở lần chạy sau -> chặn oan.
+                locked.append((name, path))
+                print(f"ĐANG BỊ KHOÁ -> {path}")
+                continue
 
-        if outcome == "written":
-            print(f"OK          -> {path}")
-        elif outcome == "baseline":
-            print(f"LẬP MỐC     -> {path}  (nội dung đã đúng bản chuẩn, không cần ghi lại)")
-        elif outcome == "adopted":
-            print(f"ĐÃ GHI NHẬN -> {path}  (từ nay được bảo vệ — không tự động ghi đè nữa)")
-        elif outcome == "forced":
-            print(f"GHI ĐÈ      -> {path}  (bản cũ đã sao lưu vào *.backup-*)")
-        elif outcome == "blocked":
-            blocked.append((name, path))
-            print(f"BỊ CHẶN     -> {path}")
+            if outcome == "written":
+                print(f"OK          -> {path}")
+            elif outcome == "baseline":
+                print(f"LẬP MỐC     -> {path}  (nội dung đã đúng bản chuẩn, không cần ghi lại)")
+            elif outcome == "adopted":
+                print(f"ĐÃ GHI NHẬN -> {path}  (từ nay được bảo vệ — không tự động ghi đè nữa)")
+            elif outcome == "forced":
+                print(f"GHI ĐÈ      -> {path}  (bản cũ đã sao lưu vào *.backup-*)")
+            elif outcome == "blocked":
+                blocked.append((name, path))
+                print(f"BỊ CHẶN     -> {path}")
+    finally:
+        # Luôn lưu manifest, kể cả khi có file lỗi giữa chừng — nếu không, những
+        # file đã ghi xong sẽ lệch với manifest và bị chặn oan ở lần chạy sau.
+        save_manifest(out_dir, manifest)
 
-    save_manifest(out_dir, manifest)
+    if locked:
+        print()
+        print(f"{len(locked)} file đang bị khoá ghi — thường là do đang mở trong Word:")
+        for _, path in locked:
+            print(f"  - {path}")
+        print()
+        print("Đóng file trong Word rồi chạy lại. Không có nội dung nào bị mất.")
+        return 1
 
     if blocked:
         print()

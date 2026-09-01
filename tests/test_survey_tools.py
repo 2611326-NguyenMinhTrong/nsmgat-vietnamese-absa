@@ -171,3 +171,35 @@ def test_validate_qua_cli_tren_file_that():
 def test_cli_bao_loi_khi_khong_thay_file(command, tmp_path, capsys):
     assert main([command, "--csv", str(tmp_path / "khong_ton_tai.csv")]) == 1
     assert "Không thấy file" in capsys.readouterr().err
+
+
+# --- CSV sai cấu trúc: phải báo rõ, không được crash -------------------------
+
+
+def test_csv_sai_so_cot_thi_bao_loi_ro_rang(tmp_path):
+    """Lỗi thật gặp 02/09/2026: thêm ghi chú có dấu phẩy mà không đặt trong
+    dấu nháy -> dòng thừa cột. Trước đây `validate` crash với traceback thay vì
+    chỉ ra dòng nào sai. Học viên sẽ sửa file này bằng tay nên phải báo rõ."""
+    from survey_tools import MalformedCSV
+
+    csv_path = tmp_path / "hong.csv"
+    csv_path.write_text(
+        ",".join(REQUIRED_COLUMNS) + "\n" + "A,chua_kiem" + ",x" * (len(REQUIRED_COLUMNS) - 1) + ",thua\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(MalformedCSV) as err:
+        load_rows(csv_path)
+    assert "Dòng 2" in str(err.value)
+    assert "dấu phẩy" in str(err.value)
+
+
+def test_cli_bao_loi_csv_hong_thay_vi_crash(tmp_path, capsys):
+    csv_path = tmp_path / "hong.csv"
+    csv_path.write_text(
+        ",".join(REQUIRED_COLUMNS) + "\n" + "A,chua_kiem" + ",x" * (len(REQUIRED_COLUMNS) - 1) + ",thua\n",
+        encoding="utf-8",
+    )
+
+    assert main(["validate", "--csv", str(csv_path)]) == 1
+    assert "SAI CẤU TRÚC" in capsys.readouterr().err
