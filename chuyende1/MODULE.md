@@ -51,7 +51,7 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | Đường dẫn | Nội dung |
 |---|---|
 | `chuyende1/survey/` | Giao thức khảo sát, ma trận phân loại, phân tích khoảng trống, danh sách đọc bắt buộc (`doc_bat_buoc.md`) |
-| `chuyende1/report/` | Cuốn `.docx` nộp + `reference.docx` (style UTE) |
+| `chuyende1/report/` | Cuốn `.docx` nộp + `reference.docx` (style UTE). **Được sửa tay tự do trong Word** — chạy lại `scripts/build_cd1_report.py` an toàn, tự chặn nếu đã sửa (REQ-006). File `.generated.json` cùng thư mục là sổ theo dõi nội bộ của cơ chế đó, không cần đụng vào |
 | `chuyende1/tables/` | Bảng xuất ra để dán vào báo cáo |
 | `chuyende1/figures/` | Hình, biểu đồ của báo cáo |
 | `chuyende1/slides/` | Slide bảo vệ CĐ1 — khối A (lõi 15′) + B (mở rộng 30′) + C (dự phòng Q&A), kèm `qa_preparation.md`. **Trỏ tới `tables/` và `figures/`, không vẽ lại số** |
@@ -70,7 +70,7 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `scripts/compare_baselines.py`, `scripts/probe_oracle_rules.py` | CLI mới, thêm chứ không sửa script cũ |
 | `scripts/ute_docx.py` | [CD1.1] Thư viện định dạng Word theo quy định UTE — lề, phông, đánh số trang, mục lục tự động, chú thích bảng/hình. CĐ2 và luận văn dùng lại |
 | `scripts/md_to_docx_ute.py` | [REQ-004] Markdown → Word cho tài liệu ngắn (phiếu, ghi chú) |
-| `scripts/build_cd1_report.py` | [CD1.1] Dựng `reference.docx` và khung cuốn chuyên đề. ⚠️ Ghi đè — đừng chạy lại sau khi đã gõ nội dung thật |
+| `scripts/build_cd1_report.py` | [CD1.1/REQ-006] Dựng `reference.docx` và khung cuốn chuyên đề. **An toàn khi chạy lại** — tự phát hiện và chặn nếu file đã bị sửa tay; xem `sync_all()` |
 | `tests/test_ute_docx.py` | [CD1.1] Kiểm định dạng thay cho việc in ra đo bằng thước |
 | `scripts/survey_tools.py` | [CD1.2] `validate` / `stats` / `table` cho ma trận khảo sát. **Cưỡng chế quy tắc số 7**: dòng `chua_kiem` không thể lọt vào Bảng 3.9 |
 | `tests/test_survey_tools.py` | [CD1.2] Kiểm chốt chặn chống bịa trích dẫn |

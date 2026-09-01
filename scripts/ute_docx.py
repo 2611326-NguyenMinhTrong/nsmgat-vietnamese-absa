@@ -15,6 +15,10 @@ Chuyên đề 2 và luận văn dùng lại module này, không viết lại.
 
 from __future__ import annotations
 
+import hashlib
+from pathlib import Path
+
+from docx import Document
 from docx.document import Document as DocumentType
 from docx.enum.section import WD_SECTION
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -233,3 +237,32 @@ def add_todo(doc: DocumentType, text: str):
     run.italic = True
     run.font.color.rgb = RGBColor(0xB0, 0x00, 0x00)
     return para
+
+
+# --- Chống ghi đè nội dung đã sửa tay ------------------------------------------
+#
+# Vì sao KHÔNG băm nguyên byte file .docx: .docx là một file zip (OOXML), và hai
+# lần lưu CÙNG một nội dung ra hai file khác nhau vẫn cho hai chuỗi byte khác
+# nhau (thứ tự nén, timestamp nội bộ của zip...). Băm byte thô sẽ báo "đã đổi"
+# ngay cả khi không ai sửa gì — vô dụng làm chốt chặn.
+#
+# Cách đúng: trích xuất phần NỘI DUNG CÓ Ý NGHĨA (chữ trong từng đoạn kèm style,
+# chữ trong từng ô bảng) rồi băm chuỗi đó. Đã kiểm chứng thực nghiệm: sinh hai
+# lần từ cùng code cho ra cùng một giá trị băm nội dung, dù byte file khác nhau.
+
+
+def content_fingerprint_of_document(doc: DocumentType) -> str:
+    """Băm nội dung có ý nghĩa của một Document đang có trong bộ nhớ (chưa cần lưu)."""
+    parts: list[str] = []
+    for p in doc.paragraphs:
+        parts.append(f"{p.style.name}|{p.text}")
+    for table in doc.tables:
+        for row in table.rows:
+            parts.append("|".join(cell.text for cell in row.cells))
+    blob = "\n".join(parts).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()
+
+
+def content_fingerprint_of_file(path: Path) -> str:
+    """Băm nội dung có ý nghĩa của một file .docx đã có trên đĩa."""
+    return content_fingerprint_of_document(Document(str(path)))

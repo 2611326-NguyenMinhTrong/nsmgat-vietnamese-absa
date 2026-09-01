@@ -7,20 +7,35 @@ Sinh ra hai file trong chuyende1/report/:
 Nguồn cấu trúc: pLan/chuyende1/OUTLINE_BAOCAO_CD1.md
 Nguồn định dạng: scripts/ute_docx.py
 
-Chạy lại được nhiều lần: mỗi lần chạy GHI ĐÈ hai file trên.
-  => Sau khi bắt đầu gõ nội dung thật vào ChuyenDe1_*.docx thì ĐỪNG chạy lại
-     script này, nếu không sẽ mất bài. Script chỉ dùng để dựng khung lần đầu
-     hoặc khi cần dựng lại từ đầu.
+CHỐNG GHI ĐÈ NỘI DUNG ĐÃ SỬA TAY [REQ-006]
+-------------------------------------------
+Chạy lại script này AN TOÀN — nó tự phát hiện file đã bị sửa tay (so với lần
+chính script này ghi gần nhất) và TỪ CHỐI ghi đè, thay vì âm thầm mất nội dung.
+Cơ chế: sau mỗi lần ghi, lưu "dấu vân tay nội dung" vào `.generated.json` cùng
+thư mục. Lần chạy sau so dấu vân tay hiện tại của file với dấu đã lưu.
+
+  python scripts/build_cd1_report.py                 # an toàn: chặn nếu đã sửa tay
+  python scripts/build_cd1_report.py --adopt          # "tôi đã sửa tay, đừng đụng vào nữa"
+  python scripts/build_cd1_report.py --force           # ghi đè bằng bản mới (tự sao lưu trước)
+
+Chi tiết cơ chế: xem `sync_generated_file()` bên dưới và
+`chuyende1/notes/CD1.2b_chong-ghi-de-report.md`.
 
 Dùng:
-    python scripts/build_cd1_report.py [thư_mục_đích]
+    python scripts/build_cd1_report.py [thư_mục_đích] [--force | --adopt]
 """
 
 from __future__ import annotations
 
+import argparse
+import json
+import shutil
 import sys
+from datetime import datetime
 from pathlib import Path
+from typing import Callable
 
+from docx.document import Document as DocumentType
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -33,9 +48,15 @@ from ute_docx import (  # noqa: E402
     add_paragraph,
     add_todo,
     add_toc_field,
+    content_fingerprint_of_document,
+    content_fingerprint_of_file,
     new_document,
     new_section,
 )
+
+MANIFEST_NAME = ".generated.json"
+NGUON_SINH = "sinh_tu_dong"   # dấu vân tay ứng với lần script tự ghi gần nhất
+NGUON_SUA_TAY = "da_sua_tay"  # dấu vân tay được người dùng xác nhận qua --adopt
 
 CENTER = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -298,8 +319,12 @@ def build_main_matter(doc) -> None:
 # --- File mẫu định dạng -------------------------------------------------------
 
 
-def build_reference(path: Path) -> None:
-    """reference.docx — trưng bày từng style kèm tên, để đối chiếu bằng mắt."""
+def build_reference_doc() -> DocumentType:
+    """reference.docx — trưng bày từng style kèm tên, để đối chiếu bằng mắt.
+
+    Chỉ dựng nội dung trong bộ nhớ, KHÔNG lưu ra đĩa — để sync_generated_file()
+    có thể so dấu vân tay TRƯỚC KHI quyết định có ghi đè hay không.
+    """
     doc = new_document()
     new_section(doc, fmt="decimal", start=1)
 
@@ -371,7 +396,13 @@ def build_reference(path: Path) -> None:
     )
 
     add_todo(doc, "File mẫu — không cần điền gì, chỉ dùng để đối chiếu")
+    return doc
 
+
+def build_reference(path: Path) -> None:
+    """Tương thích ngược cho test/gọi trực tiếp: dựng rồi lưu ngay, KHÔNG qua
+    cơ chế chống ghi đè. Dùng `sync_generated_file()` nếu cần bảo vệ."""
+    doc = build_reference_doc()
     path.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(path))
 
@@ -379,26 +410,166 @@ def build_reference(path: Path) -> None:
 # --- Điểm vào -----------------------------------------------------------------
 
 
-def build_skeleton(path: Path) -> None:
+def build_skeleton_doc() -> DocumentType:
+    """Khung cuốn chuyên đề — chỉ dựng trong bộ nhớ, không lưu. Xem build_reference_doc()."""
     doc = new_document()
     build_cover(doc)
     build_front_matter(doc)
     build_main_matter(doc)
+    return doc
+
+
+def build_skeleton(path: Path) -> None:
+    """Tương thích ngược — xem ghi chú ở build_reference()."""
+    doc = build_skeleton_doc()
     path.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(path))
 
 
-def main() -> int:
-    out_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("chuyende1/report")
-    reference = out_dir / "reference.docx"
-    skeleton = out_dir / "ChuyenDe1_NguyenMinhTrong.docx"
+# --- Cơ chế chống ghi đè nội dung đã sửa tay [REQ-006] ------------------------
 
-    build_reference(reference)
-    build_skeleton(skeleton)
 
-    print(f"OK -> {reference}")
-    print(f"OK -> {skeleton}")
+def load_manifest(out_dir: Path) -> dict:
+    path = out_dir / MANIFEST_NAME
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def save_manifest(out_dir: Path, manifest: dict) -> None:
+    path = out_dir / MANIFEST_NAME
+    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _backup_path(target: Path) -> Path:
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    return target.with_name(f"{target.stem}.backup-{stamp}{target.suffix}")
+
+
+def sync_generated_file(
+    name: str,
+    build_doc: Callable[[], DocumentType],
+    out_dir: Path,
+    manifest: dict,
+    *,
+    force: bool = False,
+    adopt: bool = False,
+) -> str:
+    """Đồng bộ MỘT file sinh ra, có bảo vệ chống ghi đè nội dung đã sửa tay.
+
+    Nguyên tắc: chỉ tự động ghi đè khi CHẮC CHẮN chưa ai đụng vào file kể từ lần
+    chính script này ghi gần nhất — tức dấu vân tay hiện tại của file trên đĩa
+    khớp với dấu vân tay đã ghi nhận VÀ dấu đó có nguồn là "sinh_tu_dong" (không
+    phải "da_sua_tay" từ một lần --adopt trước đó — file đã adopt thì được bảo
+    vệ vĩnh viễn cho tới khi người dùng chủ động --force).
+
+    Trả về: "written" | "adopted" | "forced" | "blocked".
+    """
+    target = out_dir / name
+
+    if not target.exists():
+        doc = build_doc()
+        fp = content_fingerprint_of_document(doc)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        doc.save(str(target))
+        manifest[name] = {"fingerprint": fp, "nguon": NGUON_SINH}
+        return "written"
+
+    current_fp = content_fingerprint_of_file(target)
+    recorded = manifest.get(name)
+
+    if adopt:
+        manifest[name] = {"fingerprint": current_fp, "nguon": NGUON_SUA_TAY}
+        return "adopted"
+
+    if recorded is None:
+        # Chưa từng ghi nhận gì về file này (vd. file có từ trước khi cơ chế
+        # này tồn tại). Chỉ tự nhận làm mốc an toàn nếu nội dung hiện tại khớp
+        # CHÍNH XÁC với những gì script sẽ sinh ra ngay bây giờ — tức chắc chắn
+        # còn nguyên bản, chưa ai sửa gì.
+        doc = build_doc()
+        fresh_fp = content_fingerprint_of_document(doc)
+        if current_fp == fresh_fp:
+            # Nội dung đã khớp sẵn -> không cần ghi file, chỉ cần lập mốc.
+            manifest[name] = {"fingerprint": fresh_fp, "nguon": NGUON_SINH}
+            return "baseline"
+        # Khác bản mới sinh mà lại không có ghi nhận -> không rõ nguồn gốc,
+        # rơi xuống nhánh bảo vệ bên dưới.
+    elif recorded.get("nguon") == NGUON_SINH and current_fp == recorded.get("fingerprint"):
+        # An toàn: đúng là bản script ghi lần trước, chưa ai sửa tay.
+        # Ghi đè bằng bản mới nhất của script (kể cả khi template đã đổi).
+        doc = build_doc()
+        fresh_fp = content_fingerprint_of_document(doc)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        doc.save(str(target))
+        manifest[name] = {"fingerprint": fresh_fp, "nguon": NGUON_SINH}
+        return "written"
+
+    # Còn lại: đã sửa tay (nguồn = da_sua_tay), hoặc lệch so với ghi nhận cũ.
+    if force:
+        backup = _backup_path(target)
+        shutil.copy2(target, backup)
+        doc = build_doc()
+        fresh_fp = content_fingerprint_of_document(doc)
+        doc.save(str(target))
+        manifest[name] = {"fingerprint": fresh_fp, "nguon": NGUON_SINH}
+        return "forced"
+
+    return "blocked"
+
+
+def sync_all(out_dir: Path, *, force: bool = False, adopt: bool = False) -> int:
+    """Đồng bộ cả reference.docx và khung cuốn chuyên đề. Trả về mã thoát."""
+    targets = [
+        ("reference.docx", build_reference_doc),
+        ("ChuyenDe1_NguyenMinhTrong.docx", build_skeleton_doc),
+    ]
+
+    manifest = load_manifest(out_dir)
+    blocked = []
+
+    for name, build_doc in targets:
+        outcome = sync_generated_file(name, build_doc, out_dir, manifest, force=force, adopt=adopt)
+        path = out_dir / name
+
+        if outcome == "written":
+            print(f"OK          -> {path}")
+        elif outcome == "baseline":
+            print(f"LẬP MỐC     -> {path}  (nội dung đã đúng bản chuẩn, không cần ghi lại)")
+        elif outcome == "adopted":
+            print(f"ĐÃ GHI NHẬN -> {path}  (từ nay được bảo vệ — không tự động ghi đè nữa)")
+        elif outcome == "forced":
+            print(f"GHI ĐÈ      -> {path}  (bản cũ đã sao lưu vào *.backup-*)")
+        elif outcome == "blocked":
+            blocked.append((name, path))
+            print(f"BỊ CHẶN     -> {path}")
+
+    save_manifest(out_dir, manifest)
+
+    if blocked:
+        print()
+        print(f"{len(blocked)} file có nội dung khác với lần sinh gần nhất — KHÔNG bị đụng vào:")
+        for name, path in blocked:
+            print(f"  - {path}")
+        print()
+        print("Đây thường là vì bạn đã sửa tay file trong Word. Chọn một trong hai:")
+        print("  --adopt   giữ nguyên nội dung đã sửa, chỉ đánh dấu 'đây là bản chính thức'")
+        print("            (từ nay công cụ này sẽ KHÔNG BAO GIỜ tự ghi đè file nữa)")
+        print("  --force   ghi đè bằng bản khung mới nhất (bản cũ tự động được sao lưu)")
+        return 1
+
     return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("out_dir", nargs="?", default="chuyende1/report", type=Path)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--force", action="store_true", help="Ghi đè kể cả đã sửa tay (tự sao lưu trước)")
+    group.add_argument("--adopt", action="store_true", help="Nhận nội dung hiện tại làm bản chính thức, không ghi đè")
+    args = parser.parse_args(argv)
+
+    return sync_all(args.out_dir, force=args.force, adopt=args.adopt)
 
 
 if __name__ == "__main__":

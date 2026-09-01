@@ -47,3 +47,7 @@ Thumbs.db
 # Word: file tam va file khoa khi dang mo tai lieu
 ~$*
 ~WRL*.tmp
+
+# [REQ-006] Ban sao luu tu dong khi build_cd1_report.py --force ghi de
+# file da sua tay - chi la luoi an toan tam thoi, khong can day len GitHub
+*.backup-*.docx
