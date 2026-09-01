@@ -1,1 +1,21 @@
-ref_key,nam,hoi_nghi_tap_chi,ho_phuong_phap,bieu_dien_dau_vao,co_dung_do_thi,loai_do_thi,co_tri_thuc_ngoai,ngon_ngu,tap_du_lieu,do_do_bao_cao,ket_qua_tot_nhat,xu_ly_phu_dinh_chuyen_y,co_giai_thich,co_ma_nguon,ghi_chu
+ref_key,trang_thai,nam,hoi_nghi_tap_chi,ho_phuong_phap,bieu_dien_dau_vao,co_dung_do_thi,loai_do_thi,co_tri_thuc_ngoai,ngon_ngu,tap_du_lieu,do_do_bao_cao,ket_qua_tot_nhat,xu_ly_phu_dinh_chuyen_y,co_giai_thich,co_ma_nguon,nguon_url,ghi_chu
+ATAE-LSTM,chua_kiem,[CẦN TÌM],[CẦN TÌM],G2_tuan_tu_attention,[CẦN TÌM],khong,,khong,en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Hat giong - ten lay tu PLAN_CHUYENDE1.md muc CD1.2
+IAN,chua_kiem,[CẦN TÌM],[CẦN TÌM],G2_tuan_tu_attention,[CẦN TÌM],khong,,khong,en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Hat giong
+MemNet,chua_kiem,[CẦN TÌM],[CẦN TÌM],G2_tuan_tu_attention,[CẦN TÌM],khong,,khong,en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Hat giong
+RAM,chua_kiem,[CẦN TÌM],[CẦN TÌM],G2_tuan_tu_attention,[CẦN TÌM],khong,,khong,en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Hat giong
+BERT-SPC,chua_kiem,[CẦN TÌM],[CẦN TÌM],G3_plm,[CẦN TÌM],khong,,khong,en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Hat giong
+PhoBERT,chua_kiem,[CẦN TÌM],[CẦN TÌM],G3_plm,[CẦN TÌM],khong,,khong,vi,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Baseline CD1.4 - PHAI doc toan van
+ViSoBERT,chua_kiem,[CẦN TÌM],[CẦN TÌM],G3_plm,[CẦN TÌM],khong,,khong,vi,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Baseline CD1.6 - PHAI doc toan van; kiem ca checkpoint co tai duoc khong (rui ro R2)
+XLM-R,chua_kiem,[CẦN TÌM],[CẦN TÌM],G3_plm,[CẦN TÌM],khong,,khong,da_ngu,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Du phong cho ViSoBERT
+BARTpho,chua_kiem,[CẦN TÌM],[CẦN TÌM],G3_plm,[CẦN TÌM],khong,,khong,vi,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Cung lien quan G5 neu dung o che do sinh
+ASGCN,chua_kiem,[CẦN TÌM],[CẦN TÌM],G4_do_thi,[CẦN TÌM],co,cu_phap,khong,en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Phuong an C cua GAP-002 neu bo Sentic-GCN
+Sentic-GCN,chua_kiem,[CẦN TÌM],[CẦN TÌM],G4_do_thi,[CẦN TÌM],co,cu_phap,co,en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Baseline CD1.5 QUAN TRONG NHAT - phai doc toan van; kiem ky cach dung SenticNet (GAP-002)
+DualGCN,chua_kiem,[CẦN TÌM],[CẦN TÌM],G4_do_thi,[CẦN TÌM],co,[CẦN TÌM],[CẦN TÌM],en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Hat giong
+SSEGCN,chua_kiem,[CẦN TÌM],[CẦN TÌM],G4_do_thi,[CẦN TÌM],co,[CẦN TÌM],[CẦN TÌM],en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Hat giong
+kumaGCN,chua_kiem,[CẦN TÌM],[CẦN TÌM],G4_do_thi,[CẦN TÌM],co,[CẦN TÌM],[CẦN TÌM],en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Hat giong
+InstructABSA,chua_kiem,[CẦN TÌM],[CẦN TÌM],G5_sinh_prompting,[CẦN TÌM],khong,,khong,en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Hat giong
+SenticNet,chua_kiem,[CẦN TÌM],[CẦN TÌM],G6_neuro_symbolic,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],co,en,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Tai nguyen tri thuc cam xuc - kiem xem co ban tieng Viet khong (GAP-002)
+UIT-ViSFD,chua_kiem,[CẦN TÌM],[CẦN TÌM],TAI_NGUYEN,[CẦN TÌM],khong,,khong,vi,UIT-ViSFD,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Tap du lieu chinh cua de tai - BAT BUOC doc toan van de mo ta o muc 4.1
+VLSP-2018,chua_kiem,[CẦN TÌM],[CẦN TÌM],TAI_NGUYEN,[CẦN TÌM],khong,,khong,vi,VLSP-2018,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Khong dung o CD1 - de doi chieu o muc 3.8
+UIT-ViSD4SA,chua_kiem,[CẦN TÌM],[CẦN TÌM],TAI_NGUYEN,[CẦN TÌM],khong,,khong,vi,UIT-ViSD4SA,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],De doi chieu o muc 3.8
+VietSentiWordNet,chua_kiem,[CẦN TÌM],[CẦN TÌM],TAI_NGUYEN,[CẦN TÌM],khong,,co,vi,[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],[CẦN TÌM],Can cho CD1.5 - do phu tren UIT-ViSFD la cau hoi mo cua GAP-002

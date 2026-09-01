@@ -72,6 +72,8 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `scripts/md_to_docx_ute.py` | [REQ-004] Markdown → Word cho tài liệu ngắn (phiếu, ghi chú) |
 | `scripts/build_cd1_report.py` | [CD1.1] Dựng `reference.docx` và khung cuốn chuyên đề. ⚠️ Ghi đè — đừng chạy lại sau khi đã gõ nội dung thật |
 | `tests/test_ute_docx.py` | [CD1.1] Kiểm định dạng thay cho việc in ra đo bằng thước |
+| `scripts/survey_tools.py` | [CD1.2] `validate` / `stats` / `table` cho ma trận khảo sát. **Cưỡng chế quy tắc số 7**: dòng `chua_kiem` không thể lọt vào Bảng 3.9 |
+| `tests/test_survey_tools.py` | [CD1.2] Kiểm chốt chặn chống bịa trích dẫn |
 | `requirements.txt` | [CD1.1] Thêm `python-docx>=1.1` — CI cài từ file này |
 | `data/diagnostic/` | Tập chẩn đoán 300 câu (CD1.8) |
 | `docs/annotation_guideline.md` | Hướng dẫn chú thích (S6.2) |
