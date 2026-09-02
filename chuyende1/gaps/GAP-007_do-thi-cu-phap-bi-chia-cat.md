@@ -38,6 +38,29 @@ Nó cũng liên quan trực tiếp tới **thăm dò P3 của CD1.11** ("cú ph�
 phủ định đến từ cảm xúc bao nhiêu"). Nếu 52 % ca không có đường đi, P3 phải xử lý riêng
 nhóm này thay vì tính trung bình chung — nếu không con số sẽ vô nghĩa.
 
+
+## 2b. Mức độ thiệt hại THẬT — nhẹ hơn con số 52 % gợi ra
+
+*(đo bổ sung 02/09/2026 khi viết tài liệu giải thích cho học viên — REQ-007)*
+
+Con số 52,2 % chỉ nói "đồ thị có vỡ không", chưa nói "vỡ có phá hỏng thứ ta cần không".
+Ba chỉ số sát với đề tài hơn:
+
+| Chỉ số | Con số | Diễn giải |
+|---|---|---|
+| Token bị cắt khỏi mệnh đề chính | **24,5 %** | Phần lớn nội dung vẫn cùng một khối |
+| Câu có phủ định bị tách khỏi từ cảm xúc | **46,8 %** (4.926/10.518) | **Nhưng nhiều ca việc tách là ĐÚNG** — phủ định thuộc câu khác, không liên quan khía cạnh đang xét |
+| **Câu chuyển ý bị đứt hai vế** | **12,5 %** (1.100/8.787) | **Nhẹ** — hiện tượng cốt lõi của luận văn phần lớn còn nguyên |
+
+**Điều chỉnh kết luận:** chưa thể biết việc chia cắt gây hại hay có lợi — có lập luận cho cả
+hai chiều. Với ACSA trên bình luận nhiều câu, mỗi câu thường nói về một khía cạnh khác nhau,
+nên tách theo ranh giới câu **đôi khi là điều đúng nên làm**.
+
+Điều này **không đổi khuyến nghị** (vẫn là phương án C), nhưng đổi **lý do**: không phải
+"chia cắt gây hại nên phải sửa", mà là *"chưa biết hại hay lợi, nên phải đo"*.
+
+Giải thích đầy đủ: `chuyende1/user-require/GiaiThich_DoThiCuPhap_va_GAP-007.md`
+
 ## 3. Nguyên nhân gốc — KHÔNG phải lỗi
 
 Đã truy tới cùng: **đây là hành vi đúng của bộ phân tích, không phải bug.**

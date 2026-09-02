@@ -28,7 +28,7 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | [GAP-004](GAP-004_lech-ten-thi-nghiem-llm.md) | 27/08/2026 | Tài liệu | Nhẹ | Lệch tên `gpt4o_zeroshot` vs `llm_zs` | ✅ **Đã đóng** — bản GVHD duyệt chỉ đích danh GPT-4o, giữ tên gốc `gpt4o_zeroshot` |
 | [GAP-005](GAP-005_sai-ten-hoc-vien-va-hoc-vi-gvhd.md) | 27/08/2026 | Tài liệu | **Nghiêm trọng** | Sai tên học viên (Trọng → **Trộng**) và sai học vị GVHD (ThS. → **TS.**) trên 5 file, gồm cả bìa và phiếu sắp gửi Cô | 🟡 Còn 1 file `.docx` chờ sinh lại |
 | [GAP-006](GAP-006_khong-doc-tai-lieu-gvhd-da-duyet.md) | 02/09/2026 | Kế hoạch | **Nghiêm trọng** | Lập plan 15 tuần mà không hỏi "đã có tài liệu nào GVHD duyệt chưa?" → thiếu hẳn baseline `asgcn`, tự đặt tên đề tài khác bản chính thức | 🟡 Đang sửa |
-| [GAP-007](GAP-007_do-thi-cu-phap-bi-chia-cat.md) | 02/09/2026 | Phương pháp | **Nghiêm trọng** | **52,2 % Example có đồ thị cú pháp bị chia cắt** (2–32 mảnh rời nhau) — đe doạ tiền đề của `asgcn`, `senticgcn` và NS-MGAT | 🔴 Mở — cần học viên chọn phương án A/B/C |
+| [GAP-007](GAP-007_do-thi-cu-phap-bi-chia-cat.md) | 02/09/2026 | Phương pháp | **Nghiêm trọng** | **52,2 % Example có đồ thị cú pháp bị chia cắt** (2–32 mảnh rời nhau). Đo sâu hơn: chỉ 12,5 % câu chuyển ý bị đứt → nhẹ hơn lo ngại ban đầu | 🔴 Mở — đã giải thích đầy đủ (REQ-007), chờ học viên chọn A/B/C |
 
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
