@@ -1,0 +1,206 @@
+{
+  "train": {
+    "so_example": 23872,
+    "token": {
+      "trung_binh": 39.11,
+      "trung_vi": 31.0,
+      "lon_nhat": 188
+    },
+    "canh": {
+      "trung_binh": 112.57,
+      "tong": 2687175
+    },
+    "root_moi_example": {
+      "trung_binh": 2.37,
+      "lon_nhat": 32,
+      "phan_bo": {
+        "1": 11422,
+        "2": 4325,
+        "3": 3114,
+        "4": 2001,
+        "5": 1288,
+        "6": 737,
+        "7": 432,
+        "8": 180,
+        "9": 161,
+        "10": 98
+      }
+    },
+    "thanh_phan_lien_thong": {
+      "trung_binh": 2.37,
+      "lon_nhat": 32,
+      "phan_bo": {
+        "1": 11422,
+        "2": 4325,
+        "3": 3114,
+        "4": 2001,
+        "5": 1288,
+        "6": 737,
+        "7": 432,
+        "8": 180,
+        "9": 161,
+        "10": 98
+      },
+      "so_example_bi_chia_cat": 12450,
+      "ti_le_bi_chia_cat": 52.2
+    },
+    "du_lieu_bat_thuong": {
+      "head_ngoai_pham_vi": 0,
+      "token_tu_tro_vao_minh": 0
+    },
+    "deprel_pho_bien": {
+      "nmod": 175530,
+      "vmod": 137642,
+      "punct": 101855,
+      "dob": 83165,
+      "amod": 58975,
+      "sub": 58527,
+      "root": 55212,
+      "adv": 49436,
+      "det": 43893,
+      "dep": 37453,
+      "coord": 29277,
+      "conj": 26473,
+      "pob": 24633,
+      "tmp": 20893,
+      "loc": 6836
+    },
+    "so_loai_deprel": 33
+  },
+  "dev": {
+    "so_example": 3316,
+    "token": {
+      "trung_binh": 37.54,
+      "trung_vi": 30.5,
+      "lon_nhat": 139
+    },
+    "canh": {
+      "trung_binh": 107.73,
+      "tong": 357240
+    },
+    "root_moi_example": {
+      "trung_binh": 2.45,
+      "lon_nhat": 16,
+      "phan_bo": {
+        "1": 1514,
+        "2": 612,
+        "3": 467,
+        "4": 259,
+        "5": 207,
+        "6": 120,
+        "7": 57,
+        "8": 30,
+        "9": 17,
+        "10": 15
+      }
+    },
+    "thanh_phan_lien_thong": {
+      "trung_binh": 2.45,
+      "lon_nhat": 16,
+      "phan_bo": {
+        "1": 1514,
+        "2": 612,
+        "3": 467,
+        "4": 259,
+        "5": 207,
+        "6": 120,
+        "7": 57,
+        "8": 30,
+        "9": 17,
+        "10": 15
+      },
+      "so_example_bi_chia_cat": 1802,
+      "ti_le_bi_chia_cat": 54.3
+    },
+    "du_lieu_bat_thuong": {
+      "head_ngoai_pham_vi": 0,
+      "token_tu_tro_vao_minh": 0
+    },
+    "deprel_pho_bien": {
+      "nmod": 23624,
+      "vmod": 18157,
+      "punct": 14141,
+      "dob": 10815,
+      "amod": 7894,
+      "root": 7822,
+      "sub": 7665,
+      "adv": 6709,
+      "det": 5892,
+      "dep": 4960,
+      "coord": 3584,
+      "conj": 3261,
+      "pob": 3144,
+      "tmp": 2717,
+      "loc": 874
+    },
+    "so_loai_deprel": 30
+  },
+  "test": {
+    "so_example": 6722,
+    "token": {
+      "trung_binh": 39.36,
+      "trung_vi": 32.0,
+      "lon_nhat": 201
+    },
+    "canh": {
+      "trung_binh": 113.07,
+      "tong": 760081
+    },
+    "root_moi_example": {
+      "trung_binh": 2.51,
+      "lon_nhat": 16,
+      "phan_bo": {
+        "1": 2996,
+        "2": 1270,
+        "3": 873,
+        "4": 650,
+        "5": 386,
+        "6": 210,
+        "7": 120,
+        "8": 96,
+        "9": 46,
+        "10": 22
+      }
+    },
+    "thanh_phan_lien_thong": {
+      "trung_binh": 2.51,
+      "lon_nhat": 16,
+      "phan_bo": {
+        "1": 2996,
+        "2": 1270,
+        "3": 873,
+        "4": 650,
+        "5": 386,
+        "6": 210,
+        "7": 120,
+        "8": 96,
+        "9": 46,
+        "10": 22
+      },
+      "so_example_bi_chia_cat": 3726,
+      "ti_le_bi_chia_cat": 55.4
+    },
+    "du_lieu_bat_thuong": {
+      "head_ngoai_pham_vi": 0,
+      "token_tu_tro_vao_minh": 0
+    },
+    "deprel_pho_bien": {
+      "nmod": 49554,
+      "vmod": 37691,
+      "punct": 30035,
+      "dob": 23543,
+      "sub": 16653,
+      "root": 16332,
+      "amod": 16276,
+      "adv": 14376,
+      "det": 12236,
+      "dep": 10545,
+      "coord": 8325,
+      "conj": 7602,
+      "pob": 6728,
+      "tmp": 5844,
+      "loc": 2009
+    },
+    "so_loai_deprel": 32
+  }
+}
