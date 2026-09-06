@@ -26,6 +26,7 @@ from nsmgat.data.dataset import ACSADataset, collate_fn
 from nsmgat.evaluate import evaluate, evaluate_diagnostic, write_metrics
 from nsmgat.models.base import BaseModel
 from nsmgat.models.dummy import DummyModel
+from nsmgat.models.lexicon import LexiconModel
 from nsmgat.trainer import Trainer, resolve_device
 from nsmgat.utils.io import load_yaml
 from nsmgat.utils.logging import get_logger
@@ -37,6 +38,7 @@ logger = get_logger(__name__)
 # BaseModel, constructor nhan __init__(self, cfg: dict)).
 MODEL_REGISTRY: Dict[str, Type[BaseModel]] = {
     "dummy": DummyModel,
+    "lexicon": LexiconModel,  # [CD1.4a] baseline tu dien — san tuyet doi
 }
 
 

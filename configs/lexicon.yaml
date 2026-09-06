@@ -1,0 +1,26 @@
+# [CD1.4a] Baseline tu dien cam xuc — SAN TUYET DOI cua bang ket qua.
+#
+# Ban GVHD duyet (docs/Tom_Tat_Dinh_Huong_Final.docx muc 1) liet ke "mo hinh
+# dua tren tu dien" trong nhom can thuc nghiem lai.
+#
+# Truoc khi chay, phai sinh tu dien:
+#     python scripts/build_lexicon_from_train.py
+#
+# Chay:
+#     python -m nsmgat.train --config configs/lexicon.yaml --model lexicon --seed 42
+
+extends: base.yaml
+
+model:
+  name: lexicon
+  lexicon_path: data/lexicon_from_train.json
+
+train:
+  # Phan hoc duoc chi la Linear(2,3) = 9 tham so de hieu chinh nguong.
+  # Khong can lr nho nhu fine-tune PLM, cung khong can nhieu epoch.
+  epochs: 20
+  lr: 0.05
+  batch_size: 256
+  early_stop_patience: 5
+  warmup_ratio: 0.0
+  weight_decay: 0.0

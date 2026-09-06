@@ -1,0 +1,31 @@
+{
+  "exp_name": "lexicon",
+  "seed": 42,
+  "dataset": "visfd",
+  "test": {
+    "accuracy": 0.7470990776554597,
+    "macro_f1": 0.5241849039713226,
+    "f1_per_class": [
+      0.7545070109058536,
+      0.0,
+      0.8180477010081141
+    ]
+  },
+  "diagnostic": {
+    "negation": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "contrast": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "regular": {
+      "macro_f1": 0.0,
+      "n": 0
+    }
+  },
+  "train_time_sec": 197.8,
+  "n_params": 9,
+  "config_hash": "f25b1bbb0fcc"
+}

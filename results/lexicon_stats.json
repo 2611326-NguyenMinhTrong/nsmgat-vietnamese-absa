@@ -1,0 +1,150 @@
+{
+  "so_token_khac_nhau_trong_train": 11028,
+  "so_token_vao_tu_dien": 5828,
+  "so_token_bi_loai_vi_it_gap": 5178,
+  "min_freq": 5,
+  "smoothing": 10.0,
+  "ti_le_nen": {
+    "P_pos": 0.5657,
+    "P_neg": 0.3127,
+    "lech_nen": 0.2531
+  },
+  "top_duong": [
+    {
+      "token": "đồng_tiền_bát_gạo",
+      "diem": 0.6289
+    },
+    {
+      "token": "sang_trọng",
+      "diem": 0.6217
+    },
+    {
+      "token": "tậu",
+      "diem": 0.5667
+    },
+    {
+      "token": "tuyệt_vời",
+      "diem": 0.5595
+    },
+    {
+      "token": "xịn",
+      "diem": 0.55
+    },
+    {
+      "token": "đẹp_mắt",
+      "diem": 0.5422
+    },
+    {
+      "token": "tuyệt",
+      "diem": 0.5372
+    },
+    {
+      "token": "đỉnh",
+      "diem": 0.5347
+    },
+    {
+      "token": "đầm",
+      "diem": 0.523
+    },
+    {
+      "token": "thú_vị",
+      "diem": 0.5206
+    },
+    {
+      "token": "lưu_trữ",
+      "diem": 0.5136
+    },
+    {
+      "token": "chu_đáo",
+      "diem": 0.5123
+    },
+    {
+      "token": "tận_tình",
+      "diem": 0.5056
+    },
+    {
+      "token": "bắt_mắt",
+      "diem": 0.4999
+    },
+    {
+      "token": "ưu_đãi",
+      "diem": 0.498
+    }
+  ],
+  "top_am": [
+    {
+      "token": "tùm_lum",
+      "diem": -0.8609
+    },
+    {
+      "token": "thất_vọng",
+      "diem": -0.8597
+    },
+    {
+      "token": "chán",
+      "diem": -0.8431
+    },
+    {
+      "token": "nhấn",
+      "diem": -0.8172
+    },
+    {
+      "token": "j7",
+      "diem": -0.8119
+    },
+    {
+      "token": "loạn_xạ",
+      "diem": -0.8055
+    },
+    {
+      "token": "tệ",
+      "diem": -0.8028
+    },
+    {
+      "token": "bực_mình",
+      "diem": -0.8021
+    },
+    {
+      "token": "sai_lầm",
+      "diem": -0.7976
+    },
+    {
+      "token": "nguồn",
+      "diem": -0.7968
+    },
+    {
+      "token": "phí",
+      "diem": -0.7954
+    },
+    {
+      "token": "thà",
+      "diem": -0.7917
+    },
+    {
+      "token": "sập",
+      "diem": -0.7864
+    },
+    {
+      "token": "toàn_tập",
+      "diem": -0.7843
+    },
+    {
+      "token": "tra",
+      "diem": -0.7824
+    }
+  ],
+  "do_phu_tren_train": {
+    "tong_token": 933519,
+    "token_co_trong_tu_dien": 777748,
+    "ti_le_phu_token": 83.3,
+    "example_khong_tra_cuu_duoc_tu_nao": 0,
+    "ti_le_example_khong_tra_cuu_duoc": 0.0
+  },
+  "tran_mu_khia_canh": {
+    "so_cau_duy_nhat": 7671,
+    "cau_co_nhieu_khia_canh": 6642,
+    "cau_co_khia_canh_trai_nhan": 3608,
+    "ti_le_cau_trai_nhan": 47.0,
+    "tran_accuracy": 80.2
+  }
+}
