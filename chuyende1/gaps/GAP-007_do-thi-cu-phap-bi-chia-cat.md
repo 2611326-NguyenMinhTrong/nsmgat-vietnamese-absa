@@ -99,6 +99,7 @@ trên bằng chứng.
 | **A** | **Giữ nguyên (mặc định hiện tại)** | Đồ thị đúng như parser trả về | Trung thực với phương pháp gốc của ASGCN/Sentic-GCN; so sánh được với công bố quốc tế | 52 % dữ liệu có đồ thị chia cắt → hai baseline đồ thị có thể yếu đi vì lý do ngoài phương pháp |
 | **B** | **Nối các root với nhau** | Thêm cạnh giữa root của các câu con liền kề, `etype="DEP:root_link"` | Đồ thị luôn liên thông; thông tin chảy được giữa các câu | Lệch khỏi ASGCN gốc → phải nói rõ trong báo cáo; cạnh này không có cơ sở ngôn ngữ học |
 | **C** | **Chạy cả A và B** | Thêm một biến thể `asgcn_linked` | **Đo được chính xác** việc chia cắt gây thiệt hại bao nhiêu điểm — một kết quả có giá trị riêng | Thêm ~1 ngày GPU |
+| ~~**D**~~ | ~~**Ép parser đọc cả bình luận một lần**~~ | Bỏ dấu chấm câu → parser coi cả bình luận là một câu | Đồ thị liền mạch hoàn toàn, không cần cạnh nhân tạo | ❌ **ĐÃ LOẠI** — làm đổi head của **24,8 %** token, sinh ra cạnh SAI nguỵ trang thành cú pháp thật (`nhiệt_tình --nmod--> lỗi`). Xem mục 5b |
 
 **Tôi nghiêng về C**, và không phải vì "làm cho chắc". Lý do: hiệu số giữa A và B **chính là
 một phát hiện của Chuyên đề 1** — nó trả lời được câu *"cú pháp có thật sự giúp không, hay
@@ -106,6 +107,52 @@ chỉ giúp khi đồ thị liền mạch?"*. Đó là đúng loại hạn chế
 yêu cầu, và nó rẻ vì `asgcn_linked` dùng chung toàn bộ hạ tầng với `asgcn`.
 
 Nếu chọn A hoặc B thì vẫn **bắt buộc** báo cáo con số 52 % trong mục 4.1 và mục 6.2.
+
+
+## 5b. Phương án D đã thử và loại — ép parser đọc cả bình luận một lần
+
+*(học viên đề xuất 02/09/2026; đã kiểm chứng thực nghiệm, không suy đoán)*
+
+**Làm được không: CÓ.** `py_vncorenlp` không có tuỳ chọn tắt tách câu, nhưng bỏ dấu chấm câu
+thì bộ tách câu hết ranh giới để cắt → 1 câu, 1 root, đồ thị liền mạch hoàn toàn.
+
+**Nên làm không: KHÔNG.** Đo bằng `scripts/probe_force_single_parse.py` trên 150 bình luận
+nhiều câu:
+
+```
+Token so sánh được : 2.743
+Giữ nguyên head    : 2.063  (75,2 %)
+>> BỊ ĐỔI head     :   680  (24,8 %)
+```
+
+Ép parse một lần **viết lại một phần tư cấu trúc**. Phần bị đổi gần như chắc chắn xấu đi:
+bản parse từng câu là parser chạy **đúng miền dữ liệu nó được huấn luyện**, bản ép một câu
+là chạy **ngoài miền đó**.
+
+Cạnh sai điển hình quan sát được: `Nv --nmod--> lỗi` và `nhiệt_tình --nmod--> lỗi` — câu
+*"Nv nhiệt tình"* (tích cực, khía cạnh SER&ACC) bị gắn thẳng vào *"lỗi"* (tiêu cực, câu
+khác). GCN sẽ lan cảm xúc tiêu cực vào đúng chỗ tích cực.
+
+**Điểm phân biệt cốt lõi giữa các phương án:**
+
+| | Cạnh **thiếu** | Cạnh **sai** |
+|---|---|---|
+| A — giữ nguyên | Có | **Không** |
+| B — nối root | Không | Có, nhưng **đánh dấu rõ** là `DEP:root_link` |
+| D — ép parse | Không | **Có, và nguỵ trang thành cú pháp thật** |
+
+Với GCN, **cạnh sai nguy hiểm hơn cạnh thiếu**: cạnh thiếu làm thông tin không tới nơi, cạnh
+sai làm thông tin **chảy nhầm chỗ**.
+
+**Còn "tách theo mỗi bình luận chứ không tách câu"?** Dữ liệu đã làm sẵn — mỗi `Example`
+tương ứng một bình luận. Giới hạn nằm ở **bộ phân tích cú pháp chỉ biết làm việc ở mức câu**,
+không phải ở đơn vị dữ liệu. Muốn có cấu trúc đúng ở mức nhiều câu phải dùng **phân tích diễn
+ngôn** (discourse parsing) — tiếng Việt chưa có công cụ đủ tốt. Đây là một khoảng trống đáng
+nêu ở mục 6.3 (hướng phát triển).
+
+**Giá trị của việc đã thử:** con số 24,8 % chứng minh giữ nguyên ranh giới câu là đúng, và
+biến câu hỏi *"sao không cho parser đọc cả bình luận?"* thành một đoạn có bằng chứng trong
+mục 4.3 của báo cáo.
 
 ## 6. Bài học
 
