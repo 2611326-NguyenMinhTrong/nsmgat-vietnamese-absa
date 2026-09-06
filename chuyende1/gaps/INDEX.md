@@ -30,6 +30,7 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | [GAP-006](GAP-006_khong-doc-tai-lieu-gvhd-da-duyet.md) | 02/09/2026 | Kế hoạch | **Nghiêm trọng** | Lập plan 15 tuần mà không hỏi "đã có tài liệu nào GVHD duyệt chưa?" → thiếu hẳn baseline `asgcn`, tự đặt tên đề tài khác bản chính thức | 🟡 Đang sửa |
 | [GAP-007](GAP-007_do-thi-cu-phap-bi-chia-cat.md) | 02/09/2026 | Phương pháp | **Nghiêm trọng** | **52,2 % Example có đồ thị cú pháp bị chia cắt** (2–32 mảnh rời nhau). Đo sâu hơn: chỉ 12,5 % câu chuyển ý bị đứt → nhẹ hơn lo ngại ban đầu | 🟡 **Đã chốt phương án C** (06/09) — hạ tầng `link_roots` xong + 9 test; chờ chạy ở CD1.6a. Đã thử và loại phương án D (ép parse: đổi 24,8% head) |
 | [GAP-008](GAP-008_train-time-bi-nhiem-chi-phi-tokenize.md) | 06/09/2026 | Số liệu | Nhẹ (sẽ nặng ở CD1.10) | `train_time_sec` gồm cả tokenize PhoBERT mà `lexicon` không dùng — ~127/198 s là lãng phí, sẽ thổi phồng chi phí baseline rẻ nhất trong bảng 4.5 | 🔴 Mở — xử lý ở CD1.10 |
+| [GAP-009](GAP-009_bang-phu-luc-lech-danh-so.md) | 06/09/2026 | Tài liệu | Nhẹ | Bảng phụ lục trong plan còn đánh số CD1.x cũ sau khi sửa GAP-006 — tồn tại 4 ngày | ✅ Đã sửa |
 
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
@@ -41,12 +42,12 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 |---|---|---|---|
 | Kế hoạch | 1 | 0 | 1 |
 | Code | 0 | 0 | 0 |
-| Tài liệu | 3 | 2 | 1 |
+| Tài liệu | 4 | 3 | 1 |
 | Số liệu | 1 | 0 | 1 |
 | Phương pháp | 3 | 0 | 3 (1 nhẹ đi, 1 đã chốt phương án) |
-| **Tổng** | **8** | **2** | **6** |
+| **Tổng** | **9** | **3** | **6** |
 
-**Mẫu hỏng lặp lại — đáng chú ý:** GAP-004, GAP-005 và GAP-006 cùng một cơ chế — *một giá trị sai
+**Mẫu hỏng lặp lại — ĐÃ BỐN LẦN:** GAP-004, GAP-005, GAP-006 và GAP-009 cùng một cơ chế — *một giá trị sai
 hoặc lệch ở nguồn lan âm thầm ra mọi thứ dẫn xuất từ nó*. Cùng cơ chế với lý do
 `metrics.json` được đóng băng làm nguồn duy nhất. Khi thấy một giá trị xuất hiện ở nhiều
 file, hỏi ngay: **file nào là nguồn, và ai đã kiểm chứng nguồn đó?**
