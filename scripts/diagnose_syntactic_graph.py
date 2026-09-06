@@ -17,6 +17,10 @@ CHI SO QUAN TRONG NHAT: ti le Example co do thi BI CHIA CAT (>1 thanh phan
 lien thong). GCN lan truyen theo canh — neu token khia canh va tu cam xuc nam
 o hai thanh phan roi nhau thi them bao nhieu lop GCN cung khong noi duoc chung.
 
+GAP-007 phuong an C (chot 06/09/2026): script cung do luon chi phi cua bien the
+`asgcn_linked` (link_roots=True) so voi `asgcn` (link_roots=False), de biet truoc
+bien the noi root "dat" hon bao nhieu canh.
+
 Ket qua ghi ra results/syntactic_graph_stats.json (KHONG phai metrics.json —
 schema do da dong bang o S0.4, xem PLAN_CHUYENDE1.md muc 6.4).
 
@@ -77,8 +81,13 @@ def count_components(heads: list[int]) -> int:
 
 def analyse(examples: list[Example], builder: SyntacticGraphBuilder) -> dict:
     n_tokens, n_edges, n_roots, n_comps = [], [], [], []
+    n_edges_linked = []
     deprels: Counter[str] = Counter()
     head_ngoai_pham_vi = self_head = 0
+
+    # GAP-007 phuong an C: do luon chi phi cua bien the noi root, de biet
+    # asgcn_linked "dat" hon asgcn bao nhieu truoc khi chay that.
+    builder_linked = SyntacticGraphBuilder(link_roots=True)
 
     for ex in examples:
         n = len(ex.tokens)
@@ -86,6 +95,7 @@ def analyse(examples: list[Example], builder: SyntacticGraphBuilder) -> dict:
 
         n_tokens.append(n)
         n_edges.append(len(edges))
+        n_edges_linked.append(len(builder_linked.build(ex)))
         n_roots.append(sum(1 for h in ex.heads if h == -1))
         n_comps.append(count_components(ex.heads))
         deprels.update(ex.deprels)
@@ -113,6 +123,12 @@ def analyse(examples: list[Example], builder: SyntacticGraphBuilder) -> dict:
         "canh": {
             "trung_binh": round(statistics.mean(n_edges), 2),
             "tong": sum(n_edges),
+        },
+        "canh_bien_the_noi_root": {
+            "trung_binh": round(statistics.mean(n_edges_linked), 2),
+            "tong": sum(n_edges_linked),
+            "canh_them_vao": sum(n_edges_linked) - sum(n_edges),
+            "ti_le_tang": round((sum(n_edges_linked) / sum(n_edges) - 1) * 100, 1),
         },
         "root_moi_example": {
             "trung_binh": round(statistics.mean(n_roots), 2),
@@ -172,7 +188,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\n--- {split} ---")
         print(f"  Example              : {stats['so_example']:,}")
         print(f"  Token trung binh     : {stats['token']['trung_binh']}")
-        print(f"  Canh trung binh      : {stats['canh']['trung_binh']}")
+        linked = stats["canh_bien_the_noi_root"]
+        print(f"  Canh trung binh      : {stats['canh']['trung_binh']}"
+              f"   (bien the noi root: {linked['trung_binh']}, +{linked['ti_le_tang']}%)")
         print(f"  Root trung binh      : {stats['root_moi_example']['trung_binh']}")
         print(f"  Thanh phan lien thong: {tp['trung_binh']} (toi da {tp['lon_nhat']})")
         print(f"  >> BI CHIA CAT       : {tp['so_example_bi_chia_cat']:,} / {stats['so_example']:,}"

@@ -260,3 +260,136 @@ def test_thanh_phan_lien_thong_khop_so_root_khi_cay_hop_le():
     nhau (2,37) — khong phai trung hop."""
     heads = [1, -1, 3, -1, 5, -1]
     assert count_components(heads) == sum(1 for h in heads if h == -1) == 3
+
+
+# --- GAP-007 phuong an C: bien the link_roots --------------------------------
+#
+# `asgcn` (link_roots=False) va `asgcn_linked` (link_roots=True) khac nhau DUNG
+# MOT BIEN. Hieu so ket qua giua chung do truc tiep tac dong cua viec do thi bi
+# chia cat. Cac test duoi day canh dung mot bien do that su la mot bien duy nhat.
+
+from nsmgat.graphs.syntactic import ETYPE_ROOT_LINK  # noqa: E402
+
+
+@pytest.fixture
+def builder_linked() -> SyntacticGraphBuilder:
+    return SyntacticGraphBuilder(link_roots=True)
+
+
+def test_mac_dinh_la_khong_noi_root(builder):
+    """Mac dinh PHAI la False — `asgcn` khong duoc doi hanh vi vi tham so moi."""
+    assert builder.link_roots is False
+    edges = builder.build(CAU_MAU)
+    assert not any(e.etype.startswith(ETYPE_ROOT_LINK) for e in edges)
+
+
+def test_cay_mot_root_thi_hai_bien_the_giong_het_nhau(builder, builder_linked):
+    """Cau chi co 1 root thi khong co gi de noi -> hai bien the phai trung khop.
+
+    Quan trong: no cho biet hieu so ket qua giua asgcn va asgcn_linked CHI den
+    tu nhung cau nhieu root, dung nhu thiet ke thi nghiem.
+    """
+    a = [(e.src, e.dst, e.etype) for e in builder.build(CAU_MAU)]
+    b = [(e.src, e.dst, e.etype) for e in builder_linked.build(CAU_MAU)]
+    assert a == b
+
+
+def test_rung_hai_root_duoc_noi_lai(builder_linked):
+    """n=4, 2 root => 2*(4-2) canh cu phap + 4 self-loop + 2 canh noi root = 10."""
+    ex = make_example(["a", "b", "c", "d"], [1, -1, 3, -1], ["dep", "root", "dep", "root"])
+    edges = builder_linked.build(ex)
+
+    assert len(edges) == 10
+    noi = [e for e in edges if e.etype.startswith(ETYPE_ROOT_LINK)]
+    assert len(noi) == 2
+    assert {(e.src, e.dst) for e in noi} == {(1, 3), (3, 1)}, "phai noi hai chieu giua 2 root"
+
+
+def test_noi_root_lam_do_thi_lien_thong(builder, builder_linked):
+    """Cot loi cua phuong an C: bien the linked phai xoa duoc su chia cat."""
+    ex = make_example(["a", "b", "c", "d"], [1, -1, 3, -1], ["dep", "root", "dep", "root"])
+
+    def lien_thong(edges, n):
+        par = list(range(n))
+        def f(x):
+            while par[x] != x:
+                par[x] = par[par[x]]; x = par[x]
+            return x
+        for e in edges:
+            a, b = f(e.src), f(e.dst)
+            if a != b:
+                par[a] = b
+        return len({f(i) for i in range(n)})
+
+    assert lien_thong(builder.build(ex), 4) == 2, "giu nguyen: 2 manh roi nhau"
+    assert lien_thong(builder_linked.build(ex), 4) == 1, "noi root: lien thong"
+
+
+def test_noi_theo_CHUOI_khong_phai_hinh_sao(builder_linked):
+    """3 root -> noi 1-2 va 2-3, KHONG noi 1-3.
+
+    Chuoi giu duoc trat tu tuyen tinh cua dien ngon: hai cau lien ke lien quan
+    nhau hon hai cau cach xa. Hinh sao se lam moi cau cach root dau dung 1 buoc.
+    """
+    ex = make_example(list("abcdef"), [-1, 0, -1, 2, -1, 4], ["root", "d", "root", "d", "root", "d"])
+    noi = {(e.src, e.dst) for e in builder_linked.build(ex) if e.etype.startswith(ETYPE_ROOT_LINK)}
+
+    assert noi == {(0, 2), (2, 0), (2, 4), (4, 2)}
+    assert (0, 4) not in noi and (4, 0) not in noi, "khong duoc noi truc tiep root dau va root cuoi"
+
+
+def test_canh_noi_root_phan_biet_duoc_bang_etype(builder_linked):
+    """Canh nhan tao PHAI phan biet duoc voi canh cu phap that.
+
+    Day la khac biet cot loi so voi phuong an D (ep parse): o do canh sai
+    nguy trang thanh cu phap that, khong tach ra duoc.
+    """
+    ex = make_example(["a", "b"], [-1, -1], ["root", "root"])
+    edges = builder_linked.build(ex)
+
+    nhan_tao = [e for e in edges if e.etype.startswith(ETYPE_ROOT_LINK)]
+    that = [e for e in edges if e.etype.startswith("DEP:") and not e.etype.startswith(ETYPE_ROOT_LINK)]
+
+    assert nhan_tao and all(e.etype in (ETYPE_ROOT_LINK, f"{ETYPE_ROOT_LINK}_rev") for e in nhan_tao)
+    assert all(not e.etype.startswith(ETYPE_ROOT_LINK) for e in that)
+
+
+def test_cong_thuc_so_canh_khi_noi_root(builder_linked):
+    """Khi noi root, so canh luon = 3n - 2 BAT KE co bao nhieu root.
+
+    Chung minh: 2*(n-r) canh cu phap + n self-loop + 2*(r-1) canh noi
+              = 2n - 2r + n + 2r - 2 = 3n - 2
+    """
+    for heads, deprels in [
+        ([2, 2, -1], ["nsubj", "adv", "root"]),
+        ([1, -1, 3, -1], ["dep", "root", "dep", "root"]),
+        ([-1, -1, -1], ["root", "root", "root"]),
+    ]:
+        n = len(heads)
+        ex = make_example([f"t{i}" for i in range(n)], heads, deprels)
+        assert len(builder_linked.build(ex)) == 3 * n - 2, f"heads={heads}"
+
+
+def test_khong_noi_gi_khi_cau_rong_hoac_mot_token(builder_linked):
+    assert builder_linked.build(make_example([], [], [])) == []
+    edges = builder_linked.build(make_example(["x"], [-1], ["root"]))
+    assert len(edges) == 1 and edges[0].etype == ETYPE_SELF
+
+
+def test_bien_the_linked_chay_duoc_tren_du_lieu_that(builder, builder_linked):
+    """Tren du lieu that: linked phai luon co >= so canh cua ban giu nguyen,
+    va phan chenh lech dung bang 2*(so root - 1)."""
+    import json
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[1] / "data" / "processed" / "visfd_train.jsonl"
+    if not path.exists():
+        pytest.skip("chua co data/processed")
+
+    with path.open(encoding="utf-8") as fh:
+        examples = [Example.from_dict(json.loads(next(fh))) for _ in range(50)]
+
+    for ex in examples:
+        n_root = sum(1 for h in ex.heads if h == -1)
+        chenh = len(builder_linked.build(ex)) - len(builder.build(ex))
+        assert chenh == max(0, 2 * (n_root - 1)), ex.uid

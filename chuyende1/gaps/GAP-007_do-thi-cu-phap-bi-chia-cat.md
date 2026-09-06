@@ -1,7 +1,8 @@
 # GAP-007 — Hơn một nửa đồ thị cú pháp bị chia cắt thành nhiều thành phần
 
 **Ngày phát hiện:** 02/09/2026 · **Phát hiện bởi:** Claude Code (khi làm CD1.3)
-**Loại:** phương pháp · **Mức độ:** **nghiêm trọng** (ảnh hưởng trực tiếp 2 baseline) · **Trạng thái:** 🔴 Mở — cần học viên quyết
+**Loại:** phương pháp · **Mức độ:** **nghiêm trọng** (ảnh hưởng trực tiếp 2 baseline)
+**Trạng thái:** 🟡 **ĐÃ CHỐT PHƯƠNG ÁN C (06/09/2026)** — hạ tầng xong, chờ chạy ở CD1.6a
 
 ---
 
@@ -153,6 +154,54 @@ nêu ở mục 6.3 (hướng phát triển).
 **Giá trị của việc đã thử:** con số 24,8 % chứng minh giữ nguyên ranh giới câu là đúng, và
 biến câu hỏi *"sao không cho parser đọc cả bình luận?"* thành một đoạn có bằng chứng trong
 mục 4.3 của báo cáo.
+
+
+## 5c. QUYẾT ĐỊNH CUỐI — phương án C, chốt 06/09/2026
+
+Học viên chọn **phương án C**. Đã cài đặt xong phần hạ tầng ở CD1.3:
+
+| Việc | Trạng thái |
+|---|---|
+| Tham số `link_roots` trong `SyntacticGraphBuilder` (mặc định `False`) | ✅ |
+| 9 test cho biến thể nối root | ✅ |
+| `diagnose_syntactic_graph.py` báo cả chi phí biến thể | ✅ |
+| `configs/asgcn.yaml` + `configs/asgcn_linked.yaml` | ⏳ **CD1.6a** — chưa tạo vì `asgcn` chưa tồn tại (quy tắc 6: không viết logic của step chưa tới) |
+| Chạy thí nghiệm và đo hiệu số | ⏳ **CD1.6a**, Tuần 5 |
+
+### Thiết kế đã chốt
+
+| Quyết định | Chọn | Vì sao |
+|---|---|---|
+| Mặc định `link_roots` | **`False`** | `asgcn` phải giữ nguyên hành vi cũ; không được đổi ngầm vì một tham số mới |
+| Cách nối | **Chuỗi** (root₁↔root₂↔root₃) | Giữ trật tự tuyến tính của diễn ngôn: hai câu liền kề liên quan nhau hơn hai câu cách xa. Hình sao sẽ làm mọi câu cách root đầu đúng 1 bước |
+| Hướng cạnh | **Hai chiều** | Nhất quán với mọi cạnh cú pháp khác; GCN cần cả hai chiều |
+| `conf` | **1.0** | Không đặt số < 1 vì **không có cơ sở nào biện minh cho một giá trị cụ thể** — đúng cái bẫy *"confidence = 0,92 ở đâu ra?"* mà `PLAN_NSMGAT.md` cảnh báo |
+| Phân biệt cạnh nhân tạo | **Bằng `etype`** riêng `DEP:root_link` | CĐ1: ASGCN đối xử mọi cạnh như nhau, ta chỉ đo có/không. CĐ2: NS-MGAT có thể học trọng số riêng cho etype này |
+
+### Chi phí thật đo được
+
+```
+Cạnh trung bình mỗi Example:
+  asgcn         : 112,57  (train)
+  asgcn_linked  : 115,32  (+2,4 %)
+```
+
+Rẻ hơn dự tính — biến thể chỉ thêm `2·(số root − 1)` cạnh.
+
+**Bất biến toán học đáng chú ý:** với `link_roots=True`, số cạnh **luôn** bằng `3n − 2`
+bất kể có bao nhiêu root:
+
+```
+2·(n − r) cạnh cú pháp + n self-loop + 2·(r − 1) cạnh nối = 3n − 2
+```
+
+Có test canh bất biến này (`test_cong_thuc_so_canh_khi_noi_root`).
+
+### ⚠️ Ràng buộc bắt buộc cho CD1.6a
+
+`configs/asgcn.yaml` và `configs/asgcn_linked.yaml` phải **giống hệt nhau ở MỌI tham số**,
+chỉ khác `link_roots`. Lệch một siêu tham số nào thì hiệu số mất ý nghĩa và cả thí nghiệm
+thành vô dụng.
 
 ## 6. Bài học
 
