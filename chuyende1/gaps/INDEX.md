@@ -42,11 +42,11 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | Loại | Số lượng | Đã sửa/đóng | Còn mở |
 |---|---|---|---|
 | Kế hoạch | 1 | 0 | 1 |
-| Code | 0 | 0 | 0 |
+| Code | 1 | 1 | 0 |
 | Tài liệu | 4 | 3 | 1 |
 | Số liệu | 1 | 0 | 1 |
 | Phương pháp | 3 | 0 | 3 (1 nhẹ đi, 1 đã chốt phương án) |
-| **Tổng** | **9** | **3** | **6** |
+| **Tổng** | **10** | **4** | **6** |
 
 **Mẫu hỏng lặp lại — ĐÃ BỐN LẦN:** GAP-004, GAP-005, GAP-006 và GAP-009 cùng một cơ chế — *một giá trị sai
 hoặc lệch ở nguồn lan âm thầm ra mọi thứ dẫn xuất từ nó*. Cùng cơ chế với lý do
