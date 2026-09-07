@@ -42,8 +42,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 import torch  # noqa: E402
 
 from nsmgat.models.lexicon import LexiconModel  # noqa: E402
-from nsmgat.train import load_config  # noqa: E402
-from nsmgat.utils.io import read_jsonl  # noqa: E402
+from nsmgat.utils.io import load_config, read_jsonl  # noqa: E402
 
 TEN_NHAN = ["tiêu cực", "trung tính", "tích cực"]
 CKPT = REPO_ROOT / "checkpoints" / "lexicon" / "seed42" / "best.pt"
@@ -64,7 +63,13 @@ class BoTachTu:
             self._model = VnCorePipeline()
             self.co_vncorenlp = True
         except Exception as exc:  # thieu Java / thieu model / bat ky loi nao
-            print(f"  (khong dung duoc VnCoreNLP: {type(exc).__name__} — tach theo khoang trang)")
+            print(
+                f"\n  ⚠ Khong dung duoc VnCoreNLP ({type(exc).__name__}) — tach theo khoang trang.\n"
+                "    Hau qua: tu ghep bi tach doi, vi du 'man hinh' -> 'man' + 'hinh' thay vi\n"
+                "    'man_hinh', nen tra cuu tu dien KEM CHINH XAC. Diem se lech chut it.\n"
+                "    Muon chinh xac, chay bang Python cua moi truong ao:\n"
+                "        .venv\\Scripts\\python.exe scripts/try_lexicon.py ...\n"
+            )
 
     def tach(self, text: str) -> list[str]:
         if self._model is not None:

@@ -28,7 +28,10 @@ from nsmgat.models.base import BaseModel
 from nsmgat.models.dummy import DummyModel
 from nsmgat.models.lexicon import LexiconModel
 from nsmgat.trainer import Trainer, resolve_device
-from nsmgat.utils.io import load_yaml
+# load_config nam o utils/io.py de cong cu nho khong bi keo theo transformers
+# (xem ghi chu trong ham do). Van import lai o day de
+# `from nsmgat.train import load_config` khong gay.
+from nsmgat.utils.io import load_config  # noqa: F401
 from nsmgat.utils.logging import get_logger
 from nsmgat.utils.seed import set_seed
 
@@ -40,31 +43,6 @@ MODEL_REGISTRY: Dict[str, Type[BaseModel]] = {
     "dummy": DummyModel,
     "lexicon": LexiconModel,  # [CD1.4a] baseline tu dien — san tuyet doi
 }
-
-
-def load_config(path: str | Path) -> Dict[str, Any]:
-    """Doc YAML, ho tro ke thua qua khoa "extends: <file cung thu muc>".
-
-    Config con chi can ghi de truong khac base.yaml; cac truong khong ghi
-    de duoc giu nguyen tu file cha (deep-merge theo tung cap dict).
-    """
-    path = Path(path)
-    cfg = load_yaml(path) or {}
-    parent_name = cfg.pop("extends", None)
-    if parent_name:
-        parent_cfg = load_config(path.parent / parent_name)
-        cfg = _deep_merge(parent_cfg, cfg)
-    return cfg
-
-
-def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
-    merged = dict(base)
-    for key, value in override.items():
-        if isinstance(value, dict) and isinstance(merged.get(key), dict):
-            merged[key] = _deep_merge(merged[key], value)
-        else:
-            merged[key] = value
-    return merged
 
 
 def _config_hash(cfg: Dict[str, Any]) -> str:

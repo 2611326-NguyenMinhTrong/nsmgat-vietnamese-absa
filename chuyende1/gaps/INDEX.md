@@ -31,6 +31,7 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | [GAP-007](GAP-007_do-thi-cu-phap-bi-chia-cat.md) | 02/09/2026 | Phương pháp | **Nghiêm trọng** | **52,2 % Example có đồ thị cú pháp bị chia cắt** (2–32 mảnh rời nhau). Đo sâu hơn: chỉ 12,5 % câu chuyển ý bị đứt → nhẹ hơn lo ngại ban đầu | 🟡 **Đã chốt phương án C** (06/09) — hạ tầng `link_roots` xong + 9 test; chờ chạy ở CD1.6a. Đã thử và loại phương án D (ép parse: đổi 24,8% head) |
 | [GAP-008](GAP-008_train-time-bi-nhiem-chi-phi-tokenize.md) | 06/09/2026 | Số liệu | Nhẹ (sẽ nặng ở CD1.10) | `train_time_sec` gồm cả tokenize PhoBERT mà `lexicon` không dùng — ~127/198 s là lãng phí, sẽ thổi phồng chi phí baseline rẻ nhất trong bảng 4.5 | 🔴 Mở — xử lý ở CD1.10 |
 | [GAP-009](GAP-009_bang-phu-luc-lech-danh-so.md) | 06/09/2026 | Tài liệu | Nhẹ | Bảng phụ lục trong plan còn đánh số CD1.x cũ sau khi sửa GAP-006 — tồn tại 4 ngày | ✅ Đã sửa |
+| [GAP-010](GAP-010_cong-cu-nho-keo-theo-transformers.md) | 07/09/2026 | Code | Nhẹ | `try_lexicon.py` sập vì `load_config` nằm trong `train.py` — kéo theo cả `transformers` chỉ để đọc YAML | ✅ Đã sửa |
 
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 

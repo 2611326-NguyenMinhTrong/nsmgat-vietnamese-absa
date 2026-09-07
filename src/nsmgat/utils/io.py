@@ -35,6 +35,37 @@ def load_yaml(path: str | Path) -> Any:
         return yaml.safe_load(f)
 
 
+def _deep_merge(base: dict, override: dict) -> dict:
+    """Gop hai dict long nhau: gia tri o `override` thang, theo tung cap."""
+    merged = dict(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def load_config(path: str | Path) -> dict:
+    """Doc YAML config, ho tro ke thua qua khoa "extends: <file cung thu muc>".
+
+    Config con chi can ghi de truong khac base.yaml; cac truong khong ghi de
+    duoc giu nguyen tu file cha (deep-merge theo tung cap dict).
+
+    Nam o day chu KHONG o train.py vi day thuan tuy la doc file — khong lien
+    quan gi toi huan luyen. De trong train.py thi moi cong cu nho muon doc
+    config deu bi keo theo ca `transformers` + `torch` (train.py import
+    AutoTokenizer o cap module). Da gap that: scripts/try_lexicon.py sap vi
+    ModuleNotFoundError: transformers, du LexiconModel khong dung tokenizer.
+    """
+    path = Path(path)
+    cfg = load_yaml(path) or {}
+    parent_name = cfg.pop("extends", None)
+    if parent_name:
+        cfg = _deep_merge(load_config(path.parent / parent_name), cfg)
+    return cfg
+
+
 def save_json(path: str | Path, obj: Any) -> None:
     """Ghi 1 object ra file JSON (indent=2, giu nguyen tieng Viet)."""
     path = Path(path)
