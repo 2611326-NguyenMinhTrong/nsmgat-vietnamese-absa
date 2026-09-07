@@ -219,3 +219,63 @@ GAP-002 vẫn mở. Đã sửa lại mô tả trong plan.
 | Câu hỏi của học viên | Trả lời tóm tắt | Có dẫn tới thay đổi code không |
 |---|---|---|
 | | | |
+
+---
+
+## BỔ SUNG 07/09/2026 — công cụ thử tay `scripts/try_lexicon.py`
+
+Học viên hỏi: *"có cách nào để tôi test chạy thử các hàm lexicon đã code không?"*
+
+Trước đó chỉ có 3 cách chạy, không cách nào cho phép **gõ một câu bất kỳ và xem mô hình
+nghĩ gì**:
+
+| Cách có sẵn | Trả lời được câu hỏi gì |
+|---|---|
+| `pytest tests/test_lexicon.py` | "Code có đúng không" |
+| `python -m nsmgat.train ...` | "Chạy hết tập test thì được bao nhiêu điểm" |
+| `python scripts/build_lexicon_from_train.py` | "Từ điển sinh ra thế nào" |
+| **`python scripts/try_lexicon.py`** ← mới | **"Mô hình nghĩ gì về CÂU NÀY, và vì sao"** |
+
+### Nguyên tắc thiết kế quan trọng nhất
+
+Công cụ gọi **đúng code thật** của mô hình (`model._dac_trung()`, `model.calibrate`), không
+viết lại logic. Nếu viết lại, công cụ và mô hình có thể lệch nhau — và học viên sẽ tin vào
+một thứ không phải mô hình thật. Đúng loại lỗi mà cả repo này đang chống (xem mẫu hỏng lặp
+lại ở `gaps/INDEX.md`).
+
+Hệ quả kỹ thuật: để gọi được `_dac_trung(uid)` cho câu gõ tay, phải chèn tạm một uid vào
+`model.uid_to_tokens`. Đây là **sửa trạng thái mô hình** → có 2 test riêng canh việc dọn sạch
+sau khi chạy, và canh việc gõ hai câu liên tiếp không bị dùng lại cache của câu trước.
+
+### Năm chế độ
+
+```bash
+python scripts/try_lexicon.py                       # tương tác
+python scripts/try_lexicon.py --text "pin rất trâu nhưng màn hình hơi tối"
+python scripts/try_lexicon.py --word tuyet_voi      # gõ KHÔNG DẤU vẫn tra được
+python scripts/try_lexicon.py --top 15
+python scripts/try_lexicon.py --uid visfd-test-00042-BATTERY
+python scripts/try_lexicon.py --sai 10              # ca mô hình đoán SAI
+```
+
+### Một lỗi phát hiện khi tự thử
+
+Lần chạy đầu, `--word tuyet_voi` (không dấu) trả về gợi ý rác: `_`, `e`, `i`, `o` — vì so
+khớp chuỗi con quá thô (`key in k or k in key` khớp cả ký tự đơn). Đã sửa: bỏ dấu để so
+khớp, và chỉ gợi ý từ dài ≥ 3 ký tự. Có test canh (`test_tra_tu_khong_co_thi_khong_goi_y_rac`).
+
+### Giá trị cho báo cáo
+
+Chế độ `--sai` là nguyên liệu trực tiếp cho **mục 5.3 (ca điển hình)**. Bốn ca đầu tiên đã
+cho thấy rõ giới hạn mù khía cạnh:
+
+```
+[visfd-test-00001-PERFORMANCE]  vàng=tích cực  đoán=tiêu cực
+[visfd-test-00001-SER&ACC]      vàng=tích cực  đoán=tiêu cực
+   ^ CÙNG MỘT CÂU, hai khía cạnh, cùng một dự đoán — vì mô hình mù khía cạnh
+```
+
+Và câu `"pin rất trâu nhưng màn hình hơi tối"` minh hoạ hoàn hảo trong một dòng: BATTERY nên
+là tích cực, SCREEN nên là tiêu cực, nhưng mô hình chỉ đưa ra **một** dự đoán cho cả hai.
+
+**Test:** +12 (137 toàn repo, xanh).

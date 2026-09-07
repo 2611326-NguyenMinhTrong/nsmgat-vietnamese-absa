@@ -74,6 +74,7 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `tests/test_ute_docx.py` | [CD1.1] Kiểm định dạng thay cho việc in ra đo bằng thước |
 | `scripts/survey_tools.py` | [CD1.2] `validate` / `stats` / `table` cho ma trận khảo sát. **Cưỡng chế quy tắc số 7**: dòng `chua_kiem` không thể lọt vào Bảng 3.9 |
 | `tests/test_survey_tools.py` | [CD1.2] Kiểm chốt chặn chống bịa trích dẫn |
+| `scripts/try_lexicon.py` | [CD1.4a] Công cụ thử tay `LexiconModel` — gõ câu bất kỳ, xem điểm từng token và dự đoán. Gọi đúng code thật của mô hình, không viết lại logic |
 | `requirements.txt` | [CD1.1] Thêm `python-docx>=1.1` — CI cài từ file này |
 | `data/diagnostic/` | Tập chẩn đoán 300 câu (CD1.8) |
 | `docs/annotation_guideline.md` | Hướng dẫn chú thích (S6.2) |
