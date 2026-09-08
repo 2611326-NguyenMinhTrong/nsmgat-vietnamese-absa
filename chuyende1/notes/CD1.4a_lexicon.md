@@ -132,6 +132,31 @@ Và nó minh hoạ hoàn hảo vì sao plan chọn **macro-F1** làm độ đo c
 
 Nếu báo cáo chỉ dùng accuracy, sai lầm này sẽ không ai thấy.
 
+## BỔ SUNG 09/09/2026 — chạy đủ 3 seed
+
+Ban đầu chỉ chạy seed 42 vì tưởng mô hình tất định. Chạy đủ 3 seed theo yêu cầu học viên:
+
+| seed | accuracy | macro-F1 | F1 tiêu cực | F1 trung tính | F1 tích cực |
+|---|---|---|---|---|---|
+| 42 | 0,7471 | 0,5242 | 0,7545 | **0,0000** | 0,8180 |
+| 1337 | 0,7468 | 0,5239 | 0,7540 | **0,0000** | 0,8178 |
+| 2024 | 0,7468 | 0,5239 | 0,7537 | **0,0000** | 0,8179 |
+| **TB ± σ** | **0,7469 ± 0,0002** | **0,5240 ± 0,0002** | | **0,0000** | |
+
+**Hai điều học được:**
+
+1. **σ khác 0, nhưng nhỏ tới mức không đổi bất kỳ kết luận nào** (0,0002 — so với 0,0062 của
+   `bilstm`, tức nhỏ hơn 30 lần). Mô hình vẫn có phần ngẫu nhiên thật: lớp hiệu chỉnh 9 tham
+   số được khởi tạo ngẫu nhiên. Nên đây **không** rơi vào trường hợp GAP-003 (chạy nhiều
+   seed cho σ = 0 giả tạo) — chạy 3 seed là hợp lệ, chỉ là không cho thêm thông tin gì.
+
+2. **F1 trung tính = 0,0000 ở CẢ BA seed.** Đây mới là điều đáng giá của việc chạy thêm:
+   sự sụp đổ của lớp trung tính **không phải rủi may của một seed**. Không một Example nào
+   trong 6.722 mẫu test được đoán là trung tính, ở bất kỳ seed nào. Kết luận ở Phát hiện 1
+   giờ đứng vững hơn hẳn.
+
+---
+
 ### 🔴 Phát hiện 2 — trần mù khía cạnh: 80,88 % (trên test)
 
 Nhãn khía cạnh của UIT-ViSFD là mã phạm trù **tiếng Anh** (`BATTERY`, `CAMERA`, `SER&ACC`)

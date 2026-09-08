@@ -13,6 +13,8 @@ data/processed/*.jsonl
 results/*/*.pt
 checkpoints/
 /logs/
+# Ban lam viec tam khi sua bang Excel — nguon su that la file .csv
+chuyende1/survey/*.xlsx
 
 # VnCoreNLP: jar + model tai ve tu dong o S0.3 (~100MB, tai nguyen ben thu 3)
 /vncorenlp/

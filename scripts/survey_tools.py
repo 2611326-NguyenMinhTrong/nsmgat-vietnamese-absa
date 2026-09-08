@@ -103,7 +103,7 @@ class MalformedCSV(Exception):
 
 
 def load_rows(path: Path = DEFAULT_CSV) -> list[dict[str, str]]:
-    with path.open(encoding="utf-8", newline="") as fh:
+    with path.open(encoding="utf-8-sig", newline="") as fh:
         reader = csv.reader(fh)
         try:
             header = next(reader)
@@ -304,9 +304,151 @@ def cmd_table(rows, out_path: Path) -> int:
     return 0
 
 
+# --- Cau noi Excel ------------------------------------------------------------
+#
+# VI SAO CAN: mo thang file .csv bang Excel tren may Windows tieng Viet cho ra
+# hai loi cung luc (da gap that ngay 09/09/2026):
+#   1. Chu tieng Viet thanh rac: "[CẦN TÌM]" -> "[Cáº¦N TÃŒM]". Vi file la
+#      UTF-8 khong BOM, Excel doan nham la ma ANSI cua he thong.
+#   2. Ca dong nam gon trong cot A. Vi dau tach danh sach cua Windows locale
+#      tieng Viet la ";" chu khong phai ",".
+#
+# Them BOM chi chua duoc loi 1. Loi 2 khong sua duoc tu phia file (tru khi doi
+# sang ";", nhung the thi khong con la CSV chuan cho git/pandas). Nen cach gon
+# nhat la lam mot vong: xuat ra .xlsx de sua cho thoai mai, roi nhap nguoc lai.
+#
+#   .venv\Scripts\python.exe scripts/survey_tools.py excel      # csv -> xlsx
+#   ... sua trong Excel roi luu ...
+#   .venv\Scripts\python.exe scripts/survey_tools.py tu-excel   # xlsx -> csv
+#
+# File .csv van la NGUON SU THAT (git theo doi no, moi cong cu doc no).
+# File .xlsx chi la ban lam viec tam.
+
+DEFAULT_XLSX = DEFAULT_CSV.with_suffix(".xlsx")
+
+
+def cmd_excel(rows: list[dict[str, str]], columns: list[str], out: Path) -> int:
+    """Xuat CSV ra .xlsx de sua bang Excel ma khong vap ma hoa lan dau tach cot."""
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Alignment, Font, PatternFill
+        from openpyxl.worksheet.datavalidation import DataValidation
+    except ImportError:
+        print(r"Thieu openpyxl. Cai bang:  .venv\Scripts\python.exe -m pip install openpyxl",
+              file=sys.stderr)
+        return 1
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "survey_matrix"
+
+    ws.append(columns)
+    for o in ws[1]:
+        o.font = Font(bold=True)
+        o.fill = PatternFill("solid", fgColor="DDEBF7")
+        o.alignment = Alignment(vertical="center", wrap_text=True)
+
+    for r in rows:
+        ws.append([r.get(c, "") for c in columns])
+
+    # Do rong cot theo noi dung, chan tren 60 de khong co cot nao qua kho nhin
+    for i, c in enumerate(columns, start=1):
+        dai = max([len(c)] + [len(str(r.get(c, ""))) for r in rows])
+        ws.column_dimensions[ws.cell(row=1, column=i).column_letter].width = min(max(dai + 2, 12), 60)
+
+    ws.freeze_panes = "B2"  # giu header va cot ref_key khi cuon
+
+    # Khoa cot trang_thai vao 3 gia tri hop le — chan loi go sai ngay tu Excel,
+    # thay vi de `validate` bao loi sau khi da sua ca file.
+    if "trang_thai" in columns:
+        cot = ws.cell(row=1, column=columns.index("trang_thai") + 1).column_letter
+        dv = DataValidation(
+            type="list", formula1=f'"{",".join(VALID_STATUS)}"', allow_blank=False,
+            errorTitle="Trang thai khong hop le",
+            error=f"Chi duoc mot trong: {', '.join(VALID_STATUS)}",
+        )
+        ws.add_data_validation(dv)
+        dv.add(f"{cot}2:{cot}{len(rows) + 1}")
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        wb.save(out)
+    except PermissionError:
+        print(f"Khong ghi duoc {out} — file dang bi mo trong Excel. Dong no roi chay lai.",
+              file=sys.stderr)
+        return 1
+    print(f"OK -> {out}  ({len(rows)} dong x {len(columns)} cot)")
+    print()
+    print("Sua xong thi nhap nguoc lai bang:")
+    print(r"  .venv\Scripts\python.exe scripts/survey_tools.py tu-excel")
+    print()
+    print("LUU Y: file .csv moi la nguon su that. File .xlsx chi la ban lam viec,")
+    print("khong commit — sua xong nho nhap nguoc lai roi moi commit .csv.")
+    return 0
+
+
+def cmd_tu_excel(xlsx: Path, csv_path: Path, columns: list[str]) -> int:
+    """Nhap .xlsx nguoc lai .csv, giu nguyen thu tu cot."""
+    try:
+        from openpyxl import load_workbook
+    except ImportError:
+        print("Thieu openpyxl.", file=sys.stderr)
+        return 1
+
+    if not xlsx.exists():
+        print(f"Khong thay {xlsx}. Chay `excel` truoc de xuat ra.", file=sys.stderr)
+        return 1
+
+    ws = load_workbook(xlsx, data_only=True).active
+    du_lieu = list(ws.iter_rows(values_only=True))
+    if not du_lieu:
+        print("File Excel rong.", file=sys.stderr)
+        return 1
+
+    header = [str(c or "").strip() for c in du_lieu[0]]
+    if header != columns:
+        print("Header trong Excel da bi doi — khong nhap nguoc duoc.", file=sys.stderr)
+        print(f"  Mong doi: {columns}", file=sys.stderr)
+        print(f"  Nhan duoc: {header}", file=sys.stderr)
+        print("  Dung them/bot/doi ten cot trong Excel; chi sua NOI DUNG o.", file=sys.stderr)
+        return 1
+
+    ban_ghi = []
+    for hang in du_lieu[1:]:
+        o = ["" if v is None else str(v).strip() for v in hang]
+        if not any(o):
+            continue
+        o += [""] * (len(columns) - len(o))
+        ban_ghi.append(o[:len(columns)])
+
+    # utf-8-sig: giu BOM de lan sau mo thang bang Excel van doc dung tieng Viet
+    try:
+        with csv_path.open("w", encoding="utf-8-sig", newline="") as fh:
+            w = csv.writer(fh)
+            w.writerow(columns)
+            w.writerows(ban_ghi)
+    except PermissionError:
+        # Hay gap: chinh file .csv dang mo trong Excel. Bao ro thay vi do
+        # traceback — va nhat la KHONG duoc ghi de mot phan roi bo do.
+        print(f"Khong ghi duoc {csv_path} — file dang bi mo boi chuong trinh khac.",
+              file=sys.stderr)
+        print("  Thuong la Excel dang mo chinh file .csv nay. Dong no roi chay lai.",
+              file=sys.stderr)
+        print("  Khong co gi bi ghi de — file .csv van nguyen ven.", file=sys.stderr)
+        return 1
+
+    print(f"OK -> {csv_path}  ({len(ban_ghi)} dong)")
+    print()
+    print("Chay kiem tra ngay:")
+    print(r"  .venv\Scripts\python.exe scripts/survey_tools.py validate")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=("validate", "stats", "table"))
+    parser.add_argument("command", choices=("validate", "stats", "table", "excel", "tu-excel"))
+    parser.add_argument("--xlsx", type=Path, default=None,
+                        help="Duong dan file Excel (mac dinh: canh file csv)")
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV)
     parser.add_argument("-o", "--out", type=Path, default=DEFAULT_TABLE_OUT)
     args = parser.parse_args(argv)
@@ -315,7 +457,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Không thấy file: {args.csv}", file=sys.stderr)
         return 1
 
-    with args.csv.open(encoding="utf-8", newline="") as fh:
+    with args.csv.open(encoding="utf-8-sig", newline="") as fh:
         columns = next(csv.reader(fh))
 
     try:
@@ -324,6 +466,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"FILE CSV SAI CẤU TRÚC\n\n{err}", file=sys.stderr)
         return 1
 
+    xlsx = args.xlsx or args.csv.with_suffix(".xlsx")
+    if args.command == "excel":
+        return cmd_excel(rows, columns, xlsx)
+    if args.command == "tu-excel":
+        return cmd_tu_excel(xlsx, args.csv, columns)
     if args.command == "validate":
         return cmd_validate(rows, columns)
     if args.command == "stats":
