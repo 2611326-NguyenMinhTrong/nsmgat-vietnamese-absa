@@ -1,0 +1,31 @@
+# [CD1.4b] BiLSTM + attention theo khia canh — MOC TRUOC KY NGUYEN TIEN HUAN LUYEN.
+#
+# Ban GVHD duyet (docs/Tom_Tat_Dinh_Huong_Final.docx muc 1) liet ke "BiLSTM/Bi-GRU"
+# trong nhom can thuc nghiem lai.
+#
+# Chay:
+#     python -m nsmgat.train --config configs/bilstm.yaml --model bilstm --seed 42
+
+extends: base.yaml
+
+model:
+  name: bilstm
+  # Tokenizer PhoBERT dung CHUNG voi `phobert` de bot mot bien gay nhieu khi
+  # so sanh. Nhung bang nhung KHOI TAO NGAU NHIEN — khong nap trong so PhoBERT.
+  encoder_name: vinai/phobert-base-v2
+  emb_dim: 300 # co dien cho embedding hoc tu dau (co GloVe/word2vec)
+  aspect_dim: 64
+  lstm_hidden: 256 # 2*256 = 512 chieu sau khi noi hai chieu
+  lstm_layers: 1
+  rnn_type: lstm # "gru" neu muon Bi-GRU
+  dropout: 0.3 # cao hon base (0.1): hoc tu dau tren 23.8k mau rat de qua khop
+
+train:
+  # Hoc TU DAU nen lr phai lon hon fine-tune PLM (2e-5) hai bac do lon,
+  # va can nhieu epoch hon de hoi tu.
+  lr: 1.0e-3
+  epochs: 30
+  batch_size: 64
+  early_stop_patience: 5
+  weight_decay: 0.01
+  warmup_ratio: 0.05

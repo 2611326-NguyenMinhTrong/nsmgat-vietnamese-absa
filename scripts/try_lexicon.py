@@ -35,6 +35,11 @@ import json
 import sys
 from pathlib import Path
 
+# Console Windows mac dinh la cp1252, khong in duoc chu tieng Viet co dau ->
+# UnicodeEncodeError. Ep stdout ve UTF-8 ngay dau chuong trinh.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))

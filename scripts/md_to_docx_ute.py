@@ -43,6 +43,12 @@ from ute_docx import (  # noqa: E402
     set_page_numbering,
 )
 
+# Console Windows mac dinh la cp1252, khong in duoc chu tieng Viet co dau ->
+# UnicodeEncodeError. Ep stdout ve UTF-8 ngay dau chuong trinh.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+
 # --- Định dạng trong dòng: **đậm**, *nghiêng*, `mã` --------------------------
 
 INLINE_PATTERN = re.compile(r"(\*\*.+?\*\*|(?<!\*)\*[^*]+?\*(?!\*)|`[^`]+?`)")

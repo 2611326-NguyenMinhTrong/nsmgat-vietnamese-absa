@@ -32,6 +32,10 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | [GAP-008](GAP-008_train-time-bi-nhiem-chi-phi-tokenize.md) | 06/09/2026 | Số liệu | Nhẹ (sẽ nặng ở CD1.10) | `train_time_sec` gồm cả tokenize PhoBERT mà `lexicon` không dùng — ~127/198 s là lãng phí, sẽ thổi phồng chi phí baseline rẻ nhất trong bảng 4.5 | 🔴 Mở — xử lý ở CD1.10 |
 | [GAP-009](GAP-009_bang-phu-luc-lech-danh-so.md) | 06/09/2026 | Tài liệu | Nhẹ | Bảng phụ lục trong plan còn đánh số CD1.x cũ sau khi sửa GAP-006 — tồn tại 4 ngày | ✅ Đã sửa |
 | [GAP-010](GAP-010_cong-cu-nho-keo-theo-transformers.md) | 07/09/2026 | Code | Nhẹ | `try_lexicon.py` sập vì `load_config` nằm trong `train.py` — kéo theo cả `transformers` chỉ để đọc YAML | ✅ Đã sửa |
+| [GAP-011](GAP-011_khong-ai-ghi-predictions-jsonl.md) | 08/09/2026 | Code | **Nghiêm trọng** | `MODULE.md` đòi `predictions.jsonl` nhưng KHÔNG có dòng code nào ghi nó — chặn CD1.9 (phân tích lỗi) và phần kiểm định ý nghĩa thống kê ở CD1.10 | 🔴 Mở |
+| [GAP-012](GAP-012_tieu-chi-hoan-thanh-con-dem-4-thi-nghiem.md) | 08/09/2026 | Tài liệu | Nhẹ | Tiêu chí hoàn thành còn đếm "4 thí nghiệm / 12 thư mục" sau khi GAP-006 nâng lên 7 thí nghiệm / 19 thư mục | ✅ Đã sửa |
+| [GAP-013](GAP-013_tran-mu-khia-canh-do-tren-train-dung-cho-test.md) | 08/09/2026 | Số liệu | Nhẹ | Trần mù khía cạnh 80,2 % đo trên tập **train** nhưng dùng làm trần cho accuracy tập **test** — trần đúng là **80,88 %**. Kết luận không đổi | ✅ Đã sửa |
+| [GAP-014](GAP-014_them-dong-vao-base-yaml-lam-doi-van-tay-cau-hinh.md) | 08/09/2026 | Code | **Nghiêm trọng** | Thêm 3 dòng sổ sách vào `base.yaml` làm đổi `config_hash` của mọi kết quả cũ, dù mọi con số y nguyên — hỏng đúng công dụng của vân tay | ✅ Đã sửa |
 
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
@@ -42,13 +46,36 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | Loại | Số lượng | Đã sửa/đóng | Còn mở |
 |---|---|---|---|
 | Kế hoạch | 1 | 0 | 1 |
-| Code | 1 | 1 | 0 |
-| Tài liệu | 4 | 3 | 1 |
-| Số liệu | 1 | 0 | 1 |
+| Code | 3 | 2 | 1 |
+| Tài liệu | 5 | 4 | 1 |
+| Số liệu | 2 | 1 | 1 |
 | Phương pháp | 3 | 0 | 3 (1 nhẹ đi, 1 đã chốt phương án) |
-| **Tổng** | **10** | **4** | **6** |
+| **Tổng** | **14** | **7** | **7** |
 
-**Mẫu hỏng lặp lại — ĐÃ BỐN LẦN:** GAP-004, GAP-005, GAP-006 và GAP-009 cùng một cơ chế — *một giá trị sai
-hoặc lệch ở nguồn lan âm thầm ra mọi thứ dẫn xuất từ nó*. Cùng cơ chế với lý do
+**Mẫu hỏng lặp lại — ĐÃ NĂM LẦN:** GAP-004, GAP-005, GAP-006, GAP-009 và GAP-012 cùng một cơ chế —
+*một giá trị sai hoặc lệch ở nguồn lan âm thầm ra mọi thứ dẫn xuất từ nó*. Cùng cơ chế với lý do
 `metrics.json` được đóng băng làm nguồn duy nhất. Khi thấy một giá trị xuất hiện ở nhiều
 file, hỏi ngay: **file nào là nguồn, và ai đã kiểm chứng nguồn đó?**
+
+GAP-012 cho thấy dạng khó thấy nhất của mẫu này: giá trị dẫn xuất là một **số đếm**
+("4 thí nghiệm"), không chứa chữ nào của nguồn, nên mọi cách tìm theo tên đều trượt.
+Cách chống: **tiêu chí nghiệm thu viết dạng kể tên, không viết dạng "N cái"**.
+
+GAP-011 là **mặt trái** của cùng cơ chế: không phải giá trị sai lan ra, mà là một yêu cầu
+có ở tài liệu tổng (`MODULE.md`) nhưng mất hút ở từng step, nên mỗi step làm xong đều
+tưởng mình đủ.
+
+
+**Mẫu hỏng thứ hai — GAP-013:** *con số đúng, nhưng ngữ cảnh của nó bị mất trên đường đi.*
+Trần 80,2 % đo trên train là đúng; cái sai là không ghi "train" cạnh con số, rồi đem so với
+một con số của tập test. Cách chống: **mọi chỉ số về dữ liệu phải mang tên tập ngay trong ô
+bảng**, không để trong câu văn xung quanh — câu văn bị cắt khi chép sang tài liệu khác.
+
+GAP-013 được phát hiện nhờ một quy tắc đáng giữ: **khi viết tài liệu tổng hợp, đo lại từ
+đầu thay vì chép số từ ghi chú cũ.**
+
+**Mẫu hỏng thứ ba — GAP-014:** *kết luận rộng hơn thứ bằng chứng thật sự chứng minh.*
+Một test xanh về khoá `resume` được dùng để phát biểu một điều tổng quát về `base.yaml`.
+Test chỉ kiểm thứ mình nghĩ ra để kiểm. Cách chống: **trước khi commit, đọc `git diff` của
+những file lẽ ra KHÔNG được đổi** — nhất là `results/**/metrics.json`. Lần này diff bắt được,
+test thì không.

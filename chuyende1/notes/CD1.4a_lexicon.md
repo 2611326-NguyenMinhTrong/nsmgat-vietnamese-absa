@@ -132,24 +132,31 @@ Và nó minh hoạ hoàn hảo vì sao plan chọn **macro-F1** làm độ đo c
 
 Nếu báo cáo chỉ dùng accuracy, sai lầm này sẽ không ai thấy.
 
-### 🔴 Phát hiện 2 — trần mù khía cạnh: 80,2 %
+### 🔴 Phát hiện 2 — trần mù khía cạnh: 80,88 % (trên test)
 
 Nhãn khía cạnh của UIT-ViSFD là mã phạm trù **tiếng Anh** (`BATTERY`, `CAMERA`, `SER&ACC`)
 **không xuất hiện trong câu tiếng Việt**, nên mô hình từ điển không tra cứu được → mọi
 Example của **cùng một câu** nhận **cùng một dự đoán**.
 
-Đo được:
+Đo được (GAP-013: bản đầu chỉ ghi số của **train** mà không nói rõ, rồi đem so với
+accuracy trên **test** — nay ghi cả hai):
 
-| | |
-|---|---|
-| Câu có > 1 khía cạnh | 86,6 % |
-| Câu có khía cạnh **trái nhãn** | **47,0 %** |
-| **Trần accuracy cho mô hình mù khía cạnh** | **80,2 %** |
+| | train | **test** |
+|---|---|---|
+| Câu có > 1 khía cạnh | 86,6 % | 86,7 % |
+| Câu có khía cạnh **trái nhãn** | 47,0 % | 45,1 % |
+| **Trần accuracy cho mô hình mù khía cạnh** | 80,22 % | **80,88 %** |
+
+**Dùng con số nào:** `lexicon` và `bilstm` đều báo accuracy trên **test**, nên trần để so
+là **80,88 %**. (dev = 81,45 %, cả ba tập gộp = 80,47 % — ghi ở đây để khỏi đo lại.)
 
 `lexicon` đạt 74,7 % — tức **đã dùng gần hết dư địa** của cách tiếp cận mù khía cạnh. Muốn
-vượt 80,2 % thì bắt buộc phải nhìn khía cạnh.
+vượt 80,88 % thì bắt buộc phải nhìn khía cạnh.
 
-Con số 80,2 % chính là thứ **định lượng** câu "bài toán cần nhìn khía cạnh đến mức nào" —
+**Đã có kết quả:** `bilstm` (CD1.4b, seed 42) đạt **85,82 %** — vượt trần. Đây là bằng chứng
+số học cho việc mô hình thật sự dùng thông tin khía cạnh, không phải đoán may.
+
+Con số 80,88 % chính là thứ **định lượng** câu "bài toán cần nhìn khía cạnh đến mức nào" —
 một luận cứ sẵn cho Chương 5.
 
 ### Độ phủ từ điển
@@ -210,7 +217,7 @@ GAP-002 vẫn mở. Đã sửa lại mô tả trong plan.
 
 - Vì sao "trừ tỉ lệ nền" lại quan trọng đến thế?
 - Lớp trung tính sụp đổ — đó là lỗi của mô hình hay của dữ liệu?
-- Trần 80,2 % tính ra bằng cách nào, và nó có phải trần thật không?
+- Trần 80,88 % tính ra bằng cách nào, và nó có phải trần thật không?
 
 **Step kế tiếp:** **CD1.4b `bilstm`** (cùng Tuần 3) — mốc trước kỷ nguyên PLM.
 

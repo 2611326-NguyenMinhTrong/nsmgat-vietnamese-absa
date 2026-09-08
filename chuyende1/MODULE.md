@@ -74,7 +74,11 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `tests/test_ute_docx.py` | [CD1.1] Kiểm định dạng thay cho việc in ra đo bằng thước |
 | `scripts/survey_tools.py` | [CD1.2] `validate` / `stats` / `table` cho ma trận khảo sát. **Cưỡng chế quy tắc số 7**: dòng `chua_kiem` không thể lọt vào Bảng 3.9 |
 | `tests/test_survey_tools.py` | [CD1.2] Kiểm chốt chặn chống bịa trích dẫn |
+| `src/nsmgat/models/bilstm.py` + `configs/bilstm.yaml` | [CD1.4b] Baseline BiLSTM + attention theo khía cạnh. Kế thừa `BaseModel`, không đổi interface |
 | `scripts/try_lexicon.py` | [CD1.4a] Công cụ thử tay `LexiconModel` — gõ câu bất kỳ, xem điểm từng token và dự đoán. Gọi đúng code thật của mô hình, không viết lại logic |
+| `scripts/try_bilstm.py` | [CD1.4b] Công cụ thử tay `BiLSTMModel` — xem **trọng số attention** và chạy cùng một câu qua **mọi khía cạnh**. Gọi `model.ma_hoa()` / `model._chu_y()` chứ không chép lại công thức; có test canh chống lệch |
+| `scripts/watch_train.py` + `tests/test_watch_train.py` | [CD1.4b] Theo dõi **liên tục** một lần huấn luyện: thời gian từng epoch, dev_acc/dev_macro_f1, đếm ngược kiên nhẫn, ước lượng giờ xong. Đọc `logs/<exp>/seed<N>.log`, dùng cho **mọi** mô hình về sau |
+| `src/nsmgat/trainer.py` (`--resume`) + `tests/test_resume.py` | [CD1.4b] Chạy **tiếp** một lần huấn luyện bị ngắt (S4.4 kéo lên sớm). Ghi `last.pt` mỗi epoch gồm cả trạng thái sinh số ngẫu nhiên, nên chạy tiếp cho kết quả **giống hệt** chạy liền mạch — có test khoá. Chữ ký `Trainer.train()` không đổi |
 | `requirements.txt` | [CD1.1] Thêm `python-docx>=1.1` — CI cài từ file này |
 | `data/diagnostic/` | Tập chẩn đoán 300 câu (CD1.8) |
 | `docs/annotation_guideline.md` | Hướng dẫn chú thích (S6.2) |
@@ -151,7 +155,10 @@ và bài học, không nằm ở chỗ nó còn tồn tại hay không.
 Module coi là xong khi cả 6 điều sau đúng:
 
 - [ ] `chuyende1/survey/survey_matrix.csv` có ≥ 45 dòng, đủ 6 nhóm phương pháp
-- [ ] 12 thư mục `results/{4 exp}/seed{42,1337,2024}/` có `metrics.json` + `predictions.jsonl` hợp lệ
+- [ ] Mỗi thí nghiệm có `metrics.json` + `predictions.jsonl` hợp lệ (GAP-011: chưa có code nào ghi `predictions.jsonl`):
+      `lexicon`, `bilstm`, `phobert`, `asgcn`, `asgcn_linked`, `senticgcn` — mỗi cái 3 seed {42, 1337, 2024};
+      `gpt4o_zeroshot` — **1 seed thôi**, vì `temperature = 0` chạy 3 lần cho độ lệch chuẩn 0 giả tạo (GAP-003).
+      Tổng: **19 thư mục**. *(Kể tên chứ không ghi số đếm — xem GAP-012.)*
 - [ ] `data/diagnostic/diagnostic_300.jsonl` chốt, Cohen's kappa ≥ 0,70
 - [ ] `results/probe_results.json` có đủ 3 con số P1, P2, P3
 - [ ] `chuyende1/report/ChuyenDe1_NguyenMinhTrong.docx` ~30 trang, qua hết checklist định dạng

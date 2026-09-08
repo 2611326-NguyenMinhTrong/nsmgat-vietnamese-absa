@@ -28,11 +28,26 @@ def move_batch_to_device(batch: Dict[str, Any], device: torch.device) -> Dict[st
     }
 
 
-def evaluate(model: BaseModel, loader: DataLoader, device: torch.device) -> Dict[str, Any]:
-    """Danh gia tren 1 loader, tra ve accuracy, macro_f1, f1_per_class."""
+def evaluate(
+    model: BaseModel,
+    loader: DataLoader,
+    device: torch.device,
+    thu_tung_mau: bool = False,
+) -> Dict[str, Any]:
+    """Danh gia tren 1 loader, tra ve accuracy, macro_f1, f1_per_class.
+
+    `thu_tung_mau=True` thi thu them du doan CUA TUNG MAU vao khoa
+    "predictions" (xem `write_predictions`). Mac dinh TAT vi ham nay chay moi
+    epoch tren tap dev — khong can giu lai gi. Chi bat khi danh gia tap test.
+
+    [GAP-011] Truoc day chi tra ve so gop, nen khong lam duoc ma tran nham lan
+    (CD1.9) lan kiem dinh McNemar giua hai mo hinh (CD1.10) — ca hai deu can
+    du doan tung mau, khong phai macro_f1 gop.
+    """
     model.eval()
     all_preds: List[int] = []
     all_labels: List[int] = []
+    rows: List[Dict[str, Any]] = []
 
     with torch.no_grad():
         for batch in loader:
@@ -42,11 +57,28 @@ def evaluate(model: BaseModel, loader: DataLoader, device: torch.device) -> Dict
             all_preds.extend(preds.cpu().tolist())
             all_labels.extend(batch["labels"].cpu().tolist())
 
-    return {
+            if thu_tung_mau:
+                probs = torch.softmax(logits.float(), dim=-1).cpu().tolist()
+                for uid, aspect, y_true, y_pred, p in zip(
+                    batch["uid"], batch["aspect_text"],
+                    batch["labels"].cpu().tolist(), preds.cpu().tolist(), probs,
+                ):
+                    rows.append({
+                        "uid": uid,
+                        "aspect": aspect,
+                        "y_true": int(y_true),
+                        "y_pred": int(y_pred),
+                        "probs": [round(x, 6) for x in p],
+                    })
+
+    ket_qua = {
         "accuracy": accuracy_score(all_labels, all_preds),
         "macro_f1": f1_score(all_labels, all_preds, average="macro", labels=_LABELS, zero_division=0),
         "f1_per_class": f1_score(all_labels, all_preds, average=None, labels=_LABELS, zero_division=0).tolist(),
     }
+    if thu_tung_mau:
+        ket_qua["predictions"] = rows
+    return ket_qua
 
 
 def evaluate_diagnostic(

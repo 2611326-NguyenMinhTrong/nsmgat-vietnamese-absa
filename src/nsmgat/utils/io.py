@@ -66,6 +66,60 @@ def load_config(path: str | Path) -> dict:
     return cfg
 
 
+# Cac khoa la CACH CHAY / SO SACH, khong phai cau hinh thi nghiem — bo ra
+# truoc khi bam van tay. Tieu chi de quyet dinh mot khoa co nam trong day
+# khong, chi mot cau: **doi khoa nay co lam doi ket qua khong?**
+#
+#   train.resume          — lien mach hay chay tiep. Hai duong cho ra ket qua
+#                           giong het nhau (tests/test_resume.py), nen phai
+#                           cung van tay.
+#   output.log_dir        — ghi nhat ky o dau
+#   output.save_last      — co ghi last.pt khong
+#   output.save_last_every— ghi cach may epoch
+#
+# Ba khoa `output.*` them vao o CD1.4b. Neu khong loai chung ra, chi viec them
+# mot dong vao base.yaml da lam DOI VAN TAY cua moi ket qua da chay xong —
+# da xay ra that: lexicon/seed42 doi tu f25b1bbb0fcc sang 34f8cee22a1e trong
+# khi moi con so trong metrics.json y nguyen (GAP-014).
+#
+# KHONG loai `output.save_best`: tat no thi buoc danh gia dung mo hinh o epoch
+# CUOI thay vi epoch tot nhat — doi ket qua that.
+# Cung KHONG loai `output.results_dir` / `ckpt_dir`: chung khong doi ket qua,
+# nhung da nam trong van tay tu S0.4; loai bay gio se doi van tay lan nua ma
+# khong duoc gi. Ghi lai day de biet day la lua chon co y thuc.
+_KHOA_KHONG_BAM_VAN_TAY = (
+    ("train", "resume"),
+    ("output", "log_dir"),
+    ("output", "save_last"),
+    ("output", "save_last_every"),
+)
+
+
+def config_hash(cfg: dict) -> str:
+    """Van tay 12 ky tu cua mot config — dinh danh mot cau hinh thi nghiem.
+
+    Dung o hai cho, va cho thu hai moi la ly do ham nay nam o day (dung chung)
+    chu khong nam rieng trong train.py:
+      1. Ghi vao metrics.json de biet ket qua sinh ra tu cau hinh nao.
+      2. `Trainer` doi chieu truoc khi tiep tuc mot lan chay dang do — tiep tuc
+         bang cau hinh KHAC se cho ra mot ket qua lai cang khong tai lap duoc.
+    """
+    import copy
+    import hashlib
+
+    sach = copy.deepcopy(cfg)
+    for *cha, khoa in _KHOA_KHONG_BAM_VAN_TAY:
+        nut = sach
+        for buoc in cha:
+            nut = nut.get(buoc) if isinstance(nut, dict) else None
+            if nut is None:
+                break
+        if isinstance(nut, dict):
+            nut.pop(khoa, None)
+
+    return hashlib.sha256(json.dumps(sach, sort_keys=True).encode()).hexdigest()[:12]
+
+
 def save_json(path: str | Path, obj: Any) -> None:
     """Ghi 1 object ra file JSON (indent=2, giu nguyen tieng Viet)."""
     path = Path(path)

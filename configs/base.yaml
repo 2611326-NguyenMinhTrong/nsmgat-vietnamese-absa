@@ -32,5 +32,10 @@ train:
 
 output:
   results_dir: results
+  log_dir: logs # nhat ky huan luyen, xem scripts/watch_train.py
   ckpt_dir: checkpoints
   save_best: true
+  # last.pt sau moi epoch de chay tiep duoc khi bi ngat (--resume).
+  # Mo hinh lon + o cham: dat save_last_every: 2, hoac save_last: false de tat.
+  save_last: true
+  save_last_every: 1

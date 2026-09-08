@@ -12,6 +12,7 @@ data/cache/
 data/processed/*.jsonl
 results/*/*.pt
 checkpoints/
+/logs/
 
 # VnCoreNLP: jar + model tai ve tu dong o S0.3 (~100MB, tai nguyen ben thu 3)
 /vncorenlp/

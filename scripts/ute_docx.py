@@ -15,6 +15,7 @@ Chuyên đề 2 và luận văn dùng lại module này, không viết lại.
 
 from __future__ import annotations
 
+import sys
 import hashlib
 from pathlib import Path
 
@@ -25,6 +26,11 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
+
+# Console Windows mac dinh la cp1252, khong in duoc chu tieng Viet co dau ->
+# UnicodeEncodeError. Ep stdout ve UTF-8 ngay dau chuong trinh.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 # --- Hằng số quy định UTE -----------------------------------------------------
 

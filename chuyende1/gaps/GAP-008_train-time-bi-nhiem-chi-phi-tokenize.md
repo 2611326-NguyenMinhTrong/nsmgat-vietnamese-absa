@@ -37,6 +37,28 @@ Với `phobert`/`asgcn`/`senticgcn`, tokenize là chi phí **chính đáng**. V�
 không. So sánh trực tiếp sẽ **thổi phồng chi phí của baseline rẻ nhất** — đúng chiều làm nó
 trông kém hấp dẫn hơn thực tế.
 
+
+## 2b. Cập nhật 07/09/2026 (CD1.4b) — phạm vi hẹp hơn dự tính
+
+`bilstm` **có dùng** `input_ids` (nhúng subword PhoBERT, khởi tạo ngẫu nhiên), nên với nó
+chi phí tokenize là **chính đáng**, không phải lãng phí.
+
+Cập nhật lại danh sách mô hình bị ảnh hưởng:
+
+| Mô hình | Dùng `input_ids`? | Tokenize là chi phí thật? |
+|---|---|---|
+| `lexicon` | ❌ (chỉ tra `uid` → từ điển) | **Không** — đây là ca duy nhất bị nhiễm |
+| `bilstm` | ✅ | Có |
+| `phobert` | ✅ | Có |
+| `asgcn` / `senticgcn` | ✅ (bộ mã hoá PhoBERT theo S1.2) | Có |
+| `gpt4o_zeroshot` | không huấn luyện | Không áp dụng |
+
+**Hệ quả:** vấn đề hẹp hơn tôi tưởng ban đầu — chỉ **một** dòng trong bảng 4.5 bị thổi phồng,
+không phải nhiều dòng. Điều này làm phương án xử lý ở CD1.10 đơn giản hơn: có thể chỉ cần
+**chú thích riêng cho dòng `lexicon`** thay vì phải sửa hạ tầng đo thời gian cho mọi mô hình.
+
+Vẫn giữ trạng thái 🔴 Mở — quyết định cuối vẫn thuộc CD1.10.
+
 ## 3. Nguyên nhân gốc
 
 `ACSADataset` được thiết kế ở S0.4 cho các mô hình **dựa trên PLM**, nơi tokenize là bắt buộc.

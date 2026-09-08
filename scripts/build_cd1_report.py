@@ -54,6 +54,12 @@ from ute_docx import (  # noqa: E402
     new_section,
 )
 
+# Console Windows mac dinh la cp1252, khong in duoc chu tieng Viet co dau ->
+# UnicodeEncodeError. Ep stdout ve UTF-8 ngay dau chuong trinh.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+
 MANIFEST_NAME = ".generated.json"
 NGUON_SINH = "sinh_tu_dong"   # dấu vân tay ứng với lần script tự ghi gần nhất
 NGUON_SUA_TAY = "da_sua_tay"  # dấu vân tay được người dùng xác nhận qua --adopt
