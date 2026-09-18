@@ -145,8 +145,8 @@ rào cản 1). Câu trả lời phụ thuộc vào **cách bài báo chấm đi�
 - **Nhiệm vụ cảm xúc được chấm thế nào?** Mô hình có được cho sẵn khía cạnh đúng rồi mới
   gán cảm xúc (giống bài toán ACSA của bạn), hay phải tự phát hiện khía cạnh trước rồi bị
   chấm trên cặp *khía cạnh#cảm xúc*?
-  → *(18/09, sau khi đọc toàn văn: **bài không nói rõ**. Đó chính là câu trả lời — và là câu
-  11 của trắc nghiệm 01.)*
+  → *Đây là câu 11 của [trắc nghiệm 01](../trac-nghiem/de/01_UIT-ViSFD.md). Câu trả lời sẽ
+  được ghi vào đây **sau khi bạn đạt** — ghi trước thì lộ đáp án.*
 - Độ đo là macro-F1 hay micro-F1? Trung bình trên khía cạnh hay trên mẫu? *(macro và micro
   lệch nhau rất xa khi lớp mất cân bằng — lớp trung tính của ta chỉ 12,2 %)*
 - Nhãn `{OTHERS}` được xử lý thế nào trong đánh giá của họ? *(ta loại 170 bình luận chỉ có
