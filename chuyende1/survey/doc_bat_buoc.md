@@ -20,7 +20,7 @@ trả lời** rằng vừa gắn cờ — không im lặng thêm vào. Học vi�
 |---|---|---|---|---|---|
 | 1 | `SenticNet-7` | 02/09/2026 | **GVHD đã chọn làm TLTK chính số [1]** trong bản duyệt. Là nền lý thuyết trực tiếp của hướng neuro-symbolic — thứ CĐ2 sẽ mở rộng | 🔴 | ☐ |
 | 2 | `PhoBERT` | 02/09/2026 | **GVHD đã chọn làm TLTK chính số [2]** trong bản duyệt. Là baseline `phobert` và là bộ mã hoá nền của cả Sentic-GCN lẫn NS-MGAT | 🔴 | ☐ |
-| 3 | `UIT-ViSFD` | 09/09/2026 | **Bài giới thiệu chính tập dữ liệu của đề tài.** Quyết định câu "kết quả của em có so được với bài báo không" — xem REQ-008 rào cản 1. **Ưu tiên số 1 hiện nay** | 🔴 | ☐ |
+| 3 | `UIT-ViSFD` | 09/09/2026 | **Bài giới thiệu chính tập dữ liệu của đề tài.** Quyết định câu "kết quả của em có so được với bài báo không" — xem REQ-008 rào cản 1 | 🔴 | ☐ *đã đọc 18/09 · chờ đạt trắc nghiệm 01* |
 | 4 | `ASGCN` | 09/09/2026 | **Baseline chính thức** (bản GVHD duyệt mục 4). Ý tưởng đồ thị phụ thuộc theo khía cạnh — nền trực tiếp của CĐ2. Có một vấn đề thiết kế phải giải trước CD1.6a | 🔴 | ☐ |
 | 5 | `Sentic-GCN` | 09/09/2026 | **Baseline chính thức.** Là mô hình gần NS-MGAT nhất trong các công trình đã có — hội đồng chắc chắn hỏi "khác gì Sentic-GCN?" | 🔴 | ☐ |
 | 6 | `ATAE-LSTM` | 09/09/2026 | Kiến trúc mà baseline `bilstm` (CD1.4b) dựa theo. Cần để nói đúng "của em khác bản gốc ở đâu" | 🟡 | ☐ |
@@ -145,9 +145,8 @@ rào cản 1). Câu trả lời phụ thuộc vào **cách bài báo chấm đi�
 - **Nhiệm vụ cảm xúc được chấm thế nào?** Mô hình có được cho sẵn khía cạnh đúng rồi mới
   gán cảm xúc (giống bài toán ACSA của bạn), hay phải tự phát hiện khía cạnh trước rồi bị
   chấm trên cặp *khía cạnh#cảm xúc*?
-  → Nếu **cho sẵn**: con số 63,06 % **so được** với macro-F1 0,7949 của `bilstm`, và rào cản
-  lớn nhất trong REQ-008 biến mất.
-  → Nếu **phải tự phát hiện**: không so được, và bạn phải nói rõ điều đó trong báo cáo.
+  → *(18/09, sau khi đọc toàn văn: **bài không nói rõ**. Đó chính là câu trả lời — và là câu
+  11 của trắc nghiệm 01.)*
 - Độ đo là macro-F1 hay micro-F1? Trung bình trên khía cạnh hay trên mẫu? *(macro và micro
   lệch nhau rất xa khi lớp mất cân bằng — lớp trung tính của ta chỉ 12,2 %)*
 - Nhãn `{OTHERS}` được xử lý thế nào trong đánh giá của họ? *(ta loại 170 bình luận chỉ có
@@ -155,7 +154,9 @@ rào cản 1). Câu trả lời phụ thuộc vào **cách bài báo chấm đi�
 - Bi-LSTM của họ dùng fastText mức từ. Baseline `bilstm` của ta dùng subword PhoBERT. Khác
   biệt này ảnh hưởng thế nào tới việc đặt hai con số cạnh nhau?
 
-**Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
+**Trạng thái đọc:** ☑ **Đã đọc** (học viên, 18/09/2026) · ☐ Đã đọc kỹ — *tick khi đạt [trắc nghiệm 01](../trac-nghiem/de/01_UIT-ViSFD.md)*
+
+> 🔎 **Một chỗ nên tự kiểm khi đọc lại Bảng 3:** dòng `SER&ACC` — bài ghi tổng **2.678**, dữ liệu thật trên HuggingFace đếm được **2.878** (9 khía cạnh còn lại khớp tuyệt đối). Lệch đúng 200, khác đúng một chữ số (6 ↔ 8). Có thể là lỗi đánh máy trong bài, có thể do tôi đọc qua bản HTML bị lệch. Nếu bạn cộng các ô Pos/Neu/Neg của dòng đó ra 2.878 thì đó là lỗi đánh máy của bài — đáng ghi một dòng chú thích nếu báo cáo có chép Bảng 3.
 
 **Ghi chú sau khi đọc** *(điền bởi học viên):*
 

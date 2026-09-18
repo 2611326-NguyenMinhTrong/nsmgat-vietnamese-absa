@@ -5,6 +5,8 @@
 /docs/
 /forms/
 */user-require/
+# De, dap an, bai lam va ket qua trac nghiem doc bai bao — tai lieu hoc ca nhan
+chuyende1/trac-nghiem/
 **/README.md
 
 data/raw/
