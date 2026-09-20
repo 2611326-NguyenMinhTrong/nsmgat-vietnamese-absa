@@ -85,31 +85,67 @@ công trình áp dụng phương pháp quốc tế cho tiếng Việt.
 Ngoại lệ ở mục 4 là có chủ ý: một bài về phạm vi phủ định trong phân loại cảm xúc mức câu
 vẫn có giá trị cho Chương 5, dù không phải ABSA.
 
-## 5. Quy trình sàng lọc — ghi số thật khi làm
+## 5. Quy trình sàng lọc — năm con số N₁…N₅
+
+**Đây là gì:** năm con số kể lại *bạn đã đi từ "gõ từ khoá" tới "45 bài trong ma trận" bằng
+đường nào*. Chúng dựng thành sơ đồ luồng ở mục 3.1 của báo cáo.
+
+**Vì sao hội đồng quan tâm:** câu hỏi kinh điển là *"sao em chọn đúng 45 bài này mà không
+phải 45 bài khác?"*. Không có năm con số này thì câu trả lời chỉ là "em tìm được bấy nhiêu"
+— nghe như đọc ngẫu nhiên. Có chúng thì đó là một **quy trình lặp lại được**: người khác gõ
+đúng truy vấn của bạn sẽ ra kết quả tương đương. Đó là ranh giới giữa "khảo sát có phương
+pháp" và "danh sách bài báo".
+
+Cứ hình dung như một cái phễu — mỗi bước bỏ bớt một số bài, và bạn phải nói được **bỏ vì lý
+do gì**:
+
+| Con số | Nghĩa | Bỏ bớt vì | Bạn ghi ở đâu |
+|---|---|---|---|
+| **N₁** — thu thập thô | Tổng số kết quả **mọi lần tìm** cộng lại, chưa lọc gì | — | Cộng cột "Số kết quả" của mục 6 |
+| **N₂** — sau khi loại trùng | Cùng một bài hiện ra ở nhiều truy vấn / nhiều nguồn thì chỉ tính **một** | Trùng lặp | Tự đếm, ghi vào bảng dưới |
+| **N₃** — sau sàng tiêu đề + tóm tắt | Chỉ đọc **tiêu đề và tóm tắt**, loại bài lạc đề | Không thuộc phạm vi mục 4 | Tự đếm, ghi vào bảng dưới |
+| **N₄** — vào ma trận | Đã **mở nguồn gốc**, xác nhận tác giả/năm/nơi công bố, điền đủ các ô | Không kiểm chứng được nguồn | `survey_tools.py stats` tự đếm |
+| **N₅** — phân tích sâu | Đã **đọc toàn văn**, hiểu phương pháp và kết quả | Chỉ cần nhắc tên, không cần đào sâu | `survey_tools.py stats` tự đếm |
+
+Phễu đi xuống dần: N₁ ≥ N₂ ≥ N₃ ≥ N₄ ≥ N₅.
 
 | Bước | Số bài | Ngày | Cách lấy số |
 |---|---|---|---|
-| N₁ — thu thập thô | | | Tổng cột "Số kết quả" ở mục 6 |
-| N₂ — sau khi loại trùng | | | |
-| N₃ — sau sàng tiêu đề + tóm tắt | | | |
-| N₄ — sau đọc toàn văn (vào ma trận) | **1** | 20/09/2026 | `survey_tools.py stats` |
-| N₅ — phân tích sâu trong Chương 3 | **1** | 20/09/2026 | Số dòng có `trang_thai = da_doc_toan_van` |
+| N₁ — thu thập thô | | | Cộng cột "Số kết quả" ở mục 6 |
+| N₂ — sau khi loại trùng | | | Tự đếm khi gộp kết quả các truy vấn |
+| N₃ — sau sàng tiêu đề + tóm tắt | | | Tự đếm sau khi đọc tiêu đề/tóm tắt |
+| N₄ — sau đọc toàn văn (vào ma trận) | **1** | 20/09/2026 | `survey_tools.py stats` → dòng N4 |
+| N₅ — phân tích sâu trong Chương 3 | **1** | 20/09/2026 | `survey_tools.py stats` → dòng N5 |
 
-*Cập nhật hai dòng cuối bằng `survey_tools.py stats` mỗi khi kiểm chứng xong một bài — số
-trong bảng này đi thẳng vào sơ đồ luồng ở mục 3.1 của báo cáo. Bài đầu tiên: `UIT-ViSFD`
-(20/09/2026, đạt trắc nghiệm 01).*
+**Chỉ tiêu:** N₁ ≥ 70 · N₄ ≥ 45 · N₅ ≈ 25.
 
-Năm con số này dựng thành sơ đồ luồng ở mục 3.1 của báo cáo. **Chỉ tiêu:** N₁ ≥ 70,
-N₄ ≥ 45, N₅ ≈ 25.
+**Hiện tại N₄ = N₅ = 1** vì mới `UIT-ViSFD` được kiểm chứng (20/09/2026). Ba con số đầu còn
+trống vì **chưa ai ghi nhật ký tìm kiếm ở mục 6** — 21 dòng còn lại trong ma trận là tên bài
+lấy sẵn từ kế hoạch, không phải kết quả của một lần tìm có ghi lại.
 
-## 6. Nhật ký tìm kiếm
+> **Việc của học viên:** mỗi lần ngồi tìm bài, ghi một dòng vào bảng mục 6 **ngay lúc tìm**.
+> N₁ chính là tổng cột "Số kết quả" của bảng đó. Ghi lại từ trí nhớ sau một tuần thì con số
+> không còn đáng tin, mà hội đồng lại hỏi đúng những con số này.
 
-Ghi **ngay khi tìm**, không ghi lại từ trí nhớ. Cột "Truy vấn nguyên văn" phải chép đúng
-chuỗi đã gõ, để người khác lặp lại được.
+**Việc của Claude Code:** cập nhật hai dòng N₄ / N₅ trong bảng trên (chạy
+`survey_tools.py stats`, chép số vào) mỗi khi kiểm chứng xong một bài.
+
+## 6. Nhật ký tìm kiếm — điền ngay khi tìm
+
+Ghi **ngay lúc đang tìm**, không ghi lại từ trí nhớ. Cột "Truy vấn nguyên văn" phải chép
+**đúng chuỗi đã gõ**, kể cả dấu ngoặc kép — để người khác gõ lại ra kết quả tương đương.
 
 | Ngày | Nguồn | Truy vấn nguyên văn | Số kết quả | Số giữ lại |
 |---|---|---|---|---|
+| *(ví dụ)* 21/09/2026 | Google Scholar | `"aspect-based sentiment analysis" Vietnamese` | 47 | 6 |
 | | | | | |
+
+- **Nguồn:** ACL Anthology · IEEE Xplore · Scopus · arXiv · Google Scholar · VLSP · RIVF · KSE
+- **Số kết quả:** con số trang tìm kiếm hiện ra (nếu quá lớn thì ghi số bạn thực sự lướt qua,
+  và ghi rõ trong ngoặc, ví dụ `312 (chỉ xét 50 đầu)`)
+- **Số giữ lại:** số bài bạn thấy đáng xem tiếp sau khi liếc tiêu đề
+
+Xoá dòng *(ví dụ)* khi bắt đầu ghi dòng thật.
 
 ## 7. Quy trình kiểm chứng — chống bịa trích dẫn
 
