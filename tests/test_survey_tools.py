@@ -100,6 +100,65 @@ def test_dong_chu_thich_khong_bi_tinh_la_cong_trinh():
     assert "#MO_TA" not in build_table_markdown(rows)
 
 
+# --- vòng Excel: xuất ra .xlsx rồi nhập ngược --------------------------------
+
+
+def _csv_nho(tmp_path, ghi_chu="ban dau") -> Path:
+    p = tmp_path / "m.csv"
+    with p.open("w", encoding="utf-8-sig", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(REQUIRED_COLUMNS)
+        w.writerow([f"mô tả {c}" for c in REQUIRED_COLUMNS[:1]] + ["mô tả"] * (len(REQUIRED_COLUMNS) - 1))
+        w.writerow([make_row(ref_key="A", ghi_chu=ghi_chu)[c] for c in REQUIRED_COLUMNS])
+    # dòng đầu sau header là dòng chú thích
+    noi_dung = p.read_text(encoding="utf-8-sig").splitlines()
+    noi_dung[1] = "#MO_TA," + noi_dung[1].split(",", 1)[1]
+    p.write_text("\n".join(noi_dung) + "\n", encoding="utf-8-sig", newline="")
+    return p
+
+
+def test_vong_excel_giu_nguyen_ca_dong_chu_thich(tmp_path):
+    csv_path = _csv_nho(tmp_path)
+    xlsx = tmp_path / "m.xlsx"
+    truoc = load_rows(csv_path)
+
+    assert main(["excel", "--csv", str(csv_path), "--xlsx", str(xlsx)]) == 0
+    assert main(["tu-excel", "--csv", str(csv_path), "--xlsx", str(xlsx)]) == 0
+
+    sau = load_rows(csv_path)
+    assert sau == truoc, "một vòng Excel không được làm đổi dữ liệu"
+    assert any(la_chu_thich(r) for r in sau), "dòng #MO_TA phải sống sót qua vòng Excel"
+
+
+def test_tu_excel_chan_khi_csv_da_doi_sau_khi_xuat(tmp_path, capsys):
+    """Lỗi thật ngày 20/09/2026 (GAP-017): .xlsx là bản chụp; ai đó sửa .csv sau
+    khi xuất, rồi `tu-excel` chạy lên và nuốt mất thay đổi đó — im lặng."""
+    csv_path = _csv_nho(tmp_path)
+    xlsx = tmp_path / "m.xlsx"
+    assert main(["excel", "--csv", str(csv_path), "--xlsx", str(xlsx)]) == 0
+
+    sua_sau = _csv_nho(tmp_path, ghi_chu="THAY ĐỔI SAU KHI XUẤT")
+    assert sua_sau == csv_path
+
+    assert main(["tu-excel", "--csv", str(csv_path), "--xlsx", str(xlsx)]) == 1
+    assert "da thay doi SAU khi xuat" in capsys.readouterr().err
+    assert "THAY ĐỔI SAU KHI XUẤT" in csv_path.read_text(encoding="utf-8-sig"), (
+        "bị chặn thì không được đụng vào .csv"
+    )
+
+
+def test_tu_excel_ghi_de_khi_nguoi_dung_noi_ro(tmp_path):
+    csv_path = _csv_nho(tmp_path)
+    xlsx = tmp_path / "m.xlsx"
+    main(["excel", "--csv", str(csv_path), "--xlsx", str(xlsx)])
+    _csv_nho(tmp_path, ghi_chu="THAY ĐỔI SAU KHI XUẤT")
+
+    assert main(["tu-excel", "--csv", str(csv_path), "--xlsx", str(xlsx), "--ghi-de"]) == 0
+    noi_dung = csv_path.read_text(encoding="utf-8-sig")
+    assert "THAY ĐỔI SAU KHI XUẤT" not in noi_dung, "--ghi-de thì lấy bản Excel"
+    assert (tmp_path / "m.csv.bak").exists(), "phải sao lưu trước khi ghi đè"
+
+
 # --- validate -----------------------------------------------------------------
 
 

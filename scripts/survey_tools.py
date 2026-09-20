@@ -24,6 +24,7 @@ import argparse
 import csv
 import sys
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 
 # Console Windows mac dinh la cp1252, khong in duoc chu tieng Viet co dau ->
@@ -404,8 +405,27 @@ def cmd_table(rows, out_path: Path) -> int:
 
 DEFAULT_XLSX = DEFAULT_CSV.with_suffix(".xlsx")
 
+# Trang tinh an trong .xlsx, giu dau van tay cua file .csv luc XUAT RA.
+#
+# VI SAO: .xlsx la mot BAN CHUP. Ai do (hoac mot cong cu) sua .csv sau khi
+# xuat, roi `tu-excel` chay len — the la thay doi do bi nuot mat, khong bao
+# gi ca. Da xay ra that ngay 20/09/2026, mat 4 thu trong mot lan (GAP-017).
+# Cung co che voi .generated.json cua build_cd1_report.py (REQ-006).
+TRANG_VAN_TAY = "_nguon"
 
-def cmd_excel(rows: list[dict[str, str]], columns: list[str], out: Path) -> int:
+
+def van_tay_csv(path: Path) -> str:
+    """Dau van tay theo NOI DUNG (khong theo byte) — doi BOM hay kieu xuong
+    dong khong lam bao dong gia."""
+    import hashlib
+
+    with path.open(encoding="utf-8-sig", newline="") as fh:
+        noi_dung = "\n".join("\x1f".join(hang) for hang in csv.reader(fh))
+    return hashlib.sha256(noi_dung.encode("utf-8")).hexdigest()[:16]
+
+
+def cmd_excel(rows: list[dict[str, str]], columns: list[str], out: Path,
+              csv_path: Path = DEFAULT_CSV) -> int:
     """Xuat CSV ra .xlsx de sua bang Excel ma khong vap ma hoa lan dau tach cot."""
     try:
         from openpyxl import Workbook
@@ -460,6 +480,13 @@ def cmd_excel(rows: list[dict[str, str]], columns: list[str], out: Path) -> int:
         ws.add_data_validation(dv)
         dv.add(f"{cot}{2 + so_chu_thich}:{cot}{len(rows) + 1}")  # chừa dòng chú thích ra
 
+    # Dau van tay cua .csv luc xuat, de `tu-excel` biet file goc co doi khong
+    ws_van_tay = wb.create_sheet(TRANG_VAN_TAY)
+    ws_van_tay["A1"] = "Dau van tay cua file .csv luc xuat ra — dung xoa, dung sua."
+    ws_van_tay["A2"] = van_tay_csv(csv_path)
+    ws_van_tay["A3"] = f"Xuat luc {datetime.now():%d/%m/%Y %H:%M} tu {csv_path}"
+    ws_van_tay.sheet_state = "hidden"
+
     out.parent.mkdir(parents=True, exist_ok=True)
     try:
         wb.save(out)
@@ -477,7 +504,7 @@ def cmd_excel(rows: list[dict[str, str]], columns: list[str], out: Path) -> int:
     return 0
 
 
-def cmd_tu_excel(xlsx: Path, csv_path: Path, columns: list[str]) -> int:
+def cmd_tu_excel(xlsx: Path, csv_path: Path, columns: list[str], ghi_de: bool = False) -> int:
     """Nhap .xlsx nguoc lai .csv, giu nguyen thu tu cot."""
     try:
         from openpyxl import load_workbook
@@ -489,7 +516,23 @@ def cmd_tu_excel(xlsx: Path, csv_path: Path, columns: list[str]) -> int:
         print(f"Khong thay {xlsx}. Chay `excel` truoc de xuat ra.", file=sys.stderr)
         return 1
 
-    ws = load_workbook(xlsx, data_only=True).active
+    wb = load_workbook(xlsx, data_only=True)
+
+    # .xlsx la ban chup luc xuat. Neu .csv da doi sau do, nhap nguoc se nuot
+    # mat thay doi do — im lang. Chan lai, tru khi nguoi dung noi ro --ghi-de.
+    van_tay_cu = wb[TRANG_VAN_TAY]["A2"].value if TRANG_VAN_TAY in wb.sheetnames else None
+    if van_tay_cu and not ghi_de and van_tay_cu != van_tay_csv(csv_path):
+        print(f"DUNG LAI: {csv_path.name} da thay doi SAU khi xuat ra Excel.", file=sys.stderr)
+        print(f"  Van tay luc xuat : {van_tay_cu}", file=sys.stderr)
+        print(f"  Van tay hien tai : {van_tay_csv(csv_path)}", file=sys.stderr)
+        print("  Nhap nguoc bay gio se XOA nhung thay doi do. Chon mot trong hai:", file=sys.stderr)
+        print("    - Giu ban Excel, bo thay doi trong .csv:  them --ghi-de", file=sys.stderr)
+        print("    - Giu ban .csv, bo thay doi trong Excel:  chay lai lenh `excel`", file=sys.stderr)
+        print("  Xem ky truoc khi chon:  git diff chuyende1/survey/survey_matrix.csv",
+              file=sys.stderr)
+        return 1
+
+    ws = wb.active
     du_lieu = list(ws.iter_rows(values_only=True))
     if not du_lieu:
         print("File Excel rong.", file=sys.stderr)
@@ -511,6 +554,13 @@ def cmd_tu_excel(xlsx: Path, csv_path: Path, columns: list[str]) -> int:
         o += [""] * (len(columns) - len(o))
         ban_ghi.append(o[:len(columns)])
 
+    # Sao luu truoc khi ghi de: con duong lui neu ban Excel hoa ra sai
+    sao_luu: Path | None = csv_path.with_suffix(".csv.bak")
+    try:
+        sao_luu.write_bytes(csv_path.read_bytes())
+    except OSError:
+        sao_luu = None
+
     # utf-8-sig: giu BOM de lan sau mo thang bang Excel van doc dung tieng Viet
     try:
         with csv_path.open("w", encoding="utf-8-sig", newline="") as fh:
@@ -528,6 +578,8 @@ def cmd_tu_excel(xlsx: Path, csv_path: Path, columns: list[str]) -> int:
         return 1
 
     print(f"OK -> {csv_path}  ({len(ban_ghi)} dong)")
+    if sao_luu:
+        print(f"Ban truoc khi nhap duoc luu o: {sao_luu.name}")
     print()
     print("Chay kiem tra ngay:")
     print(r"  .venv\Scripts\python.exe scripts/survey_tools.py validate")
@@ -541,6 +593,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="Duong dan file Excel (mac dinh: canh file csv)")
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV)
     parser.add_argument("-o", "--out", type=Path, default=DEFAULT_TABLE_OUT)
+    parser.add_argument("--ghi-de", action="store_true",
+                        help="tu-excel: nhập ngược DÙ file .csv đã đổi sau khi xuất "
+                             "(mọi thay đổi trong .csv sẽ mất)")
     args = parser.parse_args(argv)
 
     if not args.csv.exists():
@@ -558,9 +613,9 @@ def main(argv: list[str] | None = None) -> int:
 
     xlsx = args.xlsx or args.csv.with_suffix(".xlsx")
     if args.command == "excel":
-        return cmd_excel(rows, columns, xlsx)
+        return cmd_excel(rows, columns, xlsx, args.csv)
     if args.command == "tu-excel":
-        return cmd_tu_excel(xlsx, args.csv, columns)
+        return cmd_tu_excel(xlsx, args.csv, columns, args.ghi_de)
     if args.command == "validate":
         return cmd_validate(rows, columns)
     if args.command == "stats":
