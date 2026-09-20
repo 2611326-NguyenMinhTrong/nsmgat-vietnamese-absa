@@ -79,6 +79,8 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `scripts/try_bilstm.py` | [CD1.4b] Công cụ thử tay `BiLSTMModel` — xem **trọng số attention** và chạy cùng một câu qua **mọi khía cạnh**. Gọi `model.ma_hoa()` / `model._chu_y()` chứ không chép lại công thức; có test canh chống lệch |
 | `scripts/watch_train.py` + `tests/test_watch_train.py` | [CD1.4b] Theo dõi **liên tục** một lần huấn luyện: thời gian từng epoch, dev_acc/dev_macro_f1, đếm ngược kiên nhẫn, ước lượng giờ xong. Đọc `logs/<exp>/seed<N>.log`, dùng cho **mọi** mô hình về sau |
 | `src/nsmgat/trainer.py` (`--resume`) + `tests/test_resume.py` | [CD1.4b] Chạy **tiếp** một lần huấn luyện bị ngắt (S4.4 kéo lên sớm). Ghi `last.pt` mỗi epoch gồm cả trạng thái sinh số ngẫu nhiên, nên chạy tiếp cho kết quả **giống hệt** chạy liền mạch — có test khoá. Chữ ký `Trainer.train()` không đổi |
+| `SO_TAY_LENH.md` (gốc repo) | [REQ-011] Mọi lệnh của repo xếp **theo nhu cầu**, mô tả đầy đủ kèm bẫy thường gặp. Thêm công cụ mới thì cập nhật file này cùng lúc |
+| `scripts/cham_trac_nghiem.py` + `tests/test_cham_trac_nghiem.py` | [REQ-009/REQ-010] Chấm trắc nghiệm đọc bài báo: luật đạt hai điều kiện, chỉ ra mục cần đọc lại, ghi/ẩn đáp án ngay trên phiếu. Test canh đề ↔ đáp án khớp nhau |
 | `requirements.txt` | [CD1.1] Thêm `python-docx>=1.1` — CI cài từ file này |
 | `data/diagnostic/` | Tập chẩn đoán 300 câu (CD1.8) |
 | `docs/annotation_guideline.md` | Hướng dẫn chú thích (S6.2) |
