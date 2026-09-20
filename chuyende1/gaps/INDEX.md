@@ -36,6 +36,7 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | [GAP-012](GAP-012_tieu-chi-hoan-thanh-con-dem-4-thi-nghiem.md) | 08/09/2026 | Tài liệu | Nhẹ | Tiêu chí hoàn thành còn đếm "4 thí nghiệm / 12 thư mục" sau khi GAP-006 nâng lên 7 thí nghiệm / 19 thư mục | ✅ Đã sửa |
 | [GAP-013](GAP-013_tran-mu-khia-canh-do-tren-train-dung-cho-test.md) | 08/09/2026 | Số liệu | Nhẹ | Trần mù khía cạnh 80,2 % đo trên tập **train** nhưng dùng làm trần cho accuracy tập **test** — trần đúng là **80,88 %**. Kết luận không đổi | ✅ Đã sửa |
 | [GAP-014](GAP-014_them-dong-vao-base-yaml-lam-doi-van-tay-cau-hinh.md) | 08/09/2026 | Code | **Nghiêm trọng** | Thêm 3 dòng sổ sách vào `base.yaml` làm đổi `config_hash` của mọi kết quả cũ, dù mọi con số y nguyên — hỏng đúng công dụng của vân tay | ✅ Đã sửa |
+| [GAP-015](GAP-015_go-theo-doi-file-xong-nhung-quy-tac-ignore-chua-them.md) | 20/09/2026 | Code | Nhẹ | Gỡ `SO_TAY_LENH.md` khỏi git xong nhưng bước thêm vào `.gitignore` chết giữa chừng (file dùng CRLF) — file thành "chưa theo dõi mà cũng không bị bỏ qua", một `git add .` vô ý là quay lại | ✅ Đã sửa |
 
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
