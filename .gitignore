@@ -8,6 +8,8 @@
 # De, dap an, bai lam va ket qua trac nghiem doc bai bao — tai lieu hoc ca nhan
 chuyende1/trac-nghiem/
 **/README.md
+# So tay lenh: co duong dan may ca nhan + cach lam viec rieng — giu o may
+/SO_TAY_LENH.md
 
 data/raw/
 data/cache/
