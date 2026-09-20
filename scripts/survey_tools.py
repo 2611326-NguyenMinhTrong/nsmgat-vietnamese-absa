@@ -40,6 +40,7 @@ UNKNOWN = "[CẦN TÌM]"
 
 REQUIRED_COLUMNS = [
     "ref_key",
+    "tieu_de",
     "trang_thai",
     "nam",
     "hoi_nghi_tap_chi",

@@ -195,6 +195,7 @@ học viên đọc kỹ — không âm thầm thêm vào rồi đi tiếp.
 | Cột | Nghĩa | Giá trị hợp lệ |
 |---|---|---|
 | `ref_key` | Khoá trích dẫn ngắn, **duy nhất**, dùng xuyên suốt báo cáo | Tự do, không dấu cách. VD `ASGCN` |
+| `tieu_de` | Tiêu đề đầy đủ, **chép nguyên văn** từ nguồn gốc — dùng dựng danh mục tài liệu tham khảo | Tự do. Không tự dịch, không viết tắt |
 | `trang_thai` | Mức kiểm chứng — xem mục 7 | `chua_kiem` · `da_kiem_url` · `da_doc_toan_van` |
 | `nam` | Năm công bố | 4 chữ số |
 | `hoi_nghi_tap_chi` | Nơi công bố. Chỉ có tiền ấn phẩm thì ghi `arXiv` | Tự do. VD `EMNLP 2020` |
