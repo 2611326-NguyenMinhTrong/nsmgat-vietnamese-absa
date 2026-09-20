@@ -92,8 +92,12 @@ vẫn có giá trị cho Chương 5, dù không phải ABSA.
 | N₁ — thu thập thô | | | Tổng cột "Số kết quả" ở mục 6 |
 | N₂ — sau khi loại trùng | | | |
 | N₃ — sau sàng tiêu đề + tóm tắt | | | |
-| N₄ — sau đọc toàn văn (vào ma trận) | | | `survey_tools.py stats` |
-| N₅ — phân tích sâu trong Chương 3 | | | Số dòng có `trang_thai = da_doc_toan_van` |
+| N₄ — sau đọc toàn văn (vào ma trận) | **1** | 20/09/2026 | `survey_tools.py stats` |
+| N₅ — phân tích sâu trong Chương 3 | **1** | 20/09/2026 | Số dòng có `trang_thai = da_doc_toan_van` |
+
+*Cập nhật hai dòng cuối bằng `survey_tools.py stats` mỗi khi kiểm chứng xong một bài — số
+trong bảng này đi thẳng vào sơ đồ luồng ở mục 3.1 của báo cáo. Bài đầu tiên: `UIT-ViSFD`
+(20/09/2026, đạt trắc nghiệm 01).*
 
 Năm con số này dựng thành sơ đồ luồng ở mục 3.1 của báo cáo. **Chỉ tiêu:** N₁ ≥ 70,
 N₄ ≥ 45, N₅ ≈ 25.

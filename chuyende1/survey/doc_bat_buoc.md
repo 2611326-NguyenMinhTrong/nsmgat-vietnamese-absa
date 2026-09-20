@@ -155,10 +155,37 @@ rào cản 1). Câu trả lời phụ thuộc vào **cách bài báo chấm đi�
   ngày 20/09/2026.)*
 - Độ đo là macro-F1 hay micro-F1? Trung bình trên khía cạnh hay trên mẫu? *(macro và micro
   lệch nhau rất xa khi lớp mất cân bằng — lớp trung tính của ta chỉ 12,2 %)*
+  → **Macro.** Nguyên văn: *"We use the precision, recall, and F1-score (macro average) to
+  measure the performance of models."* Bài **không nói rõ** macro đó lấy trung bình trên
+  **lớp cảm xúc** hay trên **khía cạnh** — nhưng Bảng 5 báo cáo P/R/F1 cho **từng khía
+  cạnh** một, nên nhiều khả năng con số tổng là trung bình trên khía cạnh.
+  *Vì sao quan trọng:* macro coi mọi lớp ngang nhau. Chính `lexicon` của ta cho thấy hậu quả
+  khi dùng độ đo khác: F1(NEU) = 0,000 mà accuracy vẫn 74,7 %.
 - Nhãn `{OTHERS}` được xử lý thế nào trong đánh giá của họ? *(ta loại 170 bình luận chỉ có
   nhãn này — họ có loại không, hay tính là một lớp?)*
+  → **Họ giữ `OTHERS` cho nhiệm vụ phát hiện khía cạnh, nhưng loại khỏi nhiệm vụ cảm xúc.**
+  Nguyên văn (mục 5.2): *"We do not detect sentiments of OTHERS aspect because they cannot
+  show their sentiments, so we give it the NaN value."* Trong Bảng 5, dòng `Others` có
+  F1 phát hiện khía cạnh 60,82 % còn ba cột cảm xúc đều là `NaN`.
+  Định nghĩa nhãn (mục 3.2): *"For some comments that do not relate to any aspect or do not
+  evaluate the product, we annotate an OTHERS label for these cases which do not express the
+  sentiment."*
+  *(Đã đối chiếu 20/09/2026 bằng hai lượt đọc độc lập bản ar5iv.)*
+  **Hệ quả cho ta — tin tốt:** việc repo loại 170 bình luận chỉ mang nhãn `{OTHERS}` **trùng
+  với cách bài báo đối xử với chúng ở nhiệm vụ cảm xúc**. Đây không phải một lựa chọn tiền xử
+  lý riêng của ta cần phải biện minh; nói được câu đó trong báo cáo là một điểm cộng.
 - Bi-LSTM của họ dùng fastText mức từ. Baseline `bilstm` của ta dùng subword PhoBERT. Khác
   biệt này ảnh hưởng thế nào tới việc đặt hai con số cạnh nhau?
+  → **Ba khác biệt chồng lên nhau, không chỉ một.**
+  1. **Nguồn tri thức:** fastText của họ là embedding **đã tiền huấn luyện** trên kho ngữ
+     liệu lớn. Embedding của ta **khởi tạo ngẫu nhiên, học từ đầu** trên 23,8k mẫu — chỉ
+     mượn *bộ tách từ* của PhoBERT, không nạp trọng số. Tức mô hình của ta có **ít** tri
+     thức ngôn ngữ đầu vào hơn, không phải nhiều hơn.
+  2. **Mức chia:** mức từ so với subword. fastText còn có ưu thế riêng với tiếng Việt viết
+     tắt/teencode vì nó cộng vector của các n-gram ký tự.
+  3. **Bài toán:** của họ gồm cả phát hiện khía cạnh; của ta cho sẵn khía cạnh.
+  → Nên **không đặt 63,06 % cạnh 0,7949 như hai con số cùng loại**. Nếu báo cáo có nhắc tới
+  cả hai, phải viết rõ ba khác biệt trên trong cùng một câu (xem REQ-008).
 
 **Trạng thái đọc:** ☑ **Đã đọc** (18/09/2026) · ☑ **Đã đọc kỹ** — đạt [trắc nghiệm 01](../trac-nghiem/de/01_UIT-ViSFD.md) ngày **20/09/2026**: **15/15**, đúng cả 7 câu ★ ([kết quả](../trac-nghiem/ket-qua/01_UIT-ViSFD_2026-09-20_1558.md)). Lần chấm đầu được 10/15; đọc lại các mục bị chỉ ra rồi làm lại — phiếu trả lời không hề có đáp án ghi sẵn, nên đây là kết quả đọc thật.
 
