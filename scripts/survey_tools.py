@@ -76,6 +76,39 @@ METHOD_GROUPS = {
 GROUP_RESOURCE = "TAI_NGUYEN"
 VALID_GROUPS = tuple(METHOD_GROUPS) + (GROUP_RESOURCE,)
 
+# Dong chu thich ngay trong file CSV (#MO_TA, #VI_DU): mo ta cot va mot dong
+# dien mau, de nguoi dien khong phai mo protocol ra tra. Moi cong cu BO QUA
+# chung — nhung `load_rows` van giu lai, neu khong thi vong Excel se xoa mat.
+DAU_CHU_THICH = "#"
+
+# Cac cot co tap gia tri dong. Khoa bang code, khong bang tri nho — dung co
+# che da dung cho trang_thai. Vi sao can: truoc khi co muc nay, cot
+# bieu_dien_dau_vao co hai dong dien hai kieu khac nhau, mot dong con tron ca
+# kien truc mo hinh vao o (GAP-016).
+VALID_YESNO = ("co", "khong")
+VALID_NEGATION = ("co", "khong", "mot_phan")
+VALID_GRAPH_TYPES = ("", "cu_phap", "ngu_nghia", "tri_thuc", "khac")
+VALID_LANGS = ("vi", "en", "da_ngu")
+# Ma bat buoc cua bieu_dien_dau_vao. Chi tiet viet trong ngoac don sau ma,
+# vi du: "embedding_tinh (fastText, muc tu)".
+VALID_INPUT_REPR = (
+    "dac_trung_thu_cong",
+    "tu_dien_cam_xuc",
+    "embedding_tinh",
+    "embedding_ngu_canh",
+    "khac",
+)
+
+CLOSED_COLUMNS = {
+    "co_dung_do_thi": VALID_YESNO,
+    "co_tri_thuc_ngoai": VALID_YESNO,
+    "co_giai_thich": VALID_YESNO,
+    "co_ma_nguon": VALID_YESNO,
+    "xu_ly_phu_dinh_chuyen_y": VALID_NEGATION,
+    "loai_do_thi": VALID_GRAPH_TYPES,
+    "ngon_ngu": VALID_LANGS,
+}
+
 # Chỉ tiêu ở PLAN_CHUYENDE1.md mục CD1.2
 TARGET_TOTAL = 45
 TARGET_PER_GROUP = 4
@@ -128,6 +161,20 @@ def is_verified(row: dict[str, str]) -> bool:
     return row.get("trang_thai") in (STATUS_KIEM_URL, STATUS_TOAN_VAN)
 
 
+def la_chu_thich(row: dict[str, str]) -> bool:
+    """Dong mo ta cot / dong dien mau, khong phai mot cong trinh."""
+    return row.get("ref_key", "").startswith(DAU_CHU_THICH)
+
+
+def chi_du_lieu(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    return [r for r in rows if not la_chu_thich(r)]
+
+
+def _ma_bieu_dien(gia_tri: str) -> str:
+    """"embedding_tinh (fastText, muc tu)" -> "embedding_tinh"."""
+    return gia_tri.split("(", 1)[0].strip()
+
+
 # --- validate -----------------------------------------------------------------
 
 
@@ -150,7 +197,33 @@ def validate(rows: list[dict[str, str]], columns: list[str]) -> list[str]:
         if not ref:
             errors.append(f"Dòng {i}: ref_key rỗng")
             continue
+        if la_chu_thich(row):
+            continue  # dòng mô tả cột / dòng điền mẫu
         seen[ref] += 1
+
+        for cot, hop_le in CLOSED_COLUMNS.items():
+            gia_tri = row.get(cot, "")
+            if gia_tri != UNKNOWN and gia_tri not in hop_le:
+                duoc_phep = " | ".join(v or "(để trống)" for v in hop_le)
+                errors.append(
+                    f"Dòng {i} ({ref}): {cot}='{gia_tri}' không hợp lệ, phải là {duoc_phep} "
+                    f"hoặc {UNKNOWN}"
+                )
+
+        bieu_dien = row.get("bieu_dien_dau_vao", "")
+        if bieu_dien != UNKNOWN and _ma_bieu_dien(bieu_dien) not in VALID_INPUT_REPR:
+            errors.append(
+                f"Dòng {i} ({ref}): bieu_dien_dau_vao='{bieu_dien}' phải bắt đầu bằng một mã "
+                f"trong {' | '.join(VALID_INPUT_REPR)}, chi tiết viết trong ngoặc — "
+                f"ví dụ: embedding_tinh (fastText, mức từ)"
+            )
+
+        # Mâu thuẫn nội tại: không dùng đồ thị mà vẫn ghi loại đồ thị
+        if row.get("co_dung_do_thi") == "khong" and row.get("loai_do_thi") not in ("", UNKNOWN):
+            errors.append(
+                f"Dòng {i} ({ref}): co_dung_do_thi=khong thì loai_do_thi phải để trống, "
+                f"đang là '{row['loai_do_thi']}'"
+            )
 
         if row["trang_thai"] not in VALID_STATUS:
             errors.append(
@@ -186,6 +259,7 @@ def validate(rows: list[dict[str, str]], columns: list[str]) -> list[str]:
 
 
 def compute_stats(rows: list[dict[str, str]]) -> dict:
+    rows = chi_du_lieu(rows)
     by_status = Counter(r["trang_thai"] for r in rows)
     by_group = Counter(r["ho_phuong_phap"] for r in rows)
     method_rows = [r for r in rows if r["ho_phuong_phap"] in METHOD_GROUPS]
@@ -242,6 +316,7 @@ def format_stats(stats: dict) -> str:
 
 
 def build_table_markdown(rows: list[dict[str, str]]) -> str:
+    rows = chi_du_lieu(rows)
     verified = [r for r in rows if is_verified(r)]
     header = [label for _, label in TABLE_COLUMNS]
 
@@ -276,7 +351,9 @@ def cmd_validate(rows, columns) -> int:
         for err in errors:
             print(f"  - {err}")
         return 1
-    print(f"Hợp lệ. {len(rows)} dòng, {len(columns)} cột.")
+    du_lieu = chi_du_lieu(rows)
+    print(f"Hợp lệ. {len(du_lieu)} dòng dữ liệu "
+          f"+ {len(rows) - len(du_lieu)} dòng chú thích, {len(columns)} cột.")
     return 0
 
 
@@ -286,7 +363,7 @@ def cmd_stats(rows) -> int:
 
 
 def cmd_table(rows, out_path: Path) -> int:
-    verified = [r for r in rows if is_verified(r)]
+    verified = [r for r in chi_du_lieu(rows) if is_verified(r)]
     if not verified:
         print(
             "CHƯA SINH ĐƯỢC BẢNG 3.9.\n\n"
@@ -300,7 +377,8 @@ def cmd_table(rows, out_path: Path) -> int:
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(build_table_markdown(rows), encoding="utf-8")
-    print(f"OK -> {out_path}  ({len(verified)} công trình, bỏ qua {len(rows) - len(verified)} dòng chưa kiểm chứng)")
+    print(f"OK -> {out_path}  ({len(verified)} công trình, "
+          f"bỏ qua {len(chi_du_lieu(rows)) - len(verified)} dòng chưa kiểm chứng)")
     return 0
 
 
@@ -351,12 +429,24 @@ def cmd_excel(rows: list[dict[str, str]], columns: list[str], out: Path) -> int:
     for r in rows:
         ws.append([r.get(c, "") for c in columns])
 
-    # Do rong cot theo noi dung, chan tren 60 de khong co cot nao qua kho nhin
+    # Hai dong #MO_TA / #VI_DU: to khac di va cho xuong dong, de doc duoc ma
+    # khong bi nham la du lieu that.
+    so_chu_thich = sum(1 for r in rows if la_chu_thich(r))
+    for hang in range(2, 2 + so_chu_thich):
+        for o in ws[hang]:
+            o.font = Font(italic=True, color="7F6000")
+            o.fill = PatternFill("solid", fgColor="FFF2CC")
+            o.alignment = Alignment(vertical="top", wrap_text=True)
+
+    # Do rong cot theo DU LIEU THAT — tinh ca dong mo ta thi cot nao cung kich
+    # het co, vi mo ta dai hon moi o du lieu.
+    du_lieu = chi_du_lieu(rows)
     for i, c in enumerate(columns, start=1):
-        dai = max([len(c)] + [len(str(r.get(c, ""))) for r in rows])
+        dai = max([len(c)] + [len(str(r.get(c, ""))) for r in du_lieu])
         ws.column_dimensions[ws.cell(row=1, column=i).column_letter].width = min(max(dai + 2, 12), 60)
 
-    ws.freeze_panes = "B2"  # giu header va cot ref_key khi cuon
+    # Giu header + hai dong chu thich + cot ref_key khi cuon
+    ws.freeze_panes = f"B{2 + so_chu_thich}"
 
     # Khoa cot trang_thai vao 3 gia tri hop le — chan loi go sai ngay tu Excel,
     # thay vi de `validate` bao loi sau khi da sua ca file.
@@ -368,7 +458,7 @@ def cmd_excel(rows: list[dict[str, str]], columns: list[str], out: Path) -> int:
             error=f"Chi duoc mot trong: {', '.join(VALID_STATUS)}",
         )
         ws.add_data_validation(dv)
-        dv.add(f"{cot}2:{cot}{len(rows) + 1}")
+        dv.add(f"{cot}{2 + so_chu_thich}:{cot}{len(rows) + 1}")  # chừa dòng chú thích ra
 
     out.parent.mkdir(parents=True, exist_ok=True)
     try:

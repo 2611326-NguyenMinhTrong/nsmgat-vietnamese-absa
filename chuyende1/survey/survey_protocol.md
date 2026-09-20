@@ -145,3 +145,62 @@ Quy tắc gắn cờ và tiêu chí "quan trọng": xem `README.md` mục "Quy �
 phần D. Tóm tắt: mỗi khi phát hiện một bài như vậy, phải (1) thêm vào `doc_bat_buoc.md`,
 (2) thêm dòng vào ma trận này nếu chưa có, (3) **nói rõ ngay trong câu trả lời** và yêu cầu
 học viên đọc kỹ — không âm thầm thêm vào rồi đi tiếp.
+
+## 9. Từ điển cột — điền ô nào nghĩa là gì
+
+> Ba nơi nói cùng một điều, cố ý: mục này (đầy đủ), hai dòng `#MO_TA` / `#VI_DU` ngay trong
+> `survey_matrix.csv` (tra nhanh khi đang điền), và `survey_tools.py validate` (cưỡng chế).
+> Đổi từ vựng ở đây thì phải đổi cả ba.
+
+| Cột | Nghĩa | Giá trị hợp lệ |
+|---|---|---|
+| `ref_key` | Khoá trích dẫn ngắn, **duy nhất**, dùng xuyên suốt báo cáo | Tự do, không dấu cách. VD `ASGCN` |
+| `trang_thai` | Mức kiểm chứng — xem mục 7 | `chua_kiem` · `da_kiem_url` · `da_doc_toan_van` |
+| `nam` | Năm công bố | 4 chữ số |
+| `hoi_nghi_tap_chi` | Nơi công bố. Chỉ có tiền ấn phẩm thì ghi `arXiv` | Tự do. VD `EMNLP 2020` |
+| `ho_phuong_phap` | Nhóm phương pháp của Chương 3 | `G1_co_dien` · `G2_tuan_tu_attention` · `G3_plm` · `G4_do_thi` · `G5_sinh_prompting` · `G6_neuro_symbolic` · `TAI_NGUYEN` |
+| `bieu_dien_dau_vao` | **Công trình biến văn bản thành số bằng cách nào** trước khi mô hình lập luận | Bắt đầu bằng một mã (bảng dưới), chi tiết trong ngoặc |
+| `co_dung_do_thi` | Mô hình có dùng đồ thị không | `co` · `khong` |
+| `loai_do_thi` | Loại đồ thị | `cu_phap` · `ngu_nghia` · `tri_thuc` · `khac` · **để trống** nếu `co_dung_do_thi = khong` |
+| `co_tri_thuc_ngoai` | Có dùng tri thức ngoài dữ liệu huấn luyện không (từ điển cảm xúc, SenticNet, ontology) | `co` · `khong` |
+| `ngon_ngu` | Ngôn ngữ thực nghiệm | `vi` · `en` · `da_ngu` |
+| `tap_du_lieu` | Tập dữ liệu thực nghiệm chính | Tự do, nhiều tập ngăn bằng `+` |
+| `do_do_bao_cao` | Độ đo bài báo dùng — **ghi rõ macro hay micro** | Tự do. VD `accuracy, macro-F1` |
+| `ket_qua_tot_nhat` | Con số tốt nhất **kèm tập đạt được** | Tự do. VD `acc 85,2 / macro-F1 78,4 (Restaurant)` |
+| `xu_ly_phu_dinh_chuyen_y` | Bài có xử lý phủ định / chuyển ý không — câu hỏi khảo sát CH3 | `co` · `khong` · `mot_phan` |
+| `co_giai_thich` | Mô hình có đưa ra giải thích cho dự đoán không | `co` · `khong` |
+| `co_ma_nguon` | Có công khai mã nguồn không | `co` · `khong` |
+| `nguon_url` | Link bản gốc — DOI, arXiv hoặc ACL Anthology | Bắt buộc khi `trang_thai` khác `chua_kiem` |
+| `ghi_chu` | Tự do | Ghi cả **cách kiểm chứng** một ô khó |
+
+Ô chưa biết thì ghi `[CẦN TÌM]` — không đoán, không để trống (trừ `loai_do_thi` như trên).
+
+### Mã của `bieu_dien_dau_vao`
+
+Đây là trục chia sáu nhóm phương pháp, nên phải điền nhất quán mới so sánh được.
+
+| Mã | Đầu vào thực chất của mô hình | Ví dụ |
+|---|---|---|
+| `dac_trung_thu_cong` | Đếm từ: BoW, TF-IDF, n-gram | SVM / Naive Bayes trong bài UIT-ViSFD |
+| `tu_dien_cam_xuc` | Điểm cảm xúc tra sẵn của từng từ | Baseline `lexicon` của đề tài |
+| `embedding_tinh` | Mỗi từ (hoặc subword) **một vector cố định**, không đổi theo ngữ cảnh — dù là tiền huấn luyện (fastText, word2vec, GloVe) hay học từ đầu | Bi-LSTM của bài UIT-ViSFD · baseline `bilstm` của đề tài |
+| `embedding_ngu_canh` | Vector của một từ **đổi theo câu chứa nó** — mô hình tiền huấn luyện | PhoBERT, ViSoBERT, BERT |
+| `khac` | Không rơi vào bốn loại trên | Ghi rõ trong ngoặc và trong `ghi_chu` |
+
+Chi tiết viết trong ngoặc, gồm **tên cụ thể** và **mức chia**:
+
+```
+embedding_tinh (fastText, mức từ)
+embedding_tinh (học từ đầu, subword PhoBERT, 300 chiều)
+embedding_ngu_canh (PhoBERT-base-v2, subword)
+```
+
+**Đừng trộn kiến trúc vào ô này.** `embedding + BiLSTM` là một giá trị sai: `BiLSTM` là mô
+hình, thuộc cột `ho_phuong_phap`. Lỗi này đã xảy ra thật — xem GAP-016.
+
+### Hai dòng chú thích trong file CSV
+
+`survey_matrix.csv` có hai dòng đầu là `#MO_TA` (mô tả từng cột) và `#VI_DU` (một dòng điền
+mẫu, **số liệu bịa**). Mọi dòng có `ref_key` bắt đầu bằng `#` đều bị các công cụ bỏ qua:
+không tính vào thống kê, không lọt vào Bảng 3.9. **Đừng xoá chúng** — đó là chỗ tra nhanh
+khi đang điền, và chúng đi theo cả vòng xuất/nhập Excel.

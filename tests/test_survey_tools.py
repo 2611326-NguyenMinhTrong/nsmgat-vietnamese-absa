@@ -25,6 +25,7 @@ from survey_tools import (  # noqa: E402
     UNKNOWN,
     build_table_markdown,
     compute_stats,
+    la_chu_thich,
     load_rows,
     main,
     validate,
@@ -38,6 +39,14 @@ def make_row(**overrides) -> dict[str, str]:
         ref_key="Bai-A",
         trang_thai=STATUS_KIEM_URL,
         ho_phuong_phap="G4_do_thi",
+        bieu_dien_dau_vao="embedding_ngu_canh (BERT-base, subword)",
+        co_dung_do_thi="co",
+        loai_do_thi="cu_phap",
+        co_tri_thuc_ngoai="khong",
+        ngon_ngu="en",
+        xu_ly_phu_dinh_chuyen_y="khong",
+        co_giai_thich="khong",
+        co_ma_nguon="co",
         nguon_url="https://example.org/bai-a",
     )
     row.update(overrides)
@@ -49,7 +58,9 @@ def make_row(**overrides) -> dict[str, str]:
 
 def test_file_that_trong_repo_hop_le():
     rows = load_rows(DEFAULT_CSV)
-    with DEFAULT_CSV.open(encoding="utf-8", newline="") as fh:
+    # utf-8-sig chứ không phải utf-8: `tu-excel` ghi lại file kèm BOM (cố ý, để
+    # mở thẳng bằng Excel vẫn đúng tiếng Việt), nên sau một vòng Excel là có BOM.
+    with DEFAULT_CSV.open(encoding="utf-8-sig", newline="") as fh:
         columns = next(csv.reader(fh))
     assert validate(rows, columns) == []
     assert len(rows) >= 20, "ma trận hạt giống phải có sẵn danh sách việc cần kiểm chứng"
@@ -66,6 +77,29 @@ def test_file_that_moi_dung_deu_chua_kiem_chung():
         )
 
 
+def test_file_that_co_dong_mo_ta_va_vi_du_cho_moi_cot():
+    """Hai dòng #MO_TA / #VI_DU nằm ngay trong CSV để tra khi đang điền. Chúng
+    dễ bị xoá nhầm lúc sửa bằng Excel — test này canh."""
+    rows = load_rows(DEFAULT_CSV)
+    chu_thich = {r["ref_key"].split()[0]: r for r in rows if la_chu_thich(r)}
+    assert "#MO_TA" in chu_thich and "#VI_DU" in chu_thich
+
+    for col in REQUIRED_COLUMNS:
+        assert chu_thich["#MO_TA"][col].strip(), f"cột {col} chưa có mô tả trong dòng #MO_TA"
+    # Dòng ví dụ phải là dòng điền ĐÚNG, nếu không thì dạy người điền cách sai
+    assert validate([{**chu_thich["#VI_DU"], "ref_key": "VI-DU"}], REQUIRED_COLUMNS) == []
+
+
+def test_dong_chu_thich_khong_bi_tinh_la_cong_trinh():
+    rows = [
+        make_row(ref_key="A", trang_thai=STATUS_TOAN_VAN),
+        {col: "nội dung mô tả bất kỳ" for col in REQUIRED_COLUMNS} | {"ref_key": "#MO_TA"},
+    ]
+    assert validate(rows, REQUIRED_COLUMNS) == [], "dòng # không bị soi giá trị hợp lệ"
+    assert compute_stats(rows)["tong"] == 1
+    assert "#MO_TA" not in build_table_markdown(rows)
+
+
 # --- validate -----------------------------------------------------------------
 
 
@@ -77,6 +111,30 @@ def test_bat_trang_thai_khong_hop_le():
 def test_bat_nhom_phuong_phap_khong_hop_le():
     errors = validate([make_row(ho_phuong_phap="G9_khong_ton_tai")], REQUIRED_COLUMNS)
     assert any("ho_phuong_phap" in e for e in errors)
+
+
+def test_bat_gia_tri_ngoai_tu_vung():
+    """Cột có tập giá trị đóng thì phải khoá bằng code. Không khoá thì mỗi dòng
+    một cách viết, tới lúc dựng Bảng 3.9 các ô không so được với nhau."""
+    errors = validate([make_row(co_dung_do_thi="yes")], REQUIRED_COLUMNS)
+    assert any("co_dung_do_thi" in e and "co | khong" in e for e in errors)
+
+
+def test_bieu_dien_dau_vao_phai_bat_dau_bang_ma():
+    """Lỗi thật đã xảy ra (GAP-016): ô ghi 'embedding + BiLSTM' — trộn biểu diễn
+    đầu vào với kiến trúc mô hình, thứ thuộc cột ho_phuong_phap."""
+    errors = validate([make_row(bieu_dien_dau_vao="embedding + BiLSTM")], REQUIRED_COLUMNS)
+    assert any("bieu_dien_dau_vao" in e for e in errors)
+
+    ok = validate([make_row(bieu_dien_dau_vao="embedding_tinh (fastText, mức từ)")], REQUIRED_COLUMNS)
+    assert ok == [], "có mã đúng thì phần chi tiết trong ngoặc là tự do"
+
+
+def test_bat_mau_thuan_khong_dung_do_thi_ma_van_ghi_loai():
+    errors = validate(
+        [make_row(co_dung_do_thi="khong", loai_do_thi="cu_phap")], REQUIRED_COLUMNS
+    )
+    assert any("loai_do_thi phải để trống" in e for e in errors)
 
 
 def test_bat_ref_key_trung():
@@ -144,8 +202,20 @@ def test_bang_chi_lay_dong_da_kiem_chung():
 
 
 def test_table_tu_choi_khi_chua_co_dong_nao_kiem_chung(tmp_path, capsys):
-    """Với ma trận hạt giống hiện tại (toàn chua_kiem), lệnh phải thoát khác 0."""
-    code = main(["table", "--csv", str(DEFAULT_CSV), "-o", str(tmp_path / "bang.md")])
+    """Ma trận mà chưa dòng nào được kiểm chứng thì lệnh phải thoát khác 0.
+
+    Dựng file tạm toàn `chua_kiem` thay vì dùng file thật: file thật rồi sẽ có
+    dòng đã kiểm chứng, và khi đó test này mất ý nghĩa nếu bám vào nó."""
+    with DEFAULT_CSV.open(encoding="utf-8-sig", newline="") as fh:
+        header, *rows = list(csv.reader(fh))
+    i = header.index("trang_thai")
+    for row in rows:
+        row[i] = STATUS_CHUA_KIEM
+    toan_chua_kiem = tmp_path / "chua_kiem.csv"
+    with toan_chua_kiem.open("w", encoding="utf-8-sig", newline="") as fh:
+        csv.writer(fh).writerows([header, *rows])
+
+    code = main(["table", "--csv", str(toan_chua_kiem), "-o", str(tmp_path / "bang.md")])
     assert code == 1
     assert not (tmp_path / "bang.md").exists(), "không được ghi file bảng khi chưa kiểm chứng"
     assert "CHƯA SINH ĐƯỢC BẢNG" in capsys.readouterr().err
