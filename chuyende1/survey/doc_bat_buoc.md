@@ -20,7 +20,7 @@ trả lời** rằng vừa gắn cờ — không im lặng thêm vào. Học vi�
 |---|---|---|---|---|---|
 | 1 | `SenticNet-7` | 02/09/2026 | **GVHD đã chọn làm TLTK chính số [1]** trong bản duyệt. Là nền lý thuyết trực tiếp của hướng neuro-symbolic — thứ CĐ2 sẽ mở rộng | 🔴 | ☐ |
 | 2 | `PhoBERT` | 02/09/2026 | **GVHD đã chọn làm TLTK chính số [2]** trong bản duyệt. Là baseline `phobert` và là bộ mã hoá nền của cả Sentic-GCN lẫn NS-MGAT | 🔴 | ☐ |
-| 3 | `UIT-ViSFD` | 09/09/2026 | **Bài giới thiệu chính tập dữ liệu của đề tài.** Quyết định câu "kết quả của em có so được với bài báo không" — xem REQ-008 rào cản 1 | 🔴 | ☐ *đã đọc 18/09 · chờ đạt trắc nghiệm 01* |
+| 3 | `UIT-ViSFD` | 09/09/2026 | **Bài giới thiệu chính tập dữ liệu của đề tài.** Quyết định câu "kết quả của em có so được với bài báo không" — xem REQ-008 rào cản 1 | 🔴 | ☑ **20/09/2026** — đạt trắc nghiệm 01, 15/15 |
 | 4 | `ASGCN` | 09/09/2026 | **Baseline chính thức** (bản GVHD duyệt mục 4). Ý tưởng đồ thị phụ thuộc theo khía cạnh — nền trực tiếp của CĐ2. Có một vấn đề thiết kế phải giải trước CD1.6a | 🔴 | ☐ |
 | 5 | `Sentic-GCN` | 09/09/2026 | **Baseline chính thức.** Là mô hình gần NS-MGAT nhất trong các công trình đã có — hội đồng chắc chắn hỏi "khác gì Sentic-GCN?" | 🔴 | ☐ |
 | 6 | `ATAE-LSTM` | 09/09/2026 | Kiến trúc mà baseline `bilstm` (CD1.4b) dựa theo. Cần để nói đúng "của em khác bản gốc ở đâu" | 🟡 | ☐ |
@@ -145,8 +145,14 @@ rào cản 1). Câu trả lời phụ thuộc vào **cách bài báo chấm đi�
 - **Nhiệm vụ cảm xúc được chấm thế nào?** Mô hình có được cho sẵn khía cạnh đúng rồi mới
   gán cảm xúc (giống bài toán ACSA của bạn), hay phải tự phát hiện khía cạnh trước rồi bị
   chấm trên cặp *khía cạnh#cảm xúc*?
-  → *Đây là câu 11 của [trắc nghiệm 01](../trac-nghiem/de/01_UIT-ViSFD.md). Câu trả lời sẽ
-  được ghi vào đây **sau khi bạn đạt** — ghi trước thì lộ đáp án.*
+  → **Bài báo KHÔNG nói rõ** *(đã đọc toàn văn 18/09/2026, hai lượt đọc độc lập)*. Chắc chắn
+  được: đầu ra của bài toán gồm **cả** khía cạnh lẫn cảm xúc. Nhưng không có câu nào định
+  nghĩa F1 cảm xúc 63,06 % tính trên khía cạnh **cho sẵn** hay khía cạnh **tự phát hiện**, và
+  bài **không** có cột kết quả riêng cho bài toán "cho sẵn khía cạnh". Hệ quả cho báo cáo:
+  không có căn cứ nào cho thấy 63,06 % cùng mẫu số với macro-F1 của ta — nói *"không có căn
+  cứ để so"*, đừng nói *"chắc chắn khác mẫu số"* (xem REQ-008 rào cản 1).
+  *(Đây là câu 11 của [trắc nghiệm 01](../trac-nghiem/de/01_UIT-ViSFD.md) — bạn trả lời đúng
+  ngày 20/09/2026.)*
 - Độ đo là macro-F1 hay micro-F1? Trung bình trên khía cạnh hay trên mẫu? *(macro và micro
   lệch nhau rất xa khi lớp mất cân bằng — lớp trung tính của ta chỉ 12,2 %)*
 - Nhãn `{OTHERS}` được xử lý thế nào trong đánh giá của họ? *(ta loại 170 bình luận chỉ có
@@ -154,7 +160,7 @@ rào cản 1). Câu trả lời phụ thuộc vào **cách bài báo chấm đi�
 - Bi-LSTM của họ dùng fastText mức từ. Baseline `bilstm` của ta dùng subword PhoBERT. Khác
   biệt này ảnh hưởng thế nào tới việc đặt hai con số cạnh nhau?
 
-**Trạng thái đọc:** ☑ **Đã đọc** (học viên, 18/09/2026) · ☐ Đã đọc kỹ — *tick khi đạt [trắc nghiệm 01](../trac-nghiem/de/01_UIT-ViSFD.md)*
+**Trạng thái đọc:** ☑ **Đã đọc** (18/09/2026) · ☑ **Đã đọc kỹ** — đạt [trắc nghiệm 01](../trac-nghiem/de/01_UIT-ViSFD.md) ngày **20/09/2026**: **15/15**, đúng cả 7 câu ★ ([kết quả](../trac-nghiem/ket-qua/01_UIT-ViSFD_2026-09-20_1558.md)). Lần chấm đầu được 10/15; đọc lại các mục bị chỉ ra rồi làm lại — phiếu trả lời không hề có đáp án ghi sẵn, nên đây là kết quả đọc thật.
 
 > 🔎 **Một chỗ nên tự kiểm khi đọc lại Bảng 3:** dòng `SER&ACC` — bài ghi tổng **2.678**, dữ liệu thật trên HuggingFace đếm được **2.878** (9 khía cạnh còn lại khớp tuyệt đối). Lệch đúng 200, khác đúng một chữ số (6 ↔ 8). Có thể là lỗi đánh máy trong bài, có thể do tôi đọc qua bản HTML bị lệch. Nếu bạn cộng các ô Pos/Neu/Neg của dòng đó ra 2.878 thì đó là lỗi đánh máy của bài — đáng ghi một dòng chú thích nếu báo cáo có chép Bảng 3.
 
