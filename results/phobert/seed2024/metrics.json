@@ -1,0 +1,31 @@
+{
+  "exp_name": "phobert",
+  "seed": 2024,
+  "dataset": "visfd",
+  "test": {
+    "accuracy": 0.9196667658434989,
+    "macro_f1": 0.8677204578268292,
+    "f1_per_class": [
+      0.9327712447304194,
+      0.716710182767624,
+      0.9536799459824443
+    ]
+  },
+  "diagnostic": {
+    "negation": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "contrast": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "regular": {
+      "macro_f1": 0.0,
+      "n": 0
+    }
+  },
+  "train_time_sec": 1408.2,
+  "n_params": 135000579,
+  "config_hash": "56f9b64f19ba"
+}
