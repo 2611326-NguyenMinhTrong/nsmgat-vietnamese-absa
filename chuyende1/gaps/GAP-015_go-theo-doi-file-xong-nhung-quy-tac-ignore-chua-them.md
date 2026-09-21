@@ -16,7 +16,7 @@ nhau**:
 2. Thêm `/SO_TAY_LENH.md` vào `.gitignore` — để nó không quay lại
 
 Tôi gộp cả hai vào một chuỗi lệnh. Bước 2 **hỏng** (xem mục 3), bước 1 vẫn chạy và commit
-`b0895cc` vẫn được tạo. Kết quả: file rơi vào trạng thái **chưa theo dõi mà cũng không bị bỏ
+`907711b` vẫn được tạo. Kết quả: file rơi vào trạng thái **chưa theo dõi mà cũng không bị bỏ
 qua** — hiện dấu `??` trong `git status`, và một lần `git add .` vô ý sau này sẽ đưa nó trở
 lại đúng chỗ học viên vừa bảo gỡ ra.
 
@@ -43,13 +43,13 @@ chạy tiếp dù bước trước đã chết.
 
 | Bị ảnh hưởng | Có phải sửa theo không |
 |---|---|
-| `SO_TAY_LENH.md` | Có — đã thêm quy tắc bỏ qua ở commit `a11632c` |
+| `SO_TAY_LENH.md` | Có — đã thêm quy tắc bỏ qua ở commit `f5e30eb` |
 | Lịch sử trên GitHub | **Không** — nhánh `main` đang đi trước `origin/main` 23 commit, file chưa từng rời khỏi máy |
 | Số liệu thí nghiệm | Không liên quan |
 
 ## 5. Đã sửa thế nào
 
-- `a11632c` thêm `/SO_TAY_LENH.md` vào `.gitignore`, bằng đoạn script **tự nhận diện kiểu
+- `f5e30eb` thêm `/SO_TAY_LENH.md` vào `.gitignore`, bằng đoạn script **tự nhận diện kiểu
   xuống dòng** của file rồi ghi lại đúng kiểu đó.
 - Kiểm chứng bằng `git check-ignore -v` cho cả hai file, không tin vào việc "commit chạy xong".
 
