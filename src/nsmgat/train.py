@@ -27,6 +27,7 @@ from nsmgat.models.base import BaseModel
 from nsmgat.models.bilstm import BiLSTMModel
 from nsmgat.models.dummy import DummyModel
 from nsmgat.models.lexicon import LexiconModel
+from nsmgat.models.phobert import PhoBERTClassifier
 from nsmgat.trainer import Trainer, resolve_device
 # load_config nam o utils/io.py de cong cu nho khong bi keo theo transformers
 # (xem ghi chu trong ham do). Van import lai o day de
@@ -43,6 +44,7 @@ MODEL_REGISTRY: Dict[str, Type[BaseModel]] = {
     "dummy": DummyModel,
     "lexicon": LexiconModel,  # [CD1.4a] baseline tu dien — san tuyet doi
     "bilstm": BiLSTMModel,  # [CD1.4b] moc truoc ky nguyen tien huan luyen
+    "phobert": PhoBERTClassifier,  # [CD1.5] moc so sanh chinh cua Chuong 4
 }
 
 
@@ -104,9 +106,13 @@ def main() -> None:
     max_seq_len = cfg["train"]["max_seq_len"]
     batch_size = cfg["train"]["batch_size"]
 
-    train_ds = ACSADataset(cfg["data"]["train_path"], tokenizer, max_seq_len)
-    dev_ds = ACSADataset(cfg["data"]["dev_path"], tokenizer, max_seq_len)
-    test_ds = ACSADataset(cfg["data"]["test_path"], tokenizer, max_seq_len)
+    # pair_mode: noi khia canh vao cau thanh cap (chi phobert bat, xem
+    # dataset.py). Mac dinh False de khong doi dau vao cua bilstm.
+    pair_mode = bool(cfg["data"].get("pair_mode", False))
+
+    train_ds = ACSADataset(cfg["data"]["train_path"], tokenizer, max_seq_len, pair_mode)
+    dev_ds = ACSADataset(cfg["data"]["dev_path"], tokenizer, max_seq_len, pair_mode)
+    test_ds = ACSADataset(cfg["data"]["test_path"], tokenizer, max_seq_len, pair_mode)
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
     dev_loader = DataLoader(dev_ds, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
@@ -115,7 +121,7 @@ def main() -> None:
     diag_path = Path(cfg["data"].get("diagnostic_path", ""))
     diag_loader = None
     if diag_path.exists():
-        diag_ds = ACSADataset(diag_path, tokenizer, max_seq_len)
+        diag_ds = ACSADataset(diag_path, tokenizer, max_seq_len, pair_mode)
         diag_loader = DataLoader(diag_ds, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
     model = build_model(args.model, cfg)

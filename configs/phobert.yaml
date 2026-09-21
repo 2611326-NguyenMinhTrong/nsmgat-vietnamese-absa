@@ -1,2 +1,48 @@
-# [S1.1] Cau hinh baseline PhoBERT (ke thua base.yaml)
-# TODO: dien cau hinh theo pLan/PLAN_NSMGAT.md (muc S1.1)
+# [CD1.5 / S1.1] Baseline PhoBERT fine-tune — MOC SO SANH CHINH cua Chuong 4.
+#
+# Chay (tren Colab, xem notebooks/colab_train.ipynb):
+#     python -m nsmgat.train --config configs/phobert.yaml --model phobert --seed 42
+#
+# CHAY O DAU: Colab T4 (~30-45 phut/seed). Tren CPU 8 nhan cua may hoc vien da
+# do that: 31,8 giay/buoc -> 52,8 gio MOT seed. Khong kha thi, xem so quyet
+# dinh trong pLan/chuyende1/progress_cd1.md (21/09/2026).
+
+extends: base.yaml
+
+data:
+  # Noi khia canh vao sau cau thanh cap: <s> cau </s></s> khia_canh </s>
+  # Chi bat o day. Mac dinh cua ACSADataset la TAT, vi bat mac dinh se doi
+  # dau vao cua `bilstm` — mo hinh da chay xong 3 seed.
+  pair_mode: true
+
+model:
+  name: phobert
+  encoder_name: vinai/phobert-base-v2
+  dropout: 0.1
+  hidden_dim: 768 # doc lai tu config cua encoder, de day cho ro rang
+
+train:
+  epochs: 8
+  batch_size: 32
+  # Hai learning rate: encoder da biet tieng Viet nen chi can chinh nhe,
+  # dau phan loai khoi tao ngau nhien nen hoc nhanh hon 50 lan.
+  # trainer._build_optimizer tu tach hai nhom khi model co thuoc tinh `encoder`.
+  encoder_lr: 2.0e-5
+  lr: 1.0e-3
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  max_grad_norm: 1.0
+  early_stop_patience: 3
+  max_seq_len: 128
+  # fp16 tren GPU — dieu kien de "30-45 phut/seed" thanh su that (nhanh ~2x).
+  # Trainer tu tat khi chay CPU, nen thu o may van chay binh thuong.
+  # KHONG dat o base.yaml: doi base.yaml la doi config_hash cua MOI ket qua
+  # cu (dung loi GAP-014).
+  use_amp: true
+
+output:
+  # last.pt cua phobert nang ~1,6 GB (135M tham so x 4 byte x 3: trong so +
+  # 2 trang thai Adam). Colab ngat phien that thuong nen VAN GIU save_last,
+  # nhung ghi 2 epoch mot lan cho do ton dia Drive.
+  save_last: true
+  save_last_every: 2

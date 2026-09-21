@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional
 import torch
 from torch.utils.data import Dataset
 
+from nsmgat.data.aspects import aspect_tokens
 from nsmgat.utils.io import read_jsonl
 
 # Xac nhan thuc te: AutoTokenizer.from_pretrained("vinai/phobert-base-v2").pad_token_id == 1
@@ -48,10 +49,22 @@ class ACSADataset(Dataset):
     label, n_tokens, word_ids, phenomenon (None neu khong co).
     """
 
-    def __init__(self, jsonl_path, tokenizer, max_seq_len: int = 128):
+    def __init__(self, jsonl_path, tokenizer, max_seq_len: int = 128,
+                 pair_mode: bool = False):
+        """pair_mode=True: noi khia canh vao sau cau thanh cap cau
+            `<s> cau </s></s> khia_canh </s>` — cach chuan cho ACSA voi PLM,
+            de mo hinh biet dang duoc hoi ve khia canh nao.
+
+        MAC DINH TAT, khac voi ban ke hoach S1.1 (ghi "mac dinh True"). Ly do:
+        ke hoach do viet truoc khi co `bilstm`, ma `bilstm` doc chinh
+        `input_ids` de tra bang embedding cua no. Bat mac dinh la doi dau vao
+        cua mot mo hinh DA CHAY XONG 3 seed -> ket qua da ghi khong con tai
+        lap duoc tu cung ma nguon. Bat rieng trong configs/phobert.yaml.
+        """
         self.records = read_jsonl(jsonl_path)
         self.tokenizer = tokenizer
         self.max_seq_len = max_seq_len
+        self.pair_mode = pair_mode
 
     def __len__(self) -> int:
         return len(self.records)
@@ -60,13 +73,25 @@ class ACSADataset(Dataset):
         record = self.records[idx]
         tokens = record["tokens"]
 
-        enc = self.tokenizer(
-            tokens,
-            is_split_into_words=True,
-            truncation=True,
-            max_length=self.max_seq_len,
-            return_special_tokens_mask=True,
-        )
+        if self.pair_mode:
+            enc = self.tokenizer(
+                tokens,
+                aspect_tokens(record["aspect"]),
+                is_split_into_words=True,
+                # only_first: cat bot o VE CAU khi qua dai, khong bao gio cat
+                # ve khia canh — mat ve khia canh la mat luon cau hoi.
+                truncation="only_first",
+                max_length=self.max_seq_len,
+                return_special_tokens_mask=True,
+            )
+        else:
+            enc = self.tokenizer(
+                tokens,
+                is_split_into_words=True,
+                truncation=True,
+                max_length=self.max_seq_len,
+                return_special_tokens_mask=True,
+            )
         pieces = self.tokenizer.convert_ids_to_tokens(enc["input_ids"])
         word_ids = _phobert_word_ids(pieces, enc["special_tokens_mask"])
 
