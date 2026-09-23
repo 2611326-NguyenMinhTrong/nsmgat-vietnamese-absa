@@ -64,3 +64,10 @@ Thumbs.db
 
 # Ban sao luu tu dong truoc khi `survey_tools.py tu-excel` ghi de
 *.csv.bak
+
+# San pham cua build_cd1_report.py: ban nhap cuon chuyen de, reference.docx (mau
+# dinh dang) va so sach van tay. Deu sinh lai duoc bang lenh - nguon su that la
+# script + noi dung, khong day file build len GitHub cong khai
+chuyende1/report/*.docx
+chuyende1/report/.generated.json
+chuyende1/docs/*
