@@ -90,7 +90,7 @@ DAU_CHU_THICH = "#"
 VALID_YESNO = ("co", "khong")
 VALID_NEGATION = ("co", "khong", "mot_phan")
 VALID_GRAPH_TYPES = ("", "cu_phap", "ngu_nghia", "tri_thuc", "khac")
-VALID_LANGS = ("vi", "en", "da_ngu")
+VALID_LANGS = ("vi", "en", "da_ngu", "khac")  # khac: mot ngon ngu KHAC vi/en (vd tieng Ba Lan), ghi ro trong ghi_chu
 # Ma bat buoc cua bieu_dien_dau_vao. Chi tiet viet trong ngoac don sau ma,
 # vi du: "embedding_tinh (fastText, muc tu)".
 VALID_INPUT_REPR = (
@@ -425,6 +425,252 @@ def van_tay_csv(path: Path) -> str:
     return hashlib.sha256(noi_dung.encode("utf-8")).hexdigest()[:16]
 
 
+def _them_sheet_huongdan(wb) -> None:
+    """Them sheet 'HuongDan' — chi dan tim noi dung cho tung cot, co vi du that.
+
+    Sinh lai MOI LAN chay `excel`, giu dong bo voi ma nguon nay chu khong sua
+    tay trong Excel — sua tay se mat khi xuat lai. Muon sua noi dung huong dan
+    thi sua o day.
+
+    Hai vi du dung xuyen suot bang, ca hai deu LA DONG THAT trong
+    survey_matrix.csv, khong phai bia:
+      - ASGCN     — moi kiem chung duoc phan tieu su (5/19 o), con 6 o [CẦN TÌM]
+                    vi chua doc toan van. Minh hoa "lam dang do" trung thuc.
+      - UIT-ViSFD — da dien du 19/19 o (da_doc_toan_van). Minh hoa "lam xong".
+    """
+    from openpyxl.styles import Alignment, Font, PatternFill
+    from openpyxl.utils import get_column_letter
+
+    ws = wb.create_sheet("HuongDan", 1)  # ngay sau survey_matrix, truoc sheet an
+
+    MAU_TIEU_DE = PatternFill("solid", fgColor="1F4E78")
+    MAU_MUC = PatternFill("solid", fgColor="DDEBF7")
+    MAU_HEADER_BANG = PatternFill("solid", fgColor="BDD7EE")
+    MAU_VIDU = PatternFill("solid", fgColor="E2EFDA")
+    MAU_CANTIM = PatternFill("solid", fgColor="FFF2CC")
+    CHU_TRANG_DAM = Font(bold=True, color="FFFFFF", size=13)
+    CHU_MUC = Font(bold=True, size=11)
+    CHU_THUONG = Font(size=10)
+    NGOAI = Alignment(vertical="top", wrap_text=True)
+
+    hang = 1
+
+    def _ghi(cot: int, noi_dung: str, font=CHU_THUONG, fill=None, canh=NGOAI):
+        o = ws.cell(row=hang, column=cot, value=noi_dung)
+        o.font = font
+        o.alignment = canh
+        if fill:
+            o.fill = fill
+        return o
+
+    def _gop_va_ghi(c1: int, c2: int, noi_dung: str, font=CHU_THUONG, fill=None):
+        ws.merge_cells(start_row=hang, start_column=c1, end_row=hang, end_column=c2)
+        _ghi(c1, noi_dung, font, fill)
+
+    # --- Tieu de -----------------------------------------------------------
+    _gop_va_ghi(1, 6, "HƯỚNG DẪN TÌM NỘI DUNG ĐỂ ĐIỀN survey_matrix — ĐỌC TRƯỚC KHI ĐIỀN",
+                CHU_TRANG_DAM, MAU_TIEU_DE)
+    ws.row_dimensions[hang].height = 24
+    hang += 2
+
+    _gop_va_ghi(1, 6,
+        "Đọc kỹ mục 7 và 7b của chuyende1/survey/survey_protocol.md trước — sheet này chỉ là "
+        "bản tra nhanh khi đang gõ. Quy tắc quan trọng nhất: một dòng CHỈ được đánh dấu "
+        "'da_kiem_url' hay 'da_doc_toan_van' khi TOÀN BỘ 19 cột đã điền xong, không còn ô nào "
+        "[CẦN TÌM] — lệnh `validate` sẽ từ chối nếu sai.")
+    ws.row_dimensions[hang].height = 32
+    hang += 2
+
+    # --- Nguon nen dung ------------------------------------------------------
+    _gop_va_ghi(1, 6, "1. NGUỒN NÊN MỞ TRƯỚC — theo thứ tự ưu tiên", CHU_MUC, MAU_MUC)
+    hang += 1
+    for c, t in enumerate(("Nguồn", "Link", "Dùng khi nào"), start=1):
+        _ghi(c, t, Font(bold=True), MAU_HEADER_BANG)
+    ws.merge_cells(start_row=hang, start_column=3, end_row=hang, end_column=6)
+    hang += 1
+    NGUON = [
+        ("ACL Anthology", "aclanthology.org",
+         "Nguồn GỐC cho hầu hết bài NLP/ABSA — luôn chép tiêu đề/năm/nơi công bố từ đây, "
+         "không chép từ Google Scholar (snippet đôi khi sai chữ)"),
+        ("arXiv", "arxiv.org",
+         "Bản tiền in — dùng khi bài chưa/không có ở ACL Anthology. KHÔNG có trường hội nghị, "
+         "phải tra thêm DBLP"),
+        ("Google Scholar", "scholar.google.com",
+         "Điểm bắt đầu tìm — gõ tên phương pháp, bấm vào kết quả đầu để tới trang gốc"),
+        ("DBLP", "dblp.org",
+         "Đối chiếu năm/nơi công bố khi ACL Anthology hoặc arXiv không ghi rõ hội nghị"),
+        ("GitHub", "github.com",
+         "Tìm mã nguồn — gõ '<tên phương pháp> github' hoặc mở link trong bài (thường ở "
+         "footnote trang 1)"),
+    ]
+    for ten, link, khi_nao in NGUON:
+        _ghi(1, ten, CHU_THUONG)
+        _ghi(2, link, CHU_THUONG)
+        ws.merge_cells(start_row=hang, start_column=3, end_row=hang, end_column=6)
+        _ghi(3, khi_nao, CHU_THUONG)
+        ws.row_dimensions[hang].height = 28
+        hang += 1
+    hang += 1
+
+    # --- Meo go tim kiem -----------------------------------------------------
+    _gop_va_ghi(1, 6, "2. MẪU CÂU TÌM KIẾM — thay <tên> bằng tên phương pháp/bài", CHU_MUC, MAU_MUC)
+    hang += 1
+    MAU_TIM = [
+        '"<tên đầy đủ hoặc viết tắt>" paper  →  tìm nhanh khi chưa biết tên đầy đủ',
+        '"<tên>" aspect-based sentiment  →  thêm ngữ cảnh bài toán để khỏi lẫn tên trùng '
+        '(nhiều mô hình đặt tên viết tắt giống lĩnh vực khác)',
+        'site:aclanthology.org <tên>  →  ép Google chỉ tìm trong ACL Anthology',
+        'site:arxiv.org <tên>  →  ép Google chỉ tìm trong arXiv',
+        '<tên phương pháp> github  →  tìm mã nguồn',
+        '<tên bài đầy đủ trong ngoặc kép> dblp  →  tra năm/nơi công bố khi arXiv không ghi',
+    ]
+    for dong in MAU_TIM:
+        _gop_va_ghi(1, 6, "• " + dong)
+        hang += 1
+    hang += 1
+
+    # --- Quy trinh 9 buoc ------------------------------------------------------
+    _gop_va_ghi(1, 6, "3. QUY TRÌNH 9 BƯỚC CHO MỖI DÒNG — chi tiết + ví dụ ở mục 7b protocol",
+                CHU_MUC, MAU_MUC)
+    hang += 1
+    BUOC = [
+        "Tìm nguồn: gõ mẫu câu ở mục 2 trên Google Scholar hoặc thẳng vào ACL Anthology/arXiv",
+        "Mở TRỰC TIẾP trang gốc (không tin snippet tìm kiếm) — đây là nguồn duy nhất được chép",
+        "Điền 5 ô 'dễ' trước: tieu_de, nam, hoi_nghi_tap_chi, nguon_url, co_ma_nguon",
+        "Mở PDF, đọc Abstract + mục Model/Method → điền bieu_dien_dau_vao, co_dung_do_thi, "
+        "loai_do_thi, co_tri_thuc_ngoai, ngon_ngu, ho_phuong_phap",
+        "Đọc mục Experiments/Dataset → điền tap_du_lieu (liệt kê ĐỦ, không chỉ 1 tập), "
+        "do_do_bao_cao (ghi rõ macro/micro)",
+        "Tìm đúng DÒNG kết quả của mô hình bài này đề xuất trong bảng kết quả (không lấy dòng "
+        "baseline họ so sánh) → điền ket_qua_tot_nhat",
+        "Ctrl+F 'negation', 'contrast', 'but', 'however' trong toàn bài → điền "
+        "xu_ly_phu_dinh_chuyen_y, co_giai_thich",
+        "Viết ghi_chu: cách kiểm chứng những ô khó, ngày kiểm chứng — 3 tháng sau còn phải hiểu "
+        "được vì sao điền vậy",
+        "CHỈ KHI không còn ô nào [CẦN TÌM] → đổi trang_thai, rồi chạy `validate` để xác nhận",
+    ]
+    for i, b in enumerate(BUOC, start=1):
+        _gop_va_ghi(1, 6, f"{i}. {b}")
+        ws.row_dimensions[hang].height = 26
+        hang += 1
+    hang += 1
+
+    # --- Bang chi tiet tung cot -------------------------------------------------
+    _gop_va_ghi(1, 6, "4. TỪNG CỘT — tìm ở đâu, cách tìm, ví dụ thật", CHU_MUC, MAU_MUC)
+    hang += 1
+
+    tieu_de_cot = ["Cột", "Ý nghĩa ngắn", "Tìm ở đâu", "Cách tìm / mẹo",
+                   "Ví dụ — ASGCN (đang làm dở)", "Ví dụ — UIT-ViSFD (đã xong)"]
+    for c, t in enumerate(tieu_de_cot, start=1):
+        _ghi(c, t, Font(bold=True), MAU_HEADER_BANG)
+    hang += 1
+
+    # (cot, y_nghia, tim_o_dau, cach_tim, vd_asgcn, vd_uitvisfd)
+    CHI_TIET_COT = [
+        ("ref_key", "Khoá trích dẫn ngắn, duy nhất",
+         "Không cần tìm — tự đặt",
+         "Tên viết tắt phương pháp hoặc tác_giả+năm. Không dấu cách, không dấu tiếng Việt",
+         "ASGCN", "UIT-ViSFD"),
+        ("tieu_de", "Tiêu đề đầy đủ, chép NGUYÊN VĂN",
+         "Trang nguồn gốc (ACL Anthology/arXiv/DOI) — không chép từ snippet tìm kiếm",
+         "Mở trang gốc, Ctrl+C tiêu đề — không tự gõ lại kẻo sai dấu/chữ hoa",
+         "Aspect-based Sentiment Classification with Aspect-specific Graph Convolutional "
+         "Networks (từ aclanthology.org/D19-1464)",
+         "SA2SL: From Aspect-Based Sentiment Analysis to Social Listening System for "
+         "Business Intelligence"),
+        ("trang_thai", "Mức kiểm chứng: chua_kiem | da_kiem_url | da_doc_toan_van",
+         "Không tìm — tự đánh giá SAU KHI điền hết các ô khác",
+         "Chỉ nâng mức khi KHÔNG còn [CẦN TÌM] ở bất kỳ cột nào trong dòng — validate sẽ "
+         "bắt lỗi nếu sai, xem mục 7b protocol",
+         "chua_kiem (còn 6 ô trống)", "da_doc_toan_van"),
+        ("nam", "Năm công bố, 4 chữ số",
+         "Trang nguồn gốc — ACL Anthology ghi 'Year' ngay đầu trang; arXiv ghi 'Submitted'",
+         "Lấy năm KỶ YẾU hội nghị nếu có; chỉ có bản arXiv thì lấy năm nộp, ghi chú rõ trong "
+         "ghi_chu vì sao",
+         "2019 (ACL Anthology)", "2021 (arXiv: Submitted 31/05/2021)"),
+        ("hoi_nghi_tap_chi", "Nơi công bố; chỉ có tiền ấn phẩm thì ghi arXiv",
+         "Trang nguồn gốc; nếu arXiv không ghi thì tra thêm DBLP/Google Scholar",
+         "'<tên bài đầy đủ>' dblp — DBLP liệt kê rất chuẩn nơi công bố chính thức",
+         "EMNLP-IJCNLP 2019", "KSE 2021 (tra thêm — DBLP/Semantic Scholar lúc tra bị chặn, "
+         "ghi rõ trong ghi_chu)"),
+        ("ho_phuong_phap", "Nhóm phương pháp Chương 3 — G1..G6 / TAI_NGUYEN",
+         "Đọc Abstract/Introduction để hiểu bản chất kỹ thuật — không tìm trên mạng",
+         "Đối chiếu bảng 6 nhóm ở mục 9 protocol: dùng đồ thị→G4, PLM tiền huấn luyện→G3...",
+         "G4_do_thi (GCN trên cây phụ thuộc)", "TAI_NGUYEN (bài công bố dữ liệu, không phải "
+         "một mô hình)"),
+        ("bieu_dien_dau_vao", "Cách biến văn bản thành số trước khi mô hình lập luận",
+         "Mục Model/Method trong PDF — đoạn mô tả tầng đầu tiên",
+         "Ctrl+F 'embedding/GloVe/BERT/pretrained/TF-IDF'. 2 câu hỏi phân biệt 5 mã: (1) có "
+         "embedding HỌC ĐƯỢC không, hay chỉ đếm/tra bảng? (2) vector 1 từ có ĐỔI theo câu "
+         "chứa nó không? — chi tiết đầy đủ ở mục 9 survey_protocol.md, ngay dưới bảng mã",
+         "embedding_tinh (GloVe, mức từ, nối thêm vector khía cạnh) — xem ví dụ ATAE-LSTM ở "
+         "mục 9 protocol", "embedding_tinh (fastText, mức từ)"),
+        ("co_dung_do_thi / loai_do_thi", "Có dùng đồ thị không, loại nào",
+         "Abstract thường nói ngay nếu có đồ thị",
+         "Ctrl+F 'graph', 'GCN', 'dependency tree' — cú pháp→cu_phap, tri thức ngoài→tri_thuc",
+         "co / cu_phap (abstract: 'GCN over the dependency tree')", "khong / (để trống)"),
+        ("co_tri_thuc_ngoai", "Có dùng tri thức ngoài dữ liệu train không (từ điển cảm xúc, "
+         "SenticNet, ontology)",
+         "Mục Method — tìm 'lexicon', 'SenticNet', 'knowledge base', 'affective'",
+         "Đọc kỹ Method, không chỉ Abstract — nhiều bài giấu chi tiết này trong một câu ngắn",
+         "[CẦN TÌM] — abstract không nhắc, cần đọc Method", "khong"),
+        ("ngon_ngu", "Ngôn ngữ thực nghiệm — vi | en | da_ngu | khac (ngôn ngữ khác, ghi rõ trong ghi_chu)",
+         "Mục Dataset/Experiments — tên tập dữ liệu thường lộ luôn",
+         "SemEval/Twitter/Restaurant→en, VLSP/UIT-*→vi",
+         "en (SemEval, benchmark chuẩn tiếng Anh của dòng ABSA này)", "vi"),
+        ("tap_du_lieu", "Tập dữ liệu thực nghiệm chính, nhiều tập ngăn bằng '+'",
+         "Mục Experiments/Dataset — thường có bảng thống kê số câu",
+         "LIỆT KÊ ĐỦ tất cả, không chỉ 1 — đọc đoạn đầu mục Experiments hoặc Table 1",
+         "[CẦN TÌM] — README repo chỉ nhắc 'rest14', abstract nói 'three benchmarking "
+         "collections' nhưng không nêu tên, phải đọc PDF", "UIT-ViSFD"),
+        ("do_do_bao_cao", "Độ đo bài dùng — ghi rõ macro hay micro",
+         "Mục Experiments, đoạn 'Evaluation Metrics'",
+         "Tìm chữ 'macro' hoặc 'micro' đứng cạnh tên độ đo — nhiều bài không ghi rõ, lúc đó "
+         "ghi [CẦN TÌM: không ghi rõ macro/micro] chứ đừng đoán",
+         "[CẦN TÌM]", "precision, recall, and F1-score (macro average)"),
+        ("ket_qua_tot_nhat", "Con số tốt nhất, KÈM tập đạt được",
+         "Bảng kết quả (Table) ở mục Experiments/Results",
+         "Lấy đúng DÒNG của mô hình bài này ĐỀ XUẤT, không lấy dòng baseline họ so sánh",
+         "[CẦN TÌM]", "84,48% (khía cạnh) và 63,06% (cảm xúc)"),
+        ("xu_ly_phu_dinh_chuyen_y", "Có xử lý phủ định/chuyển ý không — câu hỏi khảo sát CH3",
+         "Toàn bài — không chỉ Abstract",
+         "Ctrl+F 'negation', 'contrast', 'but', 'however', 'phủ định' trong PDF",
+         "[CẦN TÌM]", "khong (đọc toàn văn không thấy bàn tới)"),
+        ("co_giai_thich", "Có đưa giải thích cho dự đoán không",
+         "Mục Analysis/Case study — hay có hình minh hoạ attention",
+         "Tìm hình có tô đậm/tô màu từ trong câu ví dụ, hoặc mục 'Case Study'",
+         "[CẦN TÌM]", "khong"),
+        ("co_ma_nguon", "Có công khai mã nguồn không",
+         "Footnote trang 1 của bài ('Code is available at...'), hoặc tìm trực tiếp",
+         "'<tên phương pháp> github'",
+         "co — github.com/GeneZC/ASGCN (repo tự nhận là mã của đúng bài này)",
+         "co — github.com/LuongPhan/UIT-ViSFD"),
+        ("nguon_url", "Link bản gốc — DOI, arXiv hoặc ACL Anthology",
+         "Chính là link đã mở ở bước 2 của quy trình 9 bước",
+         "Copy nguyên URL trên thanh địa chỉ trình duyệt lúc đang xem trang gốc",
+         "https://aclanthology.org/D19-1464/", "https://arxiv.org/abs/2105.15079"),
+        ("ghi_chu", "Tự do — LUÔN ghi cách kiểm chứng ô khó",
+         "Bạn tự viết, không tìm ở đâu cả",
+         "Ghi ngày kiểm chứng + nguồn đối chiếu — 3 tháng sau còn phải hiểu vì sao điền vậy",
+         "Đã ghi rõ cách kiểm chứng + 6 ô còn thiếu vì sao",
+         "Xem dòng thật trong survey_matrix.csv — ghi chú dài, là mẫu tốt để bắt chước"),
+    ]
+    for cot, y_nghia, tim_dau, cach_tim, vd1, vd2 in CHI_TIET_COT:
+        _ghi(1, cot, Font(bold=True))
+        _ghi(2, y_nghia)
+        _ghi(3, tim_dau)
+        _ghi(4, cach_tim)
+        _ghi(5, vd1, fill=MAU_CANTIM if "[CẦN TÌM]" in vd1 else MAU_VIDU)
+        _ghi(6, vd2, fill=MAU_VIDU)
+        ws.row_dimensions[hang].height = 60
+        hang += 1
+
+    # --- Do rong cot + dong bang -----------------------------------------------
+    for i, w in enumerate((22, 30, 30, 38, 38, 38), start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    ws.freeze_panes = "A1"
+
+
 def cmd_excel(rows: list[dict[str, str]], columns: list[str], out: Path,
               csv_path: Path = DEFAULT_CSV) -> int:
     """Xuat CSV ra .xlsx de sua bang Excel ma khong vap ma hoa lan dau tach cot."""
@@ -481,12 +727,18 @@ def cmd_excel(rows: list[dict[str, str]], columns: list[str], out: Path,
         ws.add_data_validation(dv)
         dv.add(f"{cot}{2 + so_chu_thich}:{cot}{len(rows) + 1}")  # chừa dòng chú thích ra
 
+    _them_sheet_huongdan(wb)
+
     # Dau van tay cua .csv luc xuat, de `tu-excel` biet file goc co doi khong
     ws_van_tay = wb.create_sheet(TRANG_VAN_TAY)
     ws_van_tay["A1"] = "Dau van tay cua file .csv luc xuat ra — dung xoa, dung sua."
     ws_van_tay["A2"] = van_tay_csv(csv_path)
     ws_van_tay["A3"] = f"Xuat luc {datetime.now():%d/%m/%Y %H:%M} tu {csv_path}"
     ws_van_tay.sheet_state = "hidden"
+
+    # Sheet du lieu van la sheet duoc chon khi mo file, du "HuongDan" nam
+    # truoc no trong thu tu tab — tranh doi hanh vi mo file hien co.
+    wb.active = wb.sheetnames.index("survey_matrix")
 
     out.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -533,7 +785,10 @@ def cmd_tu_excel(xlsx: Path, csv_path: Path, columns: list[str], ghi_de: bool = 
               file=sys.stderr)
         return 1
 
-    ws = wb.active
+    # Tim theo TEN, khong tin "sheet dang duoc chon" (wb.active): tu khi co them
+    # sheet "HuongDan", nguoi dung bam xem huong dan roi luu se doi active sheet
+    # trong Excel ma khong biet — doc nham sheet do se bao loi kho hieu.
+    ws = wb["survey_matrix"] if "survey_matrix" in wb.sheetnames else wb.active
     du_lieu = list(ws.iter_rows(values_only=True))
     if not du_lieu:
         print("File Excel rong.", file=sys.stderr)

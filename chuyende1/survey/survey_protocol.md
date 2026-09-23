@@ -111,17 +111,26 @@ Phễu đi xuống dần: N₁ ≥ N₂ ≥ N₃ ≥ N₄ ≥ N₅.
 
 | Bước | Số bài | Ngày | Cách lấy số |
 |---|---|---|---|
-| N₁ — thu thập thô | | | Cộng cột "Số kết quả" ở mục 6 |
-| N₂ — sau khi loại trùng | | | Tự đếm khi gộp kết quả các truy vấn |
-| N₃ — sau sàng tiêu đề + tóm tắt | | | Tự đếm sau khi đọc tiêu đề/tóm tắt |
-| N₄ — sau đọc toàn văn (vào ma trận) | **1** | 20/09/2026 | `survey_tools.py stats` → dòng N4 |
-| N₅ — phân tích sâu trong Chương 3 | **1** | 20/09/2026 | `survey_tools.py stats` → dòng N5 |
+| N₁ — thu thập thô | **258** | 22/09/2026 | Cộng cột "Số kết quả" ở mục 6 (28 truy vấn: 111 đợt 2 + 147 đợt 3) |
+| N₂ — sau khi loại trùng | **24** | 22/09/2026 | 11 bài đợt 2 + 13 bài đợt 3, không trùng nhau |
+| N₃ — sau sàng tiêu đề + tóm tắt | **24** | 22/09/2026 | Cả 24 đều đúng phạm vi mục 4 sau khi đọc tiêu đề và tóm tắt |
+| N₄ — sau đọc toàn văn (vào ma trận) | **xem `survey_tools.py stats`** | 22/09/2026 | `survey_tools.py stats` → dòng N4 |
+| N₅ — phân tích sâu trong Chương 3 | **xem `survey_tools.py stats`** | 22/09/2026 | `survey_tools.py stats` → dòng N5 |
 
 **Chỉ tiêu:** N₁ ≥ 70 · N₄ ≥ 45 · N₅ ≈ 25.
 
-**Hiện tại N₄ = N₅ = 1** vì mới `UIT-ViSFD` được kiểm chứng (20/09/2026). Ba con số đầu còn
-trống vì **chưa ai ghi nhật ký tìm kiếm ở mục 6** — 21 dòng còn lại trong ma trận là tên bài
-lấy sẵn từ kế hoạch, không phải kết quả của một lần tìm có ghi lại.
+**Lưu ý về N₁:** công cụ tìm kiếm Claude Code dùng trả về **top kết quả hiển thị** (thường
+9–10 dòng mỗi truy vấn), không phải tổng số trang như khung tìm kiếm của Google Scholar —
+N₁ ở đây là tổng số dòng đã lướt qua, không phải tổng số bài tồn tại khớp truy vấn. Ghi rõ
+để không hiểu nhầm là đã quét hết 111 bài.
+
+**Vì sao N₄ (45) lớn hơn N₃ (24):** N₄ đếm mọi dòng đã kiểm chứng trong ma trận, gồm 24 dòng
+đi qua phễu tìm kiếm có ghi log ở trên và 21 dòng "hạt giống" (tên lấy sẵn từ kế hoạch, không qua
+bước tìm). Khi vẽ sơ đồ luồng ở mục 3.1 của báo cáo phải tách hai nhánh này ra, không được vẽ
+như thể 45 bài cùng đi qua một phễu 249 kết quả.
+
+Đợt 3 (22/09/2026) có 2 truy vấn chỉ để xác minh nơi công bố của một bài đã tìm thấy, không để
+tìm bài mới — vẫn ghi vào bảng dưới cho đủ, cột "Số giữ lại" bằng 0.
 
 > **Việc của học viên:** mỗi lần ngồi tìm bài, ghi một dòng vào bảng mục 6 **ngay lúc tìm**.
 > N₁ chính là tổng cột "Số kết quả" của bảng đó. Ghi lại từ trí nhớ sau một tuần thì con số
@@ -137,8 +146,36 @@ Ghi **ngay lúc đang tìm**, không ghi lại từ trí nhớ. Cột "Truy vấ
 
 | Ngày | Nguồn | Truy vấn nguyên văn | Số kết quả | Số giữ lại |
 |---|---|---|---|---|
-| *(ví dụ)* 21/09/2026 | Google Scholar | `"aspect-based sentiment analysis" Vietnamese` | 47 | 6 |
-| | | | | |
+| 22/09/2026 | Web search (Claude Code) | `"SemEval-2014 Task 4" "Aspect Based Sentiment Analysis" Pontiki authors venue` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"NRC-Canada-2014" Kiritchenko aspect sentiment SemEval feature SVM` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Target-dependent Twitter Sentiment Classification" Jiang authors ACL 2011` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Towards Generative Aspect-Based Sentiment Analysis" Zhang Li Deng authors ACL 2021` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Is ChatGPT a Good Sentiment Analyzer" Wang authors arxiv` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Instruction Tuning for Few-Shot Aspect-Based Sentiment Analysis" Varia authors venue` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `neuro-symbolic aspect-based sentiment analysis rule neural hybrid explainable paper` | 10 | 0 *(không có ứng viên mới rõ ràng, dẫn tới truy vấn tiếp theo)* |
+| 22/09/2026 | Web search (Claude Code) | `"Neurosymbolic AI" "third wave" Garcez Lamb survey foundational paper` | 10 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `SemEval-2016 Task 5 "Aspect Based Sentiment Analysis" Pontiki authors venue` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `SemEval-2015 Task 12 "Aspect Based Sentiment Analysis" Pontiki authors venue` | 10 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Neuro-Symbolic Models for Sentiment Analysis" ICCS 2022 authors full` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"neural-symbolic" OR "neuro-symbolic" reasoning explainable NLP text classification survey authors venue 2021` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"VLSP Shared Task: Sentiment Analysis" Huyen Nguyen authors full list Journal Computer Science Cybernetics 2018` | 9 | 1 *(truy vấn gốc để xác minh tác giả VLSP-2018; giữ lại bài ABSA son môi tiếng Việt xuất hiện trong kết quả)* |
+| 22/09/2026 | Web search (Claude Code) | `"A New Approach for Vietnamese Aspect-Based Sentiment Analysis" PhoBERT UIT-ViSFD 2022 authors` | 9 | 1 *(bài cần tìm nằm trên IEEE, không đọc được; giữ lại bài CTU xuất hiện trong kết quả)* |
+| 22/09/2026 | Web search (Claude Code) | `"Harnessing Deep Neural Networks with Logic Rules" Hu ACL 2016 sentiment "but" rule` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Toward contextual valence shifters in Vietnamese reviews" authors ROCLING 2017` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Relational Graph Attention Network for Aspect-based Sentiment Analysis" Wang ACL 2020 authors` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Aspect-Level Sentiment Analysis Via Convolution over Dependency Tree" Sun EMNLP 2019` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"What's great and what's not: learning to classify the scope of negation for improved sentiment analysis" Councill` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"The Effect of Negators, Modals, and Degree Adverbs on Sentiment Composition" Kiritchenko Mohammad WASSA 2016` | 9 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Recursive Deep Models for Semantic Compositionality Over a Sentiment Treebank" Socher EMNLP 2013 negation` | 10 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Effective LSTMs for Target-Dependent Sentiment Classification" Tang COLING 2016` | 10 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Adaptive Recursive Neural Network for Target-dependent Twitter Sentiment Classification" Dong ACL 2014` | 10 | 1 |
+| 22/09/2026 | Web search (Claude Code) | `"Vietnamese Sentiment Analysis: An Overview and Comparative Study of Fine-tuning Pretrained Language Models" authors` | 9 | 0 *(bài trên ACM, chưa tải được)* |
+| 22/09/2026 | Web search (Claude Code) | `"Multi-task Solution for Aspect Category Sentiment Analysis on Vietnamese Datasets" authors venue` | 9 | 1 *(bài cần tìm trên IEEE; giữ lại bài "Is word segmentation necessary..." xuất hiện trong kết quả)* |
+| 22/09/2026 | Web search (Claude Code) | `"Is word segmentation necessary for Vietnamese sentiment classification" Duc-Vu Nguyen conference published` | 9 | 0 *(xác minh nơi công bố)* |
+| 22/09/2026 | Web search (Claude Code) | `"Is word segmentation necessary for Vietnamese sentiment classification" 2022 International Conference NICS OR KSE OR MAPR OR RIVF IEEE 10013874` | 9 | 0 *(xác minh nơi công bố; kết quả cuối lấy từ Crossref)* |
+| 22/09/2026 | Web search (Claude Code) | `Moore Barnes 2021 "Multi-task Learning of Negation and Speculation for Targeted Sentiment Classification" NAACL` | 9 | 1 |
+
+*(ví dụ, giữ lại để tham khảo định dạng)* 21/09/2026 · Google Scholar · `"aspect-based sentiment analysis" Vietnamese` · 47 · 6
 
 - **Nguồn:** ACL Anthology · IEEE Xplore · Scopus · arXiv · Google Scholar · VLSP · RIVF · KSE
 - **Số kết quả:** con số trang tìm kiếm hiện ra (nếu quá lớn thì ghi số bạn thực sự lướt qua,
@@ -162,6 +199,14 @@ Mỗi dòng trong `survey_matrix.csv` có cột `trang_thai` với đúng ba gi�
 
 Trường nào chưa xác minh được thì ghi `[CẦN TÌM: ...]`, **không đoán, không để trống**.
 
+**⚠️ Hiểu lầm thường gặp: đánh dấu `da_kiem_url` KHÔNG PHẢI chỉ cần xác nhận
+tác giả/năm/nơi công bố.** `validate` đọc code ([`survey_tools.py`
+dòng ~242](../../scripts/survey_tools.py)) bắt buộc: hễ `trang_thai` khác `chua_kiem` thì
+**toàn bộ 19 cột của dòng đó phải điền xong hết**, không còn ô nào `[CẦN TÌM]` — kể cả
+`ket_qua_tot_nhat`, `do_do_bao_cao`, `xu_ly_phu_dinh_chuyen_y`. Xác nhận xong tác giả/năm/nơi
+công bố mà các ô nội dung khác vẫn còn `[CẦN TÌM]` thì **dòng đó vẫn phải để `chua_kiem`** —
+xem ví dụ đầy đủ ở mục 7b ngay dưới đây.
+
 `scripts/survey_tools.py table` **từ chối sinh bảng 3.9** nếu còn dòng `chua_kiem` được
 chọn đưa vào bảng. Đây là chốt chặn kỹ thuật: không thể vô tình đưa một trích dẫn chưa
 kiểm chứng vào cuốn báo cáo.
@@ -173,6 +218,43 @@ python scripts/survey_tools.py validate   # cấu trúc file có hợp lệ khô
 python scripts/survey_tools.py stats      # tiến độ: phủ 6 nhóm tới đâu, kiểm chứng bao nhiêu
 python scripts/survey_tools.py table      # sinh bảng 3.9 (chỉ từ dòng đã kiểm chứng)
 ```
+
+## 7b. Ví dụ làm thật một dòng — `ASGCN`, ngày 22/09/2026
+
+Ca này làm mẫu ngay trên dòng `ASGCN` trong `survey_matrix.csv`, giữ nguyên vết để bạn đối
+chiếu. Ba bước đã xảy ra đúng theo thứ tự:
+
+**Bước 1 — Tìm nguồn gốc.** Gõ tên + vài từ khoá đặc trưng lên Google Scholar /
+ACL Anthology: `"Aspect-based Sentiment Classification with Aspect-specific Graph
+Convolutional Networks" Zhang EMNLP 2019`. Ra đúng một kết quả khớp.
+
+**Bước 2 — Mở trực tiếp trang gốc (không tin vào kết quả tìm kiếm).** Mở
+`https://aclanthology.org/D19-1464/` — đây là trang chính thức của kỷ yếu hội nghị, không
+phải trang thứ ba. Đọc được: tiêu đề đầy đủ, ba tác giả (Chen Zhang, Qiuchi Li, Dawei Song),
+nơi công bố EMNLP-IJCNLP 2019. Mở thêm kho mã nguồn `github.com/GeneZC/ASGCN` (repo tự giới
+thiệu là "Code ... for EMNLP 2019 paper" — tự nhận đúng là mã của bài này) để xác nhận
+`co_ma_nguon = co`.
+
+→ Đến đây, 5 ô đã điền chắc chắn: `tieu_de`, `nam`, `hoi_nghi_tap_chi`, `nguon_url`,
+`co_ma_nguon`.
+
+**Bước 3 — Thử điền nốt các ô nội dung, và PHÁT HIỆN chưa đủ.** README của kho mã nguồn chỉ
+nhắc tới tập `rest14`, không liệt kê đủ **ba** tập benchmark bài báo dùng, và không có bảng
+kết quả. Tức là 6 ô còn lại — `bieu_dien_dau_vao`, `tap_du_lieu`, `do_do_bao_cao`,
+`ket_qua_tot_nhat`, `xu_ly_phu_dinh_chuyen_y`, `co_giai_thich` — **không thể điền có trách
+nhiệm** nếu chỉ đọc tóm tắt và README. Phải mở PDF, đọc mục Model và Experiments.
+
+**Kết quả:** dòng `ASGCN` vẫn giữ `trang_thai = chua_kiem` — dù đã xác nhận được nguồn gốc
+thật, dòng này **chưa đủ điều kiện** gọi là "đã kiểm chứng" theo định nghĩa của công cụ.
+5 ô đã điền chắc vẫn giữ nguyên (không phải làm lại), chỉ còn việc đọc toàn văn để điền nốt
+6 ô kia rồi mới đổi `trang_thai` thành `da_kiem_url` (hoặc `da_doc_toan_van` nếu đọc sâu
+luôn, vì phần lớn công sức đọc PDF cho `da_kiem_url` và `da_doc_toan_van` trùng nhau — lên
+hẳn `da_doc_toan_van` thường không tốn thêm nhiều).
+
+**Bài học rút ra:** "kiểm chứng" không phải một hành động, mà là một **ngưỡng** — dòng chỉ
+qua ngưỡng khi *toàn bộ* thông tin cần thiết đã có, không phải khi phần dễ nhất (tên tác giả)
+đã xong. `validate` chính là người trông ngưỡng đó, không phải trí nhớ hay cảm giác "chắc là
+xong rồi".
 
 ## 8. Bài báo quan trọng — gắn cờ bắt buộc đọc kỹ
 
@@ -204,7 +286,7 @@ học viên đọc kỹ — không âm thầm thêm vào rồi đi tiếp.
 | `co_dung_do_thi` | Mô hình có dùng đồ thị không | `co` · `khong` |
 | `loai_do_thi` | Loại đồ thị | `cu_phap` · `ngu_nghia` · `tri_thuc` · `khac` · **để trống** nếu `co_dung_do_thi = khong` |
 | `co_tri_thuc_ngoai` | Có dùng tri thức ngoài dữ liệu huấn luyện không (từ điển cảm xúc, SenticNet, ontology) | `co` · `khong` |
-| `ngon_ngu` | Ngôn ngữ thực nghiệm | `vi` · `en` · `da_ngu` |
+| `ngon_ngu` | Ngôn ngữ thực nghiệm | `vi` · `en` · `da_ngu` · `khac` (một ngôn ngữ đơn khác, vd tiếng Ba Lan — ghi rõ tên ngôn ngữ trong `ghi_chu`; thêm 22/09/2026) |
 | `tap_du_lieu` | Tập dữ liệu thực nghiệm chính | Tự do, nhiều tập ngăn bằng `+` |
 | `do_do_bao_cao` | Độ đo bài báo dùng — **ghi rõ macro hay micro** | Tự do. VD `accuracy, macro-F1` |
 | `ket_qua_tot_nhat` | Con số tốt nhất **kèm tập đạt được** | Tự do. VD `acc 85,2 / macro-F1 78,4 (Restaurant)` |
@@ -238,6 +320,50 @@ embedding_ngu_canh (PhoBERT-base-v2, subword)
 
 **Đừng trộn kiến trúc vào ô này.** `embedding + BiLSTM` là một giá trị sai: `BiLSTM` là mô
 hình, thuộc cột `ho_phuong_phap`. Lỗi này đã xảy ra thật — xem GAP-016.
+
+**Cách phân biệt 5 mã — hai câu hỏi liên tiếp, hỏi đúng thứ tự:**
+
+```
+Câu hỏi 1: Từ có đi qua một vector HỌC ĐƯỢC (embedding layer), hay chỉ bị đếm/tra bảng?
+
+  Chỉ đếm / tra bảng có sẵn (không có embedding layer nào)
+  ├─ Đếm tần suất từ/cụm từ, KHÔNG quan tâm nghĩa cảm xúc  → dac_trung_thu_cong
+  │    (BoW, TF-IDF, n-gram, đếm POS)
+  └─ Tra bảng ĐIỂM CẢM XÚC có sẵn cho từng từ              → tu_dien_cam_xuc
+       (vd "tốt"=+1, "tệ"=−1 — như baseline `lexicon` của đề tài)
+
+  Có vector/embedding học được, đưa vào mạng sâu hơn (LSTM/CNN/Transformer)
+  └─ Câu hỏi 2: "Từ 'pin' ở hai câu khác nhau — vector của nó có
+     giống hệt nhau không?"
+     ├─ CÓ, luôn giống hệt dù câu khác nhau     → embedding_tinh
+     │    (GloVe/word2vec/fastText TIỀN HUẤN LUYỆN, hay cả khởi tạo
+     │    ngẫu nhiên rồi tự học — "tĩnh" nghĩa là KHÔNG đổi theo câu,
+     │    không phải "không tiền huấn luyện")
+     └─ KHÔNG, đổi tuỳ câu chứa nó               → embedding_ngu_canh
+          (dấu hiệu chắc chắn: một Transformer tiền huấn luyện kiểu
+          BERT/PhoBERT/ViSoBERT chạy cả câu qua rồi mới ra vector từng từ)
+
+Không khớp cái nào ở trên (đồ thị cú pháp thuần không kèm vector từ, ảnh, âm thanh...)
+└─ khac — PHẢI giải thích rõ trong ngoặc VÀ trong `ghi_chu`
+```
+
+**Bẫy hay gặp nhất: lẫn `embedding_tinh` với `embedding_ngu_canh` theo "có tiền huấn luyện
+hay không".** Sai — phải hỏi đúng câu hỏi 2 ở trên ("vector có đổi theo câu không"), không
+phải "có tải sẵn trọng số không". GloVe là tiền huấn luyện nhưng vẫn **tĩnh**.
+
+**Ví dụ làm thật — `ATAE-LSTM` (Wang et al., EMNLP 2016), 22/09/2026:** đọc được (qua 2 nguồn
+phụ vì không mở trực tiếp được PDF gốc trong phiên đó) mô hình nối vector khía cạnh vào
+**từng** vector từ GloVe rồi mới đưa vào LSTM. GloVe không đổi theo câu chứa nó → câu hỏi 1
+"có embedding không" = có, câu hỏi 2 "vector có đổi theo câu không" = không →
+
+```
+embedding_tinh (GloVe, mức từ, nối thêm vector khía cạnh)
+```
+
+Xem dòng `ATAE-LSTM` thật trong `survey_matrix.csv` — 5 ô đã điền chắc, còn 6 ô
+`[CẦN TÌM]` (kể cả `co_ma_nguon`: tìm được vài bản GitHub nhưng đều do **người khác** viết
+lại, không phải tác giả gốc tự công bố — nên KHÔNG được đánh `co`, phải để `[CẦN TÌM]` cho
+tới khi xác nhận được tác giả có công bố mã hay không).
 
 ### Hai dòng chú thích trong file CSV
 

@@ -25,6 +25,10 @@ trả lời** rằng vừa gắn cờ — không im lặng thêm vào. Học vi�
 | 5 | `Sentic-GCN` | 09/09/2026 | **Baseline chính thức.** Là mô hình gần NS-MGAT nhất trong các công trình đã có — hội đồng chắc chắn hỏi "khác gì Sentic-GCN?" | 🔴 | ☐ |
 | 6 | `ATAE-LSTM` | 09/09/2026 | Kiến trúc mà baseline `bilstm` (CD1.4b) dựa theo. Cần để nói đúng "của em khác bản gốc ở đâu" | 🟡 | ☐ |
 | 7 | `PhoBERT-ViSFD-2022` | 09/09/2026 | Công trình đã áp PhoBERT lên chính UIT-ViSFD → **dải tham chiếu để biết kết quả CD1.5 có bất thường không** | 🟡 | ☐ |
+| 8 | `MooreNegationTSA` | 22/09/2026 | **Bằng chứng định lượng mạnh nhất cho CH3**: mọi mô hình phân loại cảm xúc theo mục tiêu tụt 24–25 điểm F1 trên câu có phủ định/suy đoán; học đa nhiệm với tác vụ phủ định giúp lại 3,8 điểm. Là mốc so sánh trực tiếp cho cách NS-MGAT xử lý phủ định | 🔴 | ☐ |
+| 9 | `HuLogicRules2016` | 22/09/2026 | Cơ chế neuro-symbolic gần NS-MGAT nhất trong ma trận: chưng cất luật logic (luật "A-but-B" cho chuyển ý) vào trọng số mạng nơ-ron. Hội đồng dễ hỏi "luật của em khác luật của Hu et al. ở đâu" | 🟡 | ☐ |
+| 10 | `KiritchenkoNegators` | 22/09/2026 | **Luận cứ phản biện** đề tài phải trả lời được: bài kết luận tác động của từ phủ định biến thiên mạnh nên học thống kê hứa hẹn hơn luật cố định | 🟡 | ☐ |
+| 11 | `TranValenceShiftersVN` | 22/09/2026 | Công trình duy nhất tìm được về từ đổi cực tính (phủ định, tương phản, nhân quả...) trong **tiếng Việt** — trả lời câu "tiếng Việt đã có ai làm phủ định chưa" | 🟡 | ☐ |
 
 **Mức ưu tiên:** 🔴 phải đọc trước khi viết Chương 3/5 · 🟡 nên đọc trước khi bảo vệ · 🟢 tham khảo thêm nếu có thời gian
 
@@ -245,11 +249,24 @@ Nếu tới CD1.6a mới phát hiện điều này thì đã muộn.
 ### `Sentic-GCN` — Aspect-based sentiment analysis via affective knowledge enhanced graph convolutional networks (Liang, Su, Gui, Cambria & Xu, Knowledge-Based Systems 2022)
 
 **Ngày gắn cờ:** 09/09/2026 · **Mức ưu tiên:** 🔴 — đọc trước CD1.6b (Tuần 6)
+
+> ⚠️ **CHẶN TRẢ PHÍ — kiểm tra 22/09/2026.** Cả hai nguồn dưới đây từng ghi "đọc miễn phí"
+> đều **không còn truy cập được**: ScienceDirect đòi mua bài (Elsevier), kho Warwick báo
+> *"Research output not available from this repository"*. Claude Code đã thử tải PDF qua cả
+> hai đường — không bịa nội dung khi không đọc được nguồn, nên dòng `Sentic-GCN` trong
+> `survey_matrix.csv` vẫn để `chua_kiem`.
+>
+> **Học viên cần tự tìm cách tiếp cận, ví dụ:**
+> - Thư viện UTE — tra xem trường có mua gói Elsevier/ScienceDirect không (mục "Tài nguyên số")
+> - Trang cá nhân của tác giả (Bin Liang, Erik Cambria) — nhiều tác giả tự đăng bản PDF được phép
+> - ResearchGate — nút "Request full-text" gửi thẳng cho tác giả
+> - Hỏi trực tiếp GVHD — trường có thể có quyền truy cập mà học viên không có
+
 **Nguồn:**
-- ScienceDirect (bản chính thức): <https://www.sciencedirect.com/science/article/abs/pii/S0950705121009059>
+- ScienceDirect (bản chính thức, **trả phí**): <https://www.sciencedirect.com/science/article/abs/pii/S0950705121009059>
   — Knowledge-Based Systems, vol. 235, bài số 107643
-- **Bản đọc miễn phí** (kho lưu trữ ĐH Warwick): <https://wrap.warwick.ac.uk/id/eprint/160893/>
-- Mã nguồn chính chủ: <https://github.com/BinLiang-NLP/Sentic-GCN>
+- ~~Bản đọc miễn phí (kho lưu trữ ĐH Warwick)~~: <https://wrap.warwick.ac.uk/id/eprint/160893/> — **đã hỏng, không có file**
+- Mã nguồn chính chủ (đọc được, không trả phí): <https://github.com/BinLiang-NLP/Sentic-GCN> — code + README có thể hé lộ một phần kiến trúc dù chưa có toàn văn bài báo
 - Bản cài đặt lại có tài liệu: <https://sgnlp.aisingapore.net/docs/model/senticgcn.html>
 
 **Vì sao bài này quan trọng với luận văn của bạn:**
@@ -356,6 +373,119 @@ không phải tới Tuần 13.
   của ta không đặt bừa)*
 - Họ đặt bài toán giống bài báo gốc UIT-ViSFD (tự phát hiện khía cạnh) hay giống ta (cho sẵn
   khía cạnh)?
+
+**Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
+
+**Ghi chú sau khi đọc** *(điền bởi học viên):*
+
+…
+
+---
+
+### `MooreNegationTSA` — Multi-task Learning of Negation and Speculation for Targeted Sentiment Classification (Moore & Barnes, NAACL 2021)
+
+**Ngày gắn cờ:** 22/09/2026 · **Mức ưu tiên:** 🔴 — đọc trước khi viết Chương 3 và Chương 5
+**Nguồn:** ACL Anthology <https://aclanthology.org/2021.naacl-main.227/> · mã nguồn và dữ liệu <https://github.com/jerbarnes/multitask_negation_for_targeted_sentiment>
+
+**Vì sao bài này quan trọng với luận văn của bạn:**
+
+Đây là bài gần nhất với câu hỏi CH3 của đề tài trong toàn bộ 45 công trình. Nó làm đúng việc
+mà NS-MGAT định làm ở CĐ2, chỉ khác cách: thay vì đưa phủ định vào đồ thị bằng luật, họ dạy
+mô hình phát hiện phạm vi phủ định như một tác vụ phụ. Ba con số cần nhớ, đều đã đối chiếu
+với bài gốc: phủ định xuất hiện ở 13–25% số câu trong dữ liệu gốc; trên tập thử thách mọi mô
+hình tụt trung bình 24 điểm F1; thêm tác vụ phụ phủ định giúp lại khoảng 3,8 điểm. Nghĩa là
+vấn đề có thật và còn rất xa mới giải xong, đúng luận điểm bạn cần cho Chương 5.
+
+Bài này cũng là nguồn của các tập `14-Res-Negation`, `14-Lap-Negation` mà bài đánh giá ChatGPT
+dùng lại. Nếu CĐ2 muốn đo NS-MGAT trên phủ định bằng một thước đo có sẵn, đây là chỗ bắt đầu.
+
+**Câu hỏi cần trả lời được sau khi đọc:**
+
+- Họ tạo tập thử thách bằng cách nào — chỉ lọc câu có sẵn từ phủ định, hay chèn thêm? Việc chèn có làm đổi nhãn không, và họ kiểm soát chất lượng ra sao?
+- Tác vụ phụ nào giúp nhiều nhất cho phủ định, và vì sao nó giúp phần phân loại cảm xúc mà không giúp phần trích mục tiêu?
+- Học chuyển giao (ELMo) có thay thế được học đa nhiệm không? Điều đó nói gì về việc có cần mô-đun phủ định riêng hay không?
+- Nếu làm lại bài này cho ACSA tiếng Việt thì thiếu tài nguyên gì?
+
+**Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
+
+**Ghi chú sau khi đọc** *(điền bởi học viên):*
+
+…
+
+---
+
+### `HuLogicRules2016` — Harnessing Deep Neural Networks with Logic Rules (Hu, Ma, Liu, Hovy & Xing, ACL 2016)
+
+**Ngày gắn cờ:** 22/09/2026 · **Mức ưu tiên:** 🟡 — nên đọc trước khi bảo vệ
+**Nguồn:** ACL Anthology <https://aclanthology.org/P16-1228/> · mã nguồn <https://github.com/ZhitingHu/logicnn>
+
+**Vì sao bài này quan trọng với luận văn của bạn:**
+
+Đây là một trong những cách kết hợp luật và mạng nơ-ron được trích dẫn nhiều nhất cho phân tích
+cảm xúc. Họ viết luật "A-but-B" (cảm xúc cả câu theo mệnh đề sau "but") dưới dạng logic mềm, rồi
+dùng khung thầy trò để chưng cất luật vào trọng số mạng. Trên SST2 độ chính xác tăng từ 87,2% lên
+89,3%. Khi bạn nói NS-MGAT "dùng luật ngôn ngữ có độ tin cậy", hội đồng có thể đem bài này ra so.
+
+**Câu hỏi cần trả lời được sau khi đọc:**
+
+- Luật được đưa vào lúc huấn luyện hay lúc suy luận? Sau khi huấn luyện xong mô hình còn cần luật không?
+- Độ tin cậy của luật được đặt tay hay học từ dữ liệu?
+- Khác biệt cốt lõi giữa "chưng cất luật vào trọng số" và "đưa luật thành cạnh trong đồ thị" là gì?
+
+**Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
+
+**Ghi chú sau khi đọc** *(điền bởi học viên):*
+
+…
+
+---
+
+### `KiritchenkoNegators` — The Effect of Negators, Modals, and Degree Adverbs on Sentiment Composition (Kiritchenko & Mohammad, WASSA 2016)
+
+**Ngày gắn cờ:** 22/09/2026 · **Mức ưu tiên:** 🟡 — nên đọc trước khi bảo vệ
+**Nguồn:** ACL Anthology <https://aclanthology.org/W16-0410/>
+
+**Vì sao bài này quan trọng với luận văn của bạn:**
+
+Bài này là luận cứ phản biện mạnh nhất với hướng dùng luật cho phủ định. Dựa trên 3.207 cụm từ
+gán điểm cẩn thận, họ đo được phủ định làm từ tích cực giảm trung bình 0,926 điểm nhưng làm từ
+tiêu cực chỉ tăng 0,791 điểm, và tác động thay đổi mạnh ngay giữa các từ phủ định với nhau. Kết
+luận của họ là học thống kê hứa hẹn hơn luật cố định. Muốn bảo vệ NS-MGAT, bạn phải nói được vì
+sao luật có độ tin cậy hiệu chỉnh từ dữ liệu không rơi vào đúng điểm yếu mà bài này chỉ ra.
+
+**Câu hỏi cần trả lời được sau khi đọc:**
+
+- Vì sao phủ định không đơn giản là "đảo dấu"? Con số nào trong bài chứng minh điều đó?
+- Tác động bất đối xứng giữa phủ định từ tích cực và phủ định từ tiêu cực có ý nghĩa gì với cách thiết kế cạnh phủ định trong đồ thị?
+
+**Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
+
+**Ghi chú sau khi đọc** *(điền bởi học viên):*
+
+…
+
+---
+
+### `TranValenceShiftersVN` — Toward Contextual Valence Shifters in Vietnamese Reviews (Tran & Phan, ROCLING 2017)
+
+**Ngày gắn cờ:** 22/09/2026 · **Mức ưu tiên:** 🟡 — nên đọc trước khi viết mục 3.8
+**Nguồn:** ACL Anthology <https://aclanthology.org/O17-1016/>
+
+**Vì sao bài này quan trọng với luận văn của bạn:**
+
+Đây là công trình duy nhất tìm được bàn riêng về từ đổi cực tính trong tiếng Việt. Bài phân loại
+các hiện tượng (phủ định "không, chẳng, chả", tương phản "nhưng, tuy nhiên, mặc dù", câu nhân
+quả, câu điều kiện, câu hỏi) và thống kê tần suất trên 14.460 đánh giá khách sạn. Danh sách này
+dùng được ngay làm điểm xuất phát cho bộ luật tiếng Việt của NS-MGAT.
+
+Cần biết giới hạn: bài **không có thực nghiệm đánh giá mô hình**, các luật đề xuất tác giả tự ghi
+là để làm trong tương lai. Vì vậy chỉ trích dẫn nó cho phần mô tả hiện tượng, không trích như
+một kết quả đã kiểm chứng.
+
+**Câu hỏi cần trả lời được sau khi đọc:**
+
+- Bài liệt kê những loại từ đổi cực tính nào cho tiếng Việt? Loại nào phổ biến nhất trong dữ liệu của họ?
+- Những loại nào có trong dữ liệu điện thoại của UIT-ViSFD mà bài chưa đề cập?
 
 **Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
 
