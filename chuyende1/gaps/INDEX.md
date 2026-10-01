@@ -41,6 +41,8 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 | [GAP-017](GAP-017_vong-excel-nuot-mat-thay-doi-trong-csv.md) | 20/09/2026 | Code | **Nghiêm trọng** (mất dữ liệu âm thầm) | `tu-excel` ghi đè `.csv` từ bản chụp `.xlsx` mà không kiểm `.csv` có đổi sau khi xuất không — nuốt mất 4 nhóm nội dung vừa commit, không cảnh báo. Cơ chế chống ghi đè đã có sẵn ở REQ-006 nhưng không được áp cho đường ghi này | ✅ Đã sửa |
 | [GAP-018](GAP-018_so-lieu-khao-sat-lay-tu-nguon-phu-va-doc-bang-sai-cot.md) | 22/09/2026 | Số liệu | **Nghiêm trọng nếu để lâu** | 9 dòng ma trận khảo sát ghi sai so với bài gốc: lấy số từ bảng baseline của bài khác (Jiang 63,4%), đọc bảng nhiều cột bằng `pypdf` chế độ thường nên lệch cột, và suy luận ô có/không thay vì tìm câu trong bài (3 bài SemEval thực ra có công bố mã). Lộ ra nhờ đối chiếu với bảng baseline của bài đọc sau | ✅ Đã sửa |
 
+| [GAP-019](GAP-019_dap-an-trac-nghiem-lap-theo-chu-ky.md) | 01/10/2026 | Phương pháp | **Nghiêm trọng** (phép đo mất hiệu lực) | Đáp án trắc nghiệm 02 lặp chu kỳ `A C B D` bốn lần — phân bố đều hoàn hảo nhưng đoán được sau 8 câu, nên điểm 15/15 không chứng minh được đã đọc. Test cũ chỉ bắt "dồn vào một chữ cái" nên vẫn xanh | ✅ Đã sửa — xáo lại đề, thêm test chặn mọi chu kỳ |
+
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
 ---

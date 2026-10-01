@@ -21,7 +21,7 @@ trả lời** rằng vừa gắn cờ — không im lặng thêm vào. Học vi�
 | 1 | `SenticNet-7` | 02/09/2026 | **GVHD đã chọn làm TLTK chính số [1]** trong bản duyệt. Là nền lý thuyết trực tiếp của hướng neuro-symbolic — thứ CĐ2 sẽ mở rộng | 🔴 | ☐ |
 | 2 | `PhoBERT` | 02/09/2026 | **GVHD đã chọn làm TLTK chính số [2]** trong bản duyệt. Là baseline `phobert` và là bộ mã hoá nền của cả Sentic-GCN lẫn NS-MGAT | 🔴 | ☐ |
 | 3 | `UIT-ViSFD` | 09/09/2026 | **Bài giới thiệu chính tập dữ liệu của đề tài.** Quyết định câu "kết quả của em có so được với bài báo không" — xem REQ-008 rào cản 1 | 🔴 | ☑ **20/09/2026** — đạt trắc nghiệm 01, 15/15 |
-| 4 | `ASGCN` | 09/09/2026 | **Baseline chính thức** (bản GVHD duyệt mục 4). Ý tưởng đồ thị phụ thuộc theo khía cạnh — nền trực tiếp của CĐ2. Có một vấn đề thiết kế phải giải trước CD1.6a | 🔴 | ☐ |
+| 4 | `ASGCN` | 09/09/2026 | **Baseline chính thức** (bản GVHD duyệt mục 4). Ý tưởng đồ thị phụ thuộc theo khía cạnh — nền trực tiếp của CĐ2. Có một vấn đề thiết kế phải giải trước CD1.6a | 🔴 | ☑ **01/10/2026** — đạt trắc nghiệm 02, 15/15 |
 | 5 | `Sentic-GCN` | 09/09/2026 | **Baseline chính thức.** Là mô hình gần NS-MGAT nhất trong các công trình đã có — hội đồng chắc chắn hỏi "khác gì Sentic-GCN?" | 🔴 | ☐ |
 | 6 | `ATAE-LSTM` | 09/09/2026 | Kiến trúc mà baseline `bilstm` (CD1.4b) dựa theo. Cần để nói đúng "của em khác bản gốc ở đâu" | 🟡 | ☐ |
 | 7 | `PhoBERT-ViSFD-2022` | 09/09/2026 | Công trình đã áp PhoBERT lên chính UIT-ViSFD → **dải tham chiếu để biết kết quả CD1.5 có bất thường không** | 🟡 | ☐ |
@@ -238,7 +238,7 @@ Nếu tới CD1.6a mới phát hiện điều này thì đã muộn.
 - Bài báo có bàn tới trường hợp cây phụ thuộc bị **đứt thành nhiều mảnh** không? *(đúng
   GAP-007 của ta — 52,2 % Example bị chia cắt)*
 
-**Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
+**Trạng thái đọc:** ☑ **Đã đọc** (01/10/2026) · ☑ **Đã đọc kỹ** — đạt [trắc nghiệm 02](../trac-nghiem/de/02_ASGCN.md) ngày **01/10/2026**: **15/15**, đúng cả 7 câu ★ ([kết quả](../trac-nghiem/ket-qua/02_ASGCN_2026-10-01_1949.md)). ⚠️ Ghi rõ căn cứ: bản đề lúc làm có dãy đáp án lặp chu kỳ nên điểm số tự nó không phân biệt được "đọc kỹ" với "đoán theo quy luật" (xem [GAP-019](../gaps/GAP-019_dap-an-trac-nghiem-lap-theo-chu-ky.md)); mục này tick theo **xác nhận của học viên là đã đọc toàn văn**. Đề đã được xáo lại và bổ sung test chặn, nếu cần một phép đo độc lập thì làm thêm đề ngắn 6 câu.
 
 **Ghi chú sau khi đọc** *(điền bởi học viên):*
 
