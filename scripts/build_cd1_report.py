@@ -91,15 +91,17 @@ KHOA = "2026A"
 CHUONG: list[tuple[str, int, list[tuple[str, str]]]] = [
     (
         "Chương 1. TỔNG QUAN",
-        4,
+        5,
         [
             ("1.1. Đặt vấn đề", "CD1.12a — nhu cầu phân tích phản hồi khách hàng tiếng Việt; vì sao phân loại cảm xúc mức tài liệu không đủ, phải xuống mức khía cạnh"),
             ("1.2. Tình hình nghiên cứu trong và ngoài nước", "CD1.12a — tóm tắt 1 trang, chi tiết để ở Chương 3; nêu vấn đề khoa học còn tồn tại"),
             ("1.3. Tính cấp thiết, ý nghĩa khoa học và thực tiễn", "CD1.12a — bắt buộc theo Phần I mục 2 của quy định UTE"),
             ("1.4. Mục tiêu nghiên cứu", "CD1.12a — 4 mục tiêu tương ứng 4 nhiệm vụ: khảo sát / thực nghiệm / so sánh / tìm hạn chế và định hướng. Mục 6.1 sẽ đối chiếu ngược lại từng mục tiêu"),
-            ("1.5. Đối tượng và phạm vi nghiên cứu", "CD1.12a — đối tượng: ACSA tiếng Việt. Phạm vi: UIT-ViSFD, 3 nhãn, 4 mô hình, tập chẩn đoán 300 câu. NÓI RÕ CÁI KHÔNG LÀM: không cross-domain, không cài mô hình mới"),
-            ("1.6. Phương pháp nghiên cứu", "CD1.12a — khảo sát có hệ thống + thực nghiệm có kiểm soát (cùng split, cùng ngân sách tinh chỉnh, 3 seed) + phân tích lỗi định lượng"),
-            ("1.7. Cấu trúc của chuyên đề", "CD1.12a — 1 đoạn"),
+            ("1.5. Câu hỏi nghiên cứu", "CD1.12a — chép nguyên ba câu hỏi CH1, CH2, CH3 ở chuyende1/survey/survey_protocol.md mục 2, kèm một câu nói rõ câu hỏi nào được trả lời ở mục nào (CH1 -> 3.2-3.7, CH2 -> 3.8, CH3 -> 3.9 và 4.6). CH3 là câu hỏi riêng của đề tài, phải nêu bật"),
+            ("1.6. Đối tượng và phạm vi nghiên cứu", "CD1.12a — đối tượng: ACSA tiếng Việt. Phạm vi: UIT-ViSFD, 3 nhãn, 4 mô hình, tập chẩn đoán 300 câu. NÓI RÕ CÁI KHÔNG LÀM: không cross-domain, không cài mô hình mới"),
+            ("1.7. Phương pháp nghiên cứu", "CD1.12a — khảo sát có hệ thống + thực nghiệm có kiểm soát (cùng split, cùng ngân sách tinh chỉnh, 3 seed) + phân tích lỗi định lượng"),
+            ("1.8. Kế hoạch thực hiện", "CD1.12a — quy định UTE Phần I mục 2 liệt kê mục này trong Chương 1. Bảng mốc theo tuần của Chuyên đề 1 kèm sản phẩm mỗi mốc, nguồn pLan/chuyende1/progress_cd1.md. Phân biệt với mục 6.3: mục này là kế hoạch của Chuyên đề 1, mục 6.3 là kế hoạch Chuyên đề 2"),
+            ("1.9. Cấu trúc của chuyên đề", "CD1.12a — 1 đoạn"),
         ],
     ),
     (
@@ -242,6 +244,24 @@ def build_front_matter(doc) -> None:
     doc.add_paragraph("LỜI CẢM ƠN", style="Heading 1").alignment = CENTER
     add_todo(doc, "CD1.12b — ngắn gọn, không quá 1 trang")
 
+    doc.add_paragraph("LỜI CAM ĐOAN", style="Heading 1").alignment = CENTER
+    add_paragraph(doc, "Tôi cam đoan đây là công trình nghiên cứu của tôi.")
+    add_paragraph(
+        doc,
+        "Các số liệu, kết quả nêu trong luận văn/đề án là trung thực và chưa từng được ai "
+        "công bố trong bất kỳ công trình nào khác.",
+    )
+    doc.add_paragraph()
+    add_paragraph(doc, "Tp. Hồ Chí Minh, ngày     tháng     năm 2026", align=CENTER)
+    add_paragraph(doc, "(Ký và ghi rõ họ tên)", align=CENTER, italic=True)
+    doc.add_paragraph()
+    add_paragraph(doc, HOC_VIEN, align=CENTER)
+    add_todo(
+        doc,
+        "CD1.12b — nguyên văn theo mẫu Phụ lục 6 của quy định UTE (Phần I mục 6.5), "
+        "không quá 1 trang. Ký tay sau khi in",
+    )
+
     doc.add_paragraph("TÓM TẮT", style="Heading 1").alignment = CENTER
     add_todo(
         doc,
@@ -267,7 +287,12 @@ def build_front_matter(doc) -> None:
             run.font.name = FONT
             run.font.size = TABLE_TEXT_SIZE
             run.bold = row_idx == 0
-    add_todo(doc, "CD1.12b — bổ sung các chữ viết tắt phát sinh khi viết")
+    add_todo(
+        doc,
+        "CD1.12b — bổ sung các chữ viết tắt phát sinh khi viết. Phần I mục 6.8: KÝ HIỆU KHOA HỌC "
+        "xếp TRƯỚC chữ viết tắt, nên khi thêm các ký hiệu toán của Chương 2 (ma trận kề, vector "
+        "khía cạnh, hệ số attention) thì đặt chúng lên đầu bảng",
+    )
 
     doc.add_paragraph("DANH SÁCH CÁC BẢNG", style="Heading 1").alignment = CENTER
     add_todo(
@@ -278,6 +303,15 @@ def build_front_matter(doc) -> None:
 
     doc.add_paragraph("DANH SÁCH CÁC HÌNH", style="Heading 1").alignment = CENTER
     add_todo(doc, "CD1.12b — tương tự, chọn nhãn 'Hình'")
+
+    doc.add_paragraph("DANH SÁCH CÔNG THỨC", style="Heading 1").alignment = CENTER
+    add_todo(
+        doc,
+        "CD1.12b — quy định UTE không đòi trang này, nhưng Phần I mục 3 đòi số của phương trình "
+        "phải phản ánh số chương. Đánh số bằng nhãn 'Công thức' rồi dựng danh sách bằng "
+        "References > Insert Table of Figures, chọn nhãn 'Công thức'. Bỏ trang này nếu cuối cùng "
+        "cả cuốn có dưới 3 công thức được đánh số",
+    )
 
 
 # --- Phần chính (đánh số Ả Rập) -----------------------------------------------
@@ -304,6 +338,14 @@ def build_main_matter(doc) -> None:
                 add_todo(doc, "CD1.2 — chèn sơ đồ luồng sàng lọc ngay dưới dòng này")
                 add_caption(doc, "Hình 3.1: Sơ đồ quy trình sàng lọc tài liệu khảo sát")
                 add_todo(doc, "CD1.2 — tên HÌNH đặt DƯỚI hình (Phần I mục 3)")
+            if sec_title.startswith("2.3."):
+                add_todo(doc, "CD1.12a — chèn công thức truyền tin của một lớp GCN ngay dưới dòng này")
+                add_caption(doc, "Công thức 2.1: Quy tắc truyền tin của một lớp GCN")
+                add_todo(
+                    doc,
+                    "CD1.12a — số công thức phản ánh số chương (Phần I mục 3). Tên đặt DƯỚI công "
+                    "thức, cùng cách với hình. Công thức 2.2 dành cho GAT",
+                )
 
     doc.add_page_break()
     doc.add_paragraph("TÀI LIỆU THAM KHẢO", style="Heading 1")
@@ -379,11 +421,11 @@ def build_reference_doc() -> DocumentType:
         "tự động, nên đừng tự tạo tiêu đề bằng cách bôi đậm chữ thường — mục lục sẽ bỏ sót.",
     )
 
-    doc.add_paragraph("Quy ước bảng và hình", style="Heading 2")
+    doc.add_paragraph("Quy ước bảng, hình và công thức", style="Heading 2")
     add_paragraph(
         doc,
         "Phần I mục 3: tên BẢNG đặt PHÍA TRÊN thân bảng; tên HÌNH đặt PHÍA DƯỚI hình. "
-        "Số thứ tự phản ánh số chương.",
+        "Số thứ tự của bảng, hình và phương trình đều phải phản ánh số chương.",
     )
     add_caption(doc, "Bảng 2.1: Ví dụ chú thích bảng — đặt TRÊN bảng, dùng style 'Caption'")
     demo = doc.add_table(rows=2, cols=3)
@@ -397,6 +439,9 @@ def build_reference_doc() -> DocumentType:
     doc.add_paragraph()
     add_paragraph(doc, "[chỗ đặt hình]", align=CENTER, italic=True)
     add_caption(doc, "Hình 2.1: Ví dụ chú thích hình — đặt DƯỚI hình")
+    doc.add_paragraph()
+    add_paragraph(doc, "[chỗ đặt công thức]", align=CENTER, italic=True)
+    add_caption(doc, "Công thức 2.1: Ví dụ chú thích công thức — đặt DƯỚI công thức")
 
     doc.add_paragraph("Cách viết số", style="Heading 2")
     add_paragraph(doc, "Đúng: 85,3 %   |   18 – 25 km   |   15,8 cm", bold=True)
