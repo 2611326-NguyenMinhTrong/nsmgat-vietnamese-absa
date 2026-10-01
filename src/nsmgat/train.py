@@ -23,6 +23,7 @@ from transformers import AutoTokenizer
 
 from nsmgat.data.dataset import ACSADataset, collate_fn
 from nsmgat.evaluate import evaluate, evaluate_diagnostic, write_metrics
+from nsmgat.models.asgcn import ASGCNModel
 from nsmgat.models.base import BaseModel
 from nsmgat.models.bilstm import BiLSTMModel
 from nsmgat.models.dummy import DummyModel
@@ -45,6 +46,9 @@ MODEL_REGISTRY: Dict[str, Type[BaseModel]] = {
     "lexicon": LexiconModel,  # [CD1.4a] baseline tu dien — san tuyet doi
     "bilstm": BiLSTMModel,  # [CD1.4b] moc truoc ky nguyen tien huan luyen
     "phobert": PhoBERTClassifier,  # [CD1.5] moc so sanh chinh cua Chuong 4
+    # [CD1.6a] + cu phap. Dung CHUNG class cho ca hai config: asgcn.yaml va
+    # asgcn_linked.yaml chi khac khoa `link_roots` (GAP-007 phuong an C).
+    "asgcn": ASGCNModel,
 }
 
 

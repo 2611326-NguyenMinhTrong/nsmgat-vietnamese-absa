@@ -1,0 +1,57 @@
+# [CD1.6a / S1.2] ASGCN — baseline GCN tren cay phu thuoc cu phap.
+#
+# Baseline CHINH THUC trong ban GVHD duyet (muc 4). Vai tro: hieu so voi
+# `phobert` do xem cay phu thuoc dang gia bao nhieu diem.
+#
+# Chay (Colab T4, xem notebooks/colab_train.ipynb):
+#     python -m nsmgat.train --config configs/asgcn.yaml --model asgcn --seed 42
+#
+# Bien the chan doan cua GAP-007 nam o configs/asgcn_linked.yaml — file do
+# KE THUA file nay va ghi de DUNG MOT khoa `link_roots`.
+
+extends: base.yaml
+
+data:
+  # BAT, giong `phobert`. Bat buoc, khong phai tuy chon: `asgcn` lay bieu dien
+  # cua ve khia canh lam truy van attention, khong co ve do thi mo hinh nem loi.
+  #
+  # Vi sao phai giong `phobert`: neu khia canh chi vao bang mot embedding hoc
+  # tu dau thi bo ma hoa khong biet dang duoc hoi ve khia canh nao, va hieu so
+  # phobert <-> asgcn se lan hai bien (cu phap + duong vao cua khia canh) thay
+  # vi do dung phan cu phap. Hoc vien chot 02/10/2026.
+  #
+  # Subword cua ve khia canh mang word_id >= n_tokens nen khong lan vao chi so
+  # token cua cau — cho nay co test rieng.
+  pair_mode: true
+
+model:
+  name: asgcn
+  encoder_name: vinai/phobert-base-v2
+  dropout: 0.1
+  hidden_dim: 768
+
+  # 2 lop: dung so lop cua bai goc, da do bang thi nghiem tham do cua ho tren
+  # tap {1,2,3,4,6,8,12} va 2 cho ket qua tot nhat (muc 5.1).
+  gcn_layers: 2
+
+  # Cong thuc (3) cua bai goc: chia cho (d_i + 1). KHONG phai chuan hoa doi
+  # xung cua Kipf & Welling, du bai co trich dan Kipf. Hoc vien chot
+  # 02/10/2026 sau khi doc bai; so voi "sym" de danh lam tham do P4 o CD1.11.
+  normalize: row_plus1
+
+  # false = giu nguyen do thi cu phap, ke ca khi cau bi tach thanh nhieu cay
+  # con roi nhau (52,2 % Example — xem GAP-007). Day la hanh vi goc.
+  link_roots: false
+
+train:
+  # Giong `phobert` de hieu so chi con la phan cu phap. Dau GCN + attention
+  # khoi tao ngau nhien nen hoc nhanh hon encoder 50 lan, giong cach
+  # `phobert` tach hai learning rate.
+  epochs: 8
+  batch_size: 32
+  encoder_lr: 2.0e-5
+  lr: 1.0e-3
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  early_stop_patience: 3
+  max_seq_len: 128

@@ -1,0 +1,24 @@
+# [CD1.6a / GAP-007 phuong an C] asgcn_linked — BIEN THE CHAN DOAN cua `asgcn`.
+#
+# KHONG phai mo hinh moi. Muc dich duy nhat: do tac dong cua viec 52,2 %
+# Example co do thi cu phap bi chia cat thanh nhieu cay con roi nhau. Chi phi
+# da do that: +2,4 % so canh.
+#
+# Chay:
+#     python -m nsmgat.train --config configs/asgcn_linked.yaml --model asgcn --seed 42
+#
+# VI SAO KE THUA asgcn.yaml CHU KHONG CHEP LAI NOI DUNG
+# -----------------------------------------------------
+# Hieu so giua hai thi nghiem chi co nghia khi MOI sieu tham so khac giong het
+# nhau. Chep lai file roi sua tay thi som muon se lech mot khoa nao do ma
+# khong ai thay (dung mau hong da gap 5 lan trong so GAP: mot gia tri lech o
+# nguon lan am tham ra moi thu dan xuat tu no).
+#
+# Ke thua thi khong con cach nao lech: file nay chi duoc phep chua DUNG MOT
+# khoa `link_roots`. Doi bat ky sieu tham so nao thi phai doi o asgcn.yaml va
+# ca hai thi nghiem cung doi theo.
+
+extends: asgcn.yaml
+
+model:
+  link_roots: true
