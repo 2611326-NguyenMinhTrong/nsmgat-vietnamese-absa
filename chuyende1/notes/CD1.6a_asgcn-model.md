@@ -123,6 +123,12 @@ Test đáng giá nhất là `test_asgcn_linked_khac_asgcn_DUNG_MOT_khoa`: nó so
 **Chưa chạy huấn luyện thật.** Mọi số liệu về chất lượng mô hình còn trống, không có con số nào
 trong phiếu này là kết quả thực nghiệm.
 
+**Lượt chạy đầu trên Colab (01/10/2026) sập**, xem [GAP-020](../gaps/GAP-020_nhan-dien-ve-khia-canh-bang-chi-so-sai-khi-cau-bi-cat.md):
+vế khía cạnh được nhận diện bằng `word_id >= n_tokens`, mà câu dài bị cắt bớt vế câu nên phép
+so đó sai. Đã sửa thành tách hai vế theo cấu trúc `word_ids` và thêm 2 test ép `max_seq_len=16`.
+Rút ra một quy tắc cho các step sau: trước khi gửi lần chạy dài lên Colab, duyệt thử toàn bộ
+tập train bằng encoder tí hon ở máy, mất khoảng một phút.
+
 **Sự cố gặp phải:** file test chạy 147 giây ở lần đầu. Đo ra thủ phạm là `edges_to_adj`: mỗi cạnh
 làm một phép so sánh trên tensor, khoảng 50 micro giây một lần, thành 10 ms mỗi câu. Với
 train cộng dev cộng test thì mỗi lần khởi tạo mô hình mất khoảng 73 giây. Đã sửa bằng cách gom

@@ -161,6 +161,52 @@ def test_doi_khia_canh_thi_doi_du_doan(model, du_lieu_dev):
     assert not torch.allclose(a, b), "doi khia canh ma du doan khong doi — mo hinh mu khia canh"
 
 
+def test_cau_bi_cat_van_tim_thay_ve_khia_canh(model, du_lieu_dev):
+    """Lỗi làm sập seed 42 trên Colab 01/10/2026.
+
+    Bản đầu nhận diện vế khía cạnh bằng `word_id >= n_tokens`. Khi câu dài hơn
+    `max_seq_len`, tokenizer cắt bớt VẾ CÂU (truncation="only_first") nên vế
+    khía cạnh mang chỉ số nhỏ hơn `n_tokens` thật → model tưởng không có vế
+    khía cạnh và ném lỗi giữa lúc huấn luyện.
+
+    max_seq_len=16 ép mọi câu đều bị cắt.
+    """
+    from transformers import AutoTokenizer
+
+    tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base-v2")
+    ds = ACSADataset(du_lieu_dev, tokenizer, 16, pair_mode=True)
+    batch = collate_fn([ds[i] for i in range(8)])
+
+    # Có câu thật sự bị cắt thì test mới có ý nghĩa
+    assert any(n > 8 for n in batch["n_tokens"].tolist()), "chon mau khac, chua cat duoc"
+
+    logits = model(batch)  # khong duoc nem ValueError
+    assert logits.shape == (8, 3)
+    assert torch.isfinite(logits).all()
+
+
+def test_ve_khia_canh_khong_lan_vao_token_khi_cau_bi_cat(model, du_lieu_dev):
+    """Mặt còn lại của cùng lỗi: cắt câu rồi thì `word_id >= n_tokens` cũng
+    không chặn được vế khía cạnh khỏi ô token của câu."""
+    from transformers import AutoTokenizer
+
+    tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base-v2")
+    ds = ACSADataset(du_lieu_dev, tokenizer, 16, pair_mode=True)
+    batch = collate_fn([ds[i] for i in range(8)])
+
+    h = model.encoder(input_ids=batch["input_ids"],
+                      attention_mask=batch["attention_mask"]).last_hidden_state
+    so_token = int(batch["n_tokens"].max())
+    _, mask = model._gop_subword(h, batch, so_token)
+
+    for b, ws in enumerate(batch["word_ids"]):
+        doan = model._cac_ve(ws, h.shape[1])
+        so_tu_ve_cau = len({ws[l] for l in range(*(doan[0][0], doan[0][1] + 1))})
+        assert mask[b].sum().item() == so_tu_ve_cau, (
+            f"mau {b}: so token co mask phai bang so tu CUA VE CAU con lai sau khi cat"
+        )
+
+
 def test_tat_pair_mode_thi_nem_loi_RO_RANG(model, du_lieu_dev):
     """Khong co ve khia canh thi khong co truy van. Phai bao ro, khong duoc
     chay tiep bang mot vector rac."""

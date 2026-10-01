@@ -42,10 +42,11 @@ VI SAO `pair_mode` PHAI BAT
 ---------------------------
 Khac `phobert` o cho ta con can `word_ids` anh xa subword ve dung chi so token
 cua CAU, de khop voi chi so trong cay phu thuoc. Hai viec nay song duoc voi
-nhau: subword cua ve khia canh mang word_id >= n_tokens nen tach ra duoc. Bo
-gop subword chan theo n_tokens cua TUNG MAU — chan theo do dai lon nhat trong
-batch thi ve khia canh lot vao o token cua cau ngan (do duoc 02/10/2026: cau
-22 token thanh 25 token co mask).
+nhau: hai ve cach nhau bang cac o dac biet (word_id None) nen tach duoc bang
+cau truc, xem `_cac_ve`. KHONG tach bang cach so word_id voi n_tokens: khi cau
+bi cat bot (truncation="only_first") thi ve khia canh mang chi so nho hon
+n_tokens that, va phep so do bao "khong tim thay ve khia canh" — da xay ra that
+o seed 42 tren Colab 01/10/2026.
 
 Giu nguyen duoc tinh than cua bai o cho quan trong nhat: GCN sinh ra TRONG SO
 chu khong sinh ra bieu dien cuoi. Vector dua vao lop phan loai van la tong co
@@ -164,6 +165,33 @@ class ASGCNModel(BaseModel):
 
     # --- Cac buoc cua forward -------------------------------------------------
 
+    @staticmethod
+    def _cac_ve(danh_sach: List[Optional[int]], L: int) -> List[Tuple[int, int]]:
+        """Tach `word_ids` thanh cac doan lien tiep KHONG phai token dac biet.
+
+        Cap cau co dang `<s> cau </s></s> khia_canh </s>`, cac o dac biet mang
+        word_id None, nen doan dau la VE CAU va doan cuoi la VE KHIA CANH.
+
+        Vi sao khong so `word_id >= n_tokens` nhu ban dau: tokenizer cat bot VE
+        CAU khi qua max_seq_len (truncation="only_first"), nen ve khia canh co
+        the mang chi so NHO HON n_tokens that. Luc do phep so chi so bao khong
+        tim thay ve khia canh — da xay ra that khi chay seed 42 tren Colab
+        01/10/2026, trong khi tap dev khong co cau nao du dai de lo ra.
+        """
+        doan: List[Tuple[int, int]] = []
+        dau: Optional[int] = None
+        for l, w in enumerate(danh_sach[:L]):
+            if w is None:
+                if dau is not None:
+                    doan.append((dau, l - 1))
+                    dau = None
+                continue
+            if dau is None:
+                dau = l
+        if dau is not None:
+            doan.append((dau, min(L, len(danh_sach)) - 1))
+        return doan
+
     def _gop_subword(
         self, h: torch.Tensor, batch: Dict[str, Any], so_token: int
     ) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -179,12 +207,15 @@ class ASGCNModel(BaseModel):
         # subword cua ve khia canh (word_id = n, n+1, ...) van < max cua batch
         # nen lot vao o token cua cau — cau 22 token thanh 25 token co mask.
         # Chan theo tung mau thi `pair_mode` bat hay tat deu dung.
-        gioi_han = batch["n_tokens"].tolist()
         wid = torch.full((B, L), -1, dtype=torch.long, device=h.device)
         for b, danh_sach in enumerate(batch["word_ids"]):
-            n = min(int(gioi_han[b]), so_token)
-            for l, w in enumerate(danh_sach[:L]):
-                if w is not None and w < n:
+            doan = self._cac_ve(danh_sach, L)
+            if not doan:
+                continue
+            dau, cuoi = doan[0]  # VE CAU luon la doan dau tien
+            for l in range(dau, cuoi + 1):
+                w = danh_sach[l]
+                if w is not None and w < so_token:
                     wid[b, l] = w
 
         co = (wid >= 0).to(h.dtype)  # (B, L)
@@ -218,16 +249,18 @@ class ASGCNModel(BaseModel):
     def _truy_van(self, h: torch.Tensor, batch: Dict[str, Any]) -> torch.Tensor:
         """Bieu dien ve khia canh trong cap cau -> vector truy van (B, H).
 
-        Nhan dien ve khia canh bang `word_ids`: voi `pair_mode`, tokenizer danh
-        so tiep tuc, nen subword cua ve khia canh mang word_id >= n_tokens.
-        Lay trung binh cac subword do.
+        Nhan dien ve khia canh bang cau truc cap cau (xem `_cac_ve`), KHONG
+        bang cach so word_id voi n_tokens — cau bi cat thi phep so do sai.
+        Lay trung binh cac subword cua ve do.
         """
         B, L, H = h.shape
         la_khia_canh = torch.zeros((B, L), dtype=h.dtype, device=h.device)
-        for b, (danh_sach, n) in enumerate(zip(batch["word_ids"], batch["n_tokens"].tolist())):
-            for l, w in enumerate(danh_sach[:L]):
-                if w is not None and w >= int(n):
-                    la_khia_canh[b, l] = 1.0
+        for b, danh_sach in enumerate(batch["word_ids"]):
+            doan = self._cac_ve(danh_sach, L)
+            if len(doan) < 2:  # chi co ve cau -> pair_mode dang tat
+                continue
+            dau, cuoi = doan[-1]  # VE KHIA CANH luon la doan cuoi cung
+            la_khia_canh[b, dau : cuoi + 1] = 1.0
 
         dem = la_khia_canh.sum(dim=-1)
         if bool((dem == 0).any()):

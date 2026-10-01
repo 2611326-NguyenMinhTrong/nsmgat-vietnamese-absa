@@ -43,6 +43,8 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 
 | [GAP-019](GAP-019_dap-an-trac-nghiem-lap-theo-chu-ky.md) | 01/10/2026 | Phương pháp | **Nghiêm trọng** (phép đo mất hiệu lực) | Đáp án trắc nghiệm 02 lặp chu kỳ `A C B D` bốn lần — phân bố đều hoàn hảo nhưng đoán được sau 8 câu, nên điểm 15/15 không chứng minh được đã đọc. Test cũ chỉ bắt "dồn vào một chữ cái" nên vẫn xanh | ✅ Đã sửa — xáo lại đề, thêm test chặn mọi chu kỳ |
 
+| [GAP-020](GAP-020_nhan-dien-ve-khia-canh-bang-chi-so-sai-khi-cau-bi-cat.md) | 01/10/2026 | Code | **Nghiêm trọng** (chặn CD1.6a) | `ASGCNModel` nhận diện vế khía cạnh bằng `word_id >= n_tokens`; câu dài bị cắt bớt vế câu nên vế khía cạnh mang chỉ số nhỏ hơn `n_tokens` → ném lỗi giữa lúc huấn luyện trên Colab. 16 test đều chạy trên dev với `max_seq_len=128` nên không câu nào đủ dài để chạm nhánh sai | ✅ Đã sửa — tách hai vế theo cấu trúc `word_ids`, thêm 2 test ép `max_seq_len=16` |
+
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
 ---
