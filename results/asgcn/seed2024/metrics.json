@@ -1,0 +1,31 @@
+{
+  "exp_name": "asgcn",
+  "seed": 2024,
+  "dataset": "visfd",
+  "test": {
+    "accuracy": 0.9098482594465933,
+    "macro_f1": 0.844672079544243,
+    "f1_per_class": [
+      0.9250273224043716,
+      0.6606018194541637,
+      0.9483870967741935
+    ]
+  },
+  "diagnostic": {
+    "negation": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "contrast": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "regular": {
+      "macro_f1": 0.0,
+      "n": 0
+    }
+  },
+  "train_time_sec": 3454.8,
+  "n_params": 136181763,
+  "config_hash": "d666cd85a10c"
+}

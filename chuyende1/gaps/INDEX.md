@@ -47,6 +47,8 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 
 | [GAP-021](GAP-021_map-location-day-trang-thai-ngau-nhien-len-gpu.md) | 02/10/2026 | Code | **Nghiêm trọng** (chặn cơ chế chạy tiếp trên GPU) | `torch.load(..., map_location="cuda")` đẩy cả trạng thái sinh số ngẫu nhiên lên GPU, nên `set_rng_state_all` ném `TypeError: RNG state must be a torch.ByteTensor` ngay đầu lần chạy tiếp. Dòng ngay trên đã phòng đúng chuyện này cho trạng thái CPU rồi bỏ sót chỗ anh em cách hai dòng. Test chạy ở máy không có GPU nên nhánh đó chưa bao giờ được chạm tới — cùng mẫu hỏng với GAP-020 | ✅ Đã sửa — tách hàm chuẩn hoá dùng chung, chặn khi số GPU lệch, thêm 2 test giả lập GPU |
 
+| [GAP-022](GAP-022_tieu-chi-kiem-van-tay-bo-quen-seed.md) | 02/10/2026 | Phương pháp | Trung bình (suýt loại 2 lần chạy đúng) | Tiêu chí kiểm file tải về ghi "vân tay phải là `d2d2aebdc30f`", nhưng `train.py` tiêm `cfg["seed"]` trước khi bấm vân tay nên mỗi seed có một vân tay riêng. Giá trị kỳ vọng được tính bằng đường KHÁC với đường sinh ra giá trị thật | ✅ Đã sửa — kiểm lại bằng đúng đường, cả 3 seed khớp; ghi cách tính đúng vào `notebooks/da-chay/QUY-UOC.md` |
+
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
 ---
