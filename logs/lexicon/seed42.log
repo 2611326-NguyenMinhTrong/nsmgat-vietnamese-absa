@@ -1,0 +1,14 @@
+2026-09-08 07:49:46 | __main__ | INFO | === BAT DAU lexicon/seed42 | config=configs/lexicon.yaml | device=cpu ===
+2026-09-08 07:49:46 | __main__ | INFO | Log ghi tai logs\lexicon\seed42.log — theo doi: python scripts/watch_train.py --exp lexicon --seed 42
+2026-09-08 07:49:51 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-08 07:49:55 | __main__ | INFO | --no-train: giu nguyen train_time_sec = 197.8 s tu lan chay truoc (lan nay khong huan luyen nen khong do duoc)
+2026-09-08 07:49:55 | __main__ | INFO | Da ghi results\lexicon\seed42\metrics.json
+2026-09-08 07:49:55 | __main__ | INFO | Da ghi results\lexicon\seed42\predictions.jsonl (6,722 dong)
+2026-09-08 07:49:55 | __main__ | INFO | === KET THUC lexicon/seed42 ===
+2026-09-08 07:53:15 | __main__ | INFO | === BAT DAU lexicon/seed42 | config=configs/lexicon.yaml | device=cpu ===
+2026-09-08 07:53:15 | __main__ | INFO | Log ghi tai logs\lexicon\seed42.log — theo doi: python scripts/watch_train.py --exp lexicon --seed 42
+2026-09-08 07:53:19 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-08 07:53:23 | __main__ | INFO | --no-train: giu nguyen train_time_sec = 197.8 s tu lan chay truoc (lan nay khong huan luyen nen khong do duoc)
+2026-09-08 07:53:23 | __main__ | INFO | Da ghi results\lexicon\seed42\metrics.json
+2026-09-08 07:53:23 | __main__ | INFO | Da ghi results\lexicon\seed42\predictions.jsonl (6,722 dong)
+2026-09-08 07:53:23 | __main__ | INFO | === KET THUC lexicon/seed42 ===

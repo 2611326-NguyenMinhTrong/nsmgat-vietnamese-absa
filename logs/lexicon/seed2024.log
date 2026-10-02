@@ -1,0 +1,16 @@
+2026-09-09 03:44:44 | __main__ | INFO | === BAT DAU lexicon/seed2024 | config=configs/lexicon.yaml | device=cpu ===
+2026-09-09 03:44:44 | __main__ | INFO | Log ghi tai logs\lexicon\seed2024.log — theo doi: python scripts/watch_train.py --exp lexicon --seed 2024
+2026-09-09 03:44:49 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-09 03:45:10 | __main__ | INFO | [lexicon/seed2024] epoch 1/20 | train_loss=0.8400 | dev_acc=0.7431 | dev_macro_f1=0.508169
+2026-09-09 03:45:28 | __main__ | INFO | [lexicon/seed2024] epoch 2/20 | train_loss=0.7139 | dev_acc=0.7512 | dev_macro_f1=0.518005
+2026-09-09 03:45:44 | __main__ | INFO | [lexicon/seed2024] epoch 3/20 | train_loss=0.6783 | dev_acc=0.7600 | dev_macro_f1=0.527845
+2026-09-09 03:46:00 | __main__ | INFO | [lexicon/seed2024] epoch 4/20 | train_loss=0.6650 | dev_acc=0.7621 | dev_macro_f1=0.530098
+2026-09-09 03:46:22 | __main__ | INFO | [lexicon/seed2024] epoch 5/20 | train_loss=0.6604 | dev_acc=0.7618 | dev_macro_f1=0.529778
+2026-09-09 03:46:44 | __main__ | INFO | [lexicon/seed2024] epoch 6/20 | train_loss=0.6580 | dev_acc=0.7590 | dev_macro_f1=0.527256
+2026-09-09 03:47:06 | __main__ | INFO | [lexicon/seed2024] epoch 7/20 | train_loss=0.6556 | dev_acc=0.7606 | dev_macro_f1=0.528652
+2026-09-09 03:47:26 | __main__ | INFO | [lexicon/seed2024] epoch 8/20 | train_loss=0.6570 | dev_acc=0.7560 | dev_macro_f1=0.525787
+2026-09-09 03:47:45 | __main__ | INFO | [lexicon/seed2024] epoch 9/20 | train_loss=0.6541 | dev_acc=0.7600 | dev_macro_f1=0.528639
+2026-09-09 03:47:45 | __main__ | INFO | Dung som o epoch 9 (khong cai thien sau 5 epoch)
+2026-09-09 03:47:49 | __main__ | INFO | Da ghi results\lexicon\seed2024\metrics.json
+2026-09-09 03:47:49 | __main__ | INFO | Da ghi results\lexicon\seed2024\predictions.jsonl (6,722 dong)
+2026-09-09 03:47:49 | __main__ | INFO | === KET THUC lexicon/seed2024 ===

@@ -1,0 +1,33 @@
+2026-09-08 06:03:30 | __main__ | INFO | === BAT DAU bilstm/seed1337 | config=configs/bilstm.yaml | device=cpu ===
+2026-09-08 06:03:30 | __main__ | INFO | Log ghi tai logs\bilstm\seed1337.log — theo doi: python scripts/watch_train.py --exp bilstm --seed 1337
+2026-09-08 06:03:48 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-08 06:08:26 | __main__ | INFO | [bilstm/seed1337] epoch 1/30 | train_loss=0.7295 | dev_acc=0.8061 | dev_macro_f1=0.699459
+2026-09-08 06:12:43 | __main__ | INFO | [bilstm/seed1337] epoch 2/30 | train_loss=0.4938 | dev_acc=0.8468 | dev_macro_f1=0.749380
+2026-09-08 06:17:33 | __main__ | INFO | [bilstm/seed1337] epoch 3/30 | train_loss=0.3907 | dev_acc=0.8628 | dev_macro_f1=0.779106
+2026-09-08 06:21:35 | __main__ | INFO | [bilstm/seed1337] epoch 4/30 | train_loss=0.3198 | dev_acc=0.8709 | dev_macro_f1=0.793274
+2026-09-08 06:25:16 | __main__ | INFO | [bilstm/seed1337] epoch 5/30 | train_loss=0.2635 | dev_acc=0.8673 | dev_macro_f1=0.791885
+2026-09-08 06:29:21 | __main__ | INFO | [bilstm/seed1337] epoch 6/30 | train_loss=0.2173 | dev_acc=0.8676 | dev_macro_f1=0.789543
+2026-09-08 06:33:22 | __main__ | INFO | [bilstm/seed1337] epoch 7/30 | train_loss=0.1708 | dev_acc=0.8691 | dev_macro_f1=0.790200
+2026-09-08 06:37:01 | __main__ | INFO | [bilstm/seed1337] epoch 8/30 | train_loss=0.1392 | dev_acc=0.8703 | dev_macro_f1=0.795646
+2026-09-08 06:40:32 | __main__ | INFO | [bilstm/seed1337] epoch 9/30 | train_loss=0.1104 | dev_acc=0.8691 | dev_macro_f1=0.793759
+2026-09-08 06:43:59 | __main__ | INFO | [bilstm/seed1337] epoch 10/30 | train_loss=0.0851 | dev_acc=0.8685 | dev_macro_f1=0.789327
+2026-09-08 06:47:45 | __main__ | INFO | [bilstm/seed1337] epoch 11/30 | train_loss=0.0713 | dev_acc=0.8673 | dev_macro_f1=0.792682
+2026-09-08 06:51:45 | __main__ | INFO | [bilstm/seed1337] epoch 12/30 | train_loss=0.0563 | dev_acc=0.8568 | dev_macro_f1=0.776623
+2026-09-08 06:55:52 | __main__ | INFO | [bilstm/seed1337] epoch 13/30 | train_loss=0.0459 | dev_acc=0.8640 | dev_macro_f1=0.786510
+2026-09-08 06:55:52 | __main__ | INFO | Dung som o epoch 13 (khong cai thien sau 5 epoch)
+2026-09-08 06:56:10 | __main__ | INFO | Da ghi results\bilstm\seed1337\metrics.json
+2026-09-08 06:56:10 | __main__ | INFO | === KET THUC bilstm/seed1337 ===
+2026-09-08 07:49:02 | __main__ | INFO | === BAT DAU bilstm/seed1337 | config=configs/bilstm.yaml | device=cpu ===
+2026-09-08 07:49:02 | __main__ | INFO | Log ghi tai logs\bilstm\seed1337.log — theo doi: python scripts/watch_train.py --exp bilstm --seed 1337
+2026-09-08 07:49:12 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-08 07:49:27 | __main__ | INFO | --no-train: giu nguyen train_time_sec = 3123.3 s tu lan chay truoc (lan nay khong huan luyen nen khong do duoc)
+2026-09-08 07:49:27 | __main__ | INFO | Da ghi results\bilstm\seed1337\metrics.json
+2026-09-08 07:49:27 | __main__ | INFO | Da ghi results\bilstm\seed1337\predictions.jsonl (6,722 dong)
+2026-09-08 07:49:27 | __main__ | INFO | === KET THUC bilstm/seed1337 ===
+2026-09-08 07:54:17 | __main__ | INFO | === BAT DAU bilstm/seed1337 | config=configs/bilstm.yaml | device=cpu ===
+2026-09-08 07:54:17 | __main__ | INFO | Log ghi tai logs\bilstm\seed1337.log — theo doi: python scripts/watch_train.py --exp bilstm --seed 1337
+2026-09-08 07:54:26 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-08 07:54:41 | __main__ | INFO | --no-train: giu nguyen train_time_sec = 3123.3 s tu lan chay truoc (lan nay khong huan luyen nen khong do duoc)
+2026-09-08 07:54:41 | __main__ | INFO | Da ghi results\bilstm\seed1337\metrics.json
+2026-09-08 07:54:41 | __main__ | INFO | Da ghi results\bilstm\seed1337\predictions.jsonl (6,722 dong)
+2026-09-08 07:54:41 | __main__ | INFO | === KET THUC bilstm/seed1337 ===

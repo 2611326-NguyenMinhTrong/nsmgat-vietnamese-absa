@@ -1,0 +1,24 @@
+2026-09-09 03:39:22 | __main__ | INFO | === BAT DAU lexicon/seed1337 | config=configs/lexicon.yaml | device=cpu ===
+2026-09-09 03:39:22 | __main__ | INFO | Log ghi tai logs\lexicon\seed1337.log — theo doi: python scripts/watch_train.py --exp lexicon --seed 1337
+2026-09-09 03:39:28 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-09 03:39:56 | __main__ | INFO | [lexicon/seed1337] epoch 1/20 | train_loss=0.8516 | dev_acc=0.7446 | dev_macro_f1=0.510075
+2026-09-09 03:40:22 | __main__ | INFO | [lexicon/seed1337] epoch 2/20 | train_loss=0.7065 | dev_acc=0.7557 | dev_macro_f1=0.522087
+2026-09-09 03:40:43 | __main__ | INFO | [lexicon/seed1337] epoch 3/20 | train_loss=0.6745 | dev_acc=0.7606 | dev_macro_f1=0.528222
+2026-09-09 03:41:00 | __main__ | INFO | [lexicon/seed1337] epoch 4/20 | train_loss=0.6635 | dev_acc=0.7597 | dev_macro_f1=0.527683
+2026-09-09 03:41:17 | __main__ | INFO | [lexicon/seed1337] epoch 5/20 | train_loss=0.6594 | dev_acc=0.7603 | dev_macro_f1=0.528855
+2026-09-09 03:41:33 | __main__ | INFO | [lexicon/seed1337] epoch 6/20 | train_loss=0.6574 | dev_acc=0.7590 | dev_macro_f1=0.527254
+2026-09-09 03:41:50 | __main__ | INFO | [lexicon/seed1337] epoch 7/20 | train_loss=0.6563 | dev_acc=0.7615 | dev_macro_f1=0.529510
+2026-09-09 03:42:06 | __main__ | INFO | [lexicon/seed1337] epoch 8/20 | train_loss=0.6568 | dev_acc=0.7606 | dev_macro_f1=0.529120
+2026-09-09 03:42:22 | __main__ | INFO | [lexicon/seed1337] epoch 9/20 | train_loss=0.6557 | dev_acc=0.7587 | dev_macro_f1=0.527734
+2026-09-09 03:42:39 | __main__ | INFO | [lexicon/seed1337] epoch 10/20 | train_loss=0.6560 | dev_acc=0.7569 | dev_macro_f1=0.526575
+2026-09-09 03:42:54 | __main__ | INFO | [lexicon/seed1337] epoch 11/20 | train_loss=0.6552 | dev_acc=0.7590 | dev_macro_f1=0.527254
+2026-09-09 03:43:10 | __main__ | INFO | [lexicon/seed1337] epoch 12/20 | train_loss=0.6574 | dev_acc=0.7624 | dev_macro_f1=0.530365
+2026-09-09 03:43:26 | __main__ | INFO | [lexicon/seed1337] epoch 13/20 | train_loss=0.6540 | dev_acc=0.7606 | dev_macro_f1=0.529073
+2026-09-09 03:43:42 | __main__ | INFO | [lexicon/seed1337] epoch 14/20 | train_loss=0.6539 | dev_acc=0.7593 | dev_macro_f1=0.528213
+2026-09-09 03:43:58 | __main__ | INFO | [lexicon/seed1337] epoch 15/20 | train_loss=0.6567 | dev_acc=0.7624 | dev_macro_f1=0.530365
+2026-09-09 03:44:13 | __main__ | INFO | [lexicon/seed1337] epoch 16/20 | train_loss=0.6547 | dev_acc=0.7606 | dev_macro_f1=0.529073
+2026-09-09 03:44:28 | __main__ | INFO | [lexicon/seed1337] epoch 17/20 | train_loss=0.6555 | dev_acc=0.7606 | dev_macro_f1=0.528706
+2026-09-09 03:44:28 | __main__ | INFO | Dung som o epoch 17 (khong cai thien sau 5 epoch)
+2026-09-09 03:44:33 | __main__ | INFO | Da ghi results\lexicon\seed1337\metrics.json
+2026-09-09 03:44:33 | __main__ | INFO | Da ghi results\lexicon\seed1337\predictions.jsonl (6,722 dong)
+2026-09-09 03:44:33 | __main__ | INFO | === KET THUC lexicon/seed1337 ===

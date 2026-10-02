@@ -1,0 +1,26 @@
+2026-09-08 06:56:25 | __main__ | INFO | === BAT DAU bilstm/seed2024 | config=configs/bilstm.yaml | device=cpu ===
+2026-09-08 06:56:25 | __main__ | INFO | Log ghi tai logs\bilstm\seed2024.log — theo doi: python scripts/watch_train.py --exp bilstm --seed 2024
+2026-09-08 06:56:34 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-08 07:00:55 | __main__ | INFO | [bilstm/seed2024] epoch 1/30 | train_loss=0.7316 | dev_acc=0.8019 | dev_macro_f1=0.689258
+2026-09-08 07:05:06 | __main__ | INFO | [bilstm/seed2024] epoch 2/30 | train_loss=0.4979 | dev_acc=0.8459 | dev_macro_f1=0.746679
+2026-09-08 07:09:13 | __main__ | INFO | [bilstm/seed2024] epoch 3/30 | train_loss=0.3934 | dev_acc=0.8604 | dev_macro_f1=0.774282
+2026-09-08 07:13:26 | __main__ | INFO | [bilstm/seed2024] epoch 4/30 | train_loss=0.3241 | dev_acc=0.8649 | dev_macro_f1=0.780612
+2026-09-08 07:17:36 | __main__ | INFO | [bilstm/seed2024] epoch 5/30 | train_loss=0.2644 | dev_acc=0.8637 | dev_macro_f1=0.777801
+2026-09-08 07:21:41 | __main__ | INFO | [bilstm/seed2024] epoch 6/30 | train_loss=0.2166 | dev_acc=0.8655 | dev_macro_f1=0.784025
+2026-09-08 07:26:07 | __main__ | INFO | [bilstm/seed2024] epoch 7/30 | train_loss=0.1735 | dev_acc=0.8664 | dev_macro_f1=0.790197
+2026-09-08 07:30:37 | __main__ | INFO | [bilstm/seed2024] epoch 8/30 | train_loss=0.1314 | dev_acc=0.8622 | dev_macro_f1=0.778483
+2026-09-08 07:35:08 | __main__ | INFO | [bilstm/seed2024] epoch 9/30 | train_loss=0.1106 | dev_acc=0.8649 | dev_macro_f1=0.781172
+2026-09-08 07:39:27 | __main__ | INFO | [bilstm/seed2024] epoch 10/30 | train_loss=0.0809 | dev_acc=0.8601 | dev_macro_f1=0.784574
+2026-09-08 07:43:34 | __main__ | INFO | [bilstm/seed2024] epoch 11/30 | train_loss=0.0676 | dev_acc=0.8543 | dev_macro_f1=0.772880
+2026-09-08 07:47:49 | __main__ | INFO | [bilstm/seed2024] epoch 12/30 | train_loss=0.0575 | dev_acc=0.8637 | dev_macro_f1=0.780575
+2026-09-08 07:47:49 | __main__ | INFO | Dung som o epoch 12 (khong cai thien sau 5 epoch)
+2026-09-08 07:48:05 | __main__ | INFO | Da ghi results\bilstm\seed2024\metrics.json
+2026-09-08 07:48:05 | __main__ | INFO | Da ghi results\bilstm\seed2024\predictions.jsonl (6,722 dong)
+2026-09-08 07:48:05 | __main__ | INFO | === KET THUC bilstm/seed2024 ===
+2026-09-08 07:54:49 | __main__ | INFO | === BAT DAU bilstm/seed2024 | config=configs/bilstm.yaml | device=cpu ===
+2026-09-08 07:54:49 | __main__ | INFO | Log ghi tai logs\bilstm\seed2024.log — theo doi: python scripts/watch_train.py --exp bilstm --seed 2024
+2026-09-08 07:54:58 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-08 07:55:13 | __main__ | INFO | --no-train: giu nguyen train_time_sec = 3074.3 s tu lan chay truoc (lan nay khong huan luyen nen khong do duoc)
+2026-09-08 07:55:13 | __main__ | INFO | Da ghi results\bilstm\seed2024\metrics.json
+2026-09-08 07:55:13 | __main__ | INFO | Da ghi results\bilstm\seed2024\predictions.jsonl (6,722 dong)
+2026-09-08 07:55:13 | __main__ | INFO | === KET THUC bilstm/seed2024 ===

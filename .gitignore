@@ -19,12 +19,9 @@ data/cache/
 data/processed/*.jsonl
 results/*/*.pt
 checkpoints/
-# Nhat ky huan luyen: giu o may, TRU logs/asgcn/ — nguoi doc bao cao can doc lai
-# nhat ky tung epoch de kiem chung ket qua CD1.6a. Ba file .log cong lai ~20 KB.
-/logs/*
-!/logs/asgcn/
-/logs/asgcn/*
-!/logs/asgcn/*.log
+# `logs/` KHONG con bi chan: nhat ky tung epoch la bang chung de nguoi doc bao
+# cao kiem chung ket qua. Chin file hien co cong lai 40 KB. Ngoai le that su
+# nam o CUOI file, xem chu thich o do.
 # Ban lam viec tam khi sua bang Excel — nguon su that la file .csv
 chuyende1/survey/*.xlsx
 
@@ -79,6 +76,7 @@ chuyende1/docs/*
 
 # [CD1.6a] Ngoai le phai dat o CUOI file: dong `*.log` cua muc LaTeX o tren
 # chan moi file .log, va trong .gitignore quy tac SAU thang quy tac TRUOC.
-# Giu nhat ky huan luyen cua asgcn trong kho de nguoi doc bao cao kiem chung
-# duoc tung epoch. Ba file cong lai ~20 KB.
-!/logs/asgcn/*.log
+# Giu TOAN BO nhat ky huan luyen trong kho de nguoi doc bao cao kiem chung duoc
+# tung epoch cua moi thi nghiem. Chin file hien co cong lai 40 KB; moi thi
+# nghiem moi tu dong duoc giu, khong phai sua file nay nua.
+!/logs/**/*.log
