@@ -1,0 +1,19 @@
+2026-10-02 12:39:41 | __main__ | INFO | === BAT DAU asgcn_linked/seed2024 | config=configs/asgcn_linked.yaml | device=cuda ===
+2026-10-02 12:39:41 | __main__ | INFO | Log ghi tai logs/asgcn_linked/seed2024.log — theo doi: python scripts/watch_train.py --exp asgcn_linked --seed 2024
+2026-10-02 12:39:52 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-02 12:49:03 | __main__ | INFO | [asgcn_linked/seed2024] epoch 1/8 | train_loss=0.5689 | dev_acc=0.8736 | dev_macro_f1=0.773416
+2026-10-02 12:58:41 | __main__ | INFO | [asgcn_linked/seed2024] epoch 2/8 | train_loss=0.3122 | dev_acc=0.8945 | dev_macro_f1=0.819566
+2026-10-02 13:08:47 | __main__ | INFO | [asgcn_linked/seed2024] epoch 3/8 | train_loss=0.2246 | dev_acc=0.9044 | dev_macro_f1=0.831953
+2026-10-02 13:18:35 | __main__ | INFO | [asgcn_linked/seed2024] epoch 4/8 | train_loss=0.1697 | dev_acc=0.9122 | dev_macro_f1=0.854320
+2026-10-02 14:27:00 | __main__ | INFO | === BAT DAU asgcn_linked/seed2024 | config=configs/asgcn_linked.yaml | device=cuda ===
+2026-10-02 14:27:01 | __main__ | INFO | Log ghi tai logs/asgcn_linked/seed2024.log — theo doi: python scripts/watch_train.py --exp asgcn_linked --seed 2024
+2026-10-02 14:27:16 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-02 14:27:43 | __main__ | INFO | Chay tiep tu epoch 4/8 (da chay 29.0 phut, best dev_macro_f1 = 0.8320, kien nhan con 3)
+2026-10-02 14:36:52 | __main__ | INFO | [asgcn_linked/seed2024] epoch 4/8 | train_loss=0.1696 | dev_acc=0.9122 | dev_macro_f1=0.854388
+2026-10-02 14:47:06 | __main__ | INFO | [asgcn_linked/seed2024] epoch 5/8 | train_loss=0.1231 | dev_acc=0.8984 | dev_macro_f1=0.838197
+2026-10-02 14:56:39 | __main__ | INFO | [asgcn_linked/seed2024] epoch 6/8 | train_loss=0.0951 | dev_acc=0.9095 | dev_macro_f1=0.852822
+2026-10-02 15:06:16 | __main__ | INFO | [asgcn_linked/seed2024] epoch 7/8 | train_loss=0.0697 | dev_acc=0.9050 | dev_macro_f1=0.842094
+2026-10-02 15:06:28 | __main__ | INFO | Dung som o epoch 7 (khong cai thien sau 3 epoch)
+2026-10-02 15:07:41 | __main__ | INFO | Da ghi results/asgcn_linked/seed2024/metrics.json
+2026-10-02 15:07:41 | __main__ | INFO | Da ghi results/asgcn_linked/seed2024/predictions.jsonl (6,722 dong)
+2026-10-02 15:07:41 | __main__ | INFO | === KET THUC asgcn_linked/seed2024 ===

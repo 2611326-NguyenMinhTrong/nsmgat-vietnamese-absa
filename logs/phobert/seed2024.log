@@ -1,0 +1,14 @@
+2026-09-21 18:55:25 | __main__ | INFO | === BAT DAU phobert/seed2024 | config=configs/phobert.yaml | device=cuda ===
+2026-09-21 18:55:25 | __main__ | INFO | Log ghi tai logs/phobert/seed2024.log — theo doi: python scripts/watch_train.py --exp phobert --seed 2024
+2026-09-21 18:56:10 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-09-21 18:59:09 | __main__ | INFO | [phobert/seed2024] epoch 1/8 | train_loss=0.5524 | dev_acc=0.8836 | dev_macro_f1=0.797979
+2026-09-21 19:02:06 | __main__ | INFO | [phobert/seed2024] epoch 2/8 | train_loss=0.2985 | dev_acc=0.9011 | dev_macro_f1=0.842521
+2026-09-21 19:05:33 | __main__ | INFO | [phobert/seed2024] epoch 3/8 | train_loss=0.2209 | dev_acc=0.9050 | dev_macro_f1=0.837005
+2026-09-21 19:08:42 | __main__ | INFO | [phobert/seed2024] epoch 4/8 | train_loss=0.1672 | dev_acc=0.9141 | dev_macro_f1=0.854252
+2026-09-21 19:12:27 | __main__ | INFO | [phobert/seed2024] epoch 5/8 | train_loss=0.1280 | dev_acc=0.9101 | dev_macro_f1=0.852593
+2026-09-21 19:15:38 | __main__ | INFO | [phobert/seed2024] epoch 6/8 | train_loss=0.0979 | dev_acc=0.9086 | dev_macro_f1=0.853066
+2026-09-21 19:19:22 | __main__ | INFO | [phobert/seed2024] epoch 7/8 | train_loss=0.0775 | dev_acc=0.9059 | dev_macro_f1=0.847515
+2026-09-21 19:19:38 | __main__ | INFO | Dung som o epoch 7 (khong cai thien sau 3 epoch)
+2026-09-21 19:21:20 | __main__ | INFO | Da ghi results/phobert/seed2024/metrics.json
+2026-09-21 19:21:20 | __main__ | INFO | Da ghi results/phobert/seed2024/predictions.jsonl (6,722 dong)
+2026-09-21 19:21:20 | __main__ | INFO | === KET THUC phobert/seed2024 ===

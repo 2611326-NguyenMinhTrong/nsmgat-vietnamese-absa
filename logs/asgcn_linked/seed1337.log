@@ -1,0 +1,13 @@
+2026-10-02 11:28:33 | __main__ | INFO | === BAT DAU asgcn_linked/seed1337 | config=configs/asgcn_linked.yaml | device=cuda ===
+2026-10-02 11:28:33 | __main__ | INFO | Log ghi tai logs/asgcn_linked/seed1337.log — theo doi: python scripts/watch_train.py --exp asgcn_linked --seed 1337
+2026-10-02 11:28:48 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-02 11:38:05 | __main__ | INFO | [asgcn_linked/seed1337] epoch 1/8 | train_loss=0.5819 | dev_acc=0.8854 | dev_macro_f1=0.810608
+2026-10-02 11:47:44 | __main__ | INFO | [asgcn_linked/seed1337] epoch 2/8 | train_loss=0.3181 | dev_acc=0.8993 | dev_macro_f1=0.810633
+2026-10-02 11:57:35 | __main__ | INFO | [asgcn_linked/seed1337] epoch 3/8 | train_loss=0.2318 | dev_acc=0.9125 | dev_macro_f1=0.854253
+2026-10-02 12:07:19 | __main__ | INFO | [asgcn_linked/seed1337] epoch 4/8 | train_loss=0.1758 | dev_acc=0.9020 | dev_macro_f1=0.844158
+2026-10-02 12:16:58 | __main__ | INFO | [asgcn_linked/seed1337] epoch 5/8 | train_loss=0.1338 | dev_acc=0.9032 | dev_macro_f1=0.843974
+2026-10-02 12:26:38 | __main__ | INFO | [asgcn_linked/seed1337] epoch 6/8 | train_loss=0.1038 | dev_acc=0.9080 | dev_macro_f1=0.848525
+2026-10-02 12:26:45 | __main__ | INFO | Dung som o epoch 6 (khong cai thien sau 3 epoch)
+2026-10-02 12:27:54 | __main__ | INFO | Da ghi results/asgcn_linked/seed1337/metrics.json
+2026-10-02 12:27:54 | __main__ | INFO | Da ghi results/asgcn_linked/seed1337/predictions.jsonl (6,722 dong)
+2026-10-02 12:27:54 | __main__ | INFO | === KET THUC asgcn_linked/seed1337 ===
