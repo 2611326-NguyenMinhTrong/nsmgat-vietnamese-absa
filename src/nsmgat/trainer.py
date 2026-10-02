@@ -101,12 +101,32 @@ def _trang_thai_ngau_nhien() -> Dict[str, Any]:
     }
 
 
+def _ve_byte_cpu(t: torch.Tensor) -> torch.Tensor:
+    """Dua mot trang thai RNG ve dung kieu torch.ByteTensor TREN CPU.
+
+    Can thiet vi `torch.load(..., map_location=device)` doi cho CUA MOI tensor
+    trong goi, ke ca hai trang thai RNG. Len GPU roi thi
+    `isinstance(t, torch.ByteTensor)` tra ve False — kieu do chi danh cho CPU —
+    va torch nem `TypeError: RNG state must be a torch.ByteTensor`. Xem GAP-021.
+    """
+    return t.detach().cpu().to(torch.uint8)
+
+
 def _nap_trang_thai_ngau_nhien(tt: Dict[str, Any]) -> None:
     random.setstate(tt["python"])
     np.random.set_state(tt["numpy"])
-    torch.set_rng_state(tt["torch"].cpu().to(torch.uint8))
+    torch.set_rng_state(_ve_byte_cpu(tt["torch"]))
     if tt.get("torch_cuda") is not None and torch.cuda.is_available():
-        torch.cuda.set_rng_state_all(tt["torch_cuda"])
+        trang_thai = [_ve_byte_cpu(t) for t in tt["torch_cuda"]]
+        # Chay tiep tren so GPU khac luc luu thi mot phan trang thai ngau nhien
+        # khong duoc khoi phuc, va ket qua het tai lap duoc. Dung han con hon.
+        if len(trang_thai) != torch.cuda.device_count():
+            raise ValueError(
+                f"Khong the chay tiep: last.pt luu trang thai cua {len(trang_thai)} GPU, "
+                f"may nay co {torch.cuda.device_count()}. Chay tiep se re sang mot "
+                "nhanh ngau nhien khac voi lan chay lien mach."
+            )
+        torch.cuda.set_rng_state_all(trang_thai)
 
 
 class Trainer:

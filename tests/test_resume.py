@@ -12,6 +12,9 @@ epoch tiep theo, thu tu xao tron du lieu se khac han lan chay lien mach.
 
 from __future__ import annotations
 
+import random
+
+import numpy as np
 import pytest
 import torch
 from torch.utils.data import DataLoader
@@ -302,3 +305,55 @@ def test_doi_save_best_thi_van_tay_PHAI_doi(du_lieu, tmp_path):
     b = lam_cfg(tmp_path / "vt", duong_dan)
     b["output"]["save_best"] = False
     assert config_hash(a) != config_hash(b)
+
+
+# --- GAP-021: trang thai RNG bi map_location day len GPU ----------------------
+#
+# `_tiep_tuc` goi torch.load(..., map_location=self.device). Tren Colab,
+# self.device la cuda, nen MOI tensor trong last.pt bi doi cho len GPU, ke ca
+# hai trang thai RNG. torch.cuda.set_rng_state_all doi dung torch.ByteTensor
+# (kieu chi danh cho CPU) nen nem TypeError giua lan chay tiep.
+#
+# GIOI HAN cua hai test duoi: may khong co GPU thi khong tao duoc tensor cuda
+# that, nen chung ep SAI KIEU thay vi SAI THIET BI. Chung khoa duoc buoc chuan
+# hoa, nhung khong thay the duoc mot lan chay tiep that tren GPU.
+
+
+def _trang_thai_gia_bi_doi_kieu():
+    """Dung dang goi `ngau_nhien` nhu luc luu, nhung hai trang thai torch da bi
+    doi khoi torch.ByteTensor — dung thu map_location lam voi chung."""
+    return {
+        "python": random.getstate(),
+        "numpy": np.random.get_state(),
+        "torch": torch.get_rng_state().to(torch.int64),
+        "torch_cuda": [torch.get_rng_state().to(torch.int64)],
+    }
+
+
+def test_trang_thai_cuda_duoc_dua_ve_byte_tensor_tren_cpu(monkeypatch):
+    from nsmgat import trainer as tr
+
+    da_nhan = {}
+    monkeypatch.setattr(tr.torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(tr.torch.cuda, "device_count", lambda: 1)
+    monkeypatch.setattr(tr.torch.cuda, "set_rng_state_all",
+                        lambda states: da_nhan.__setitem__("states", states))
+
+    tr._nap_trang_thai_ngau_nhien(_trang_thai_gia_bi_doi_kieu())
+
+    (nhan,) = da_nhan["states"]
+    # Day dung la dieu kien torch kiem truoc khi nhan: isinstance(x, ByteTensor).
+    assert isinstance(nhan, torch.ByteTensor)
+    assert nhan.dtype == torch.uint8 and nhan.device.type == "cpu"
+
+
+def test_bao_ro_khi_so_GPU_khac_luc_luu(monkeypatch):
+    from nsmgat import trainer as tr
+
+    monkeypatch.setattr(tr.torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(tr.torch.cuda, "device_count", lambda: 2)
+    monkeypatch.setattr(tr.torch.cuda, "set_rng_state_all",
+                        lambda states: pytest.fail("khong duoc goi khi so GPU lech"))
+
+    with pytest.raises(ValueError, match="trang thai cua 1 GPU"):
+        tr._nap_trang_thai_ngau_nhien(_trang_thai_gia_bi_doi_kieu())
