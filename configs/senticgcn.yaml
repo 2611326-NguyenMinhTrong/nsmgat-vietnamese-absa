@@ -1,2 +1,42 @@
-# [S1.2] Cau hinh baseline Sentic-GCN
-# TODO: dien cau hinh theo pLan/PLAN_NSMGAT.md (muc S1.2)
+# [CD1.6b / S1.3] Sentic-GCN — GCN tren cay phu thuoc CO TRONG SO CAM XUC.
+#
+# Baseline CHINH THUC trong ban GVHD duyet (muc 4). Vai tro: bac tren cua
+# `asgcn`. Hieu so `asgcn` -> `senticgcn` do xem TRI THUC CAM XUC dang bao
+# nhieu diem, sau khi `asgcn` da do xong phan cu phap.
+#
+# Chay (Colab T4, xem notebooks/colab_train.ipynb):
+#     python -m nsmgat.train --config configs/senticgcn.yaml --model senticgcn --seed 42
+#
+# VI SAO KE THUA asgcn.yaml VA CHI THEM DUNG MOT KHOA
+# ---------------------------------------------------
+# Thang baseline chi doc duoc khi moi bac them DUNG MOT bien:
+#     phobert -> asgcn      them: cu phap
+#     asgcn   -> senticgcn  them: tri thuc cam xuc
+#
+# Chep lai noi dung roi sua tay thi som muon se lech mot sieu tham so nao do ma
+# khong ai thay. Ke thua thi khong con cach nao lech — giong het cach
+# `asgcn_linked.yaml` lam voi `link_roots`.
+#
+# `link_roots` van la false, giu nguyen hanh vi bai goc. Hoc vien chot
+# 02/10/2026 sau khi co ket qua `asgcn_linked`: dong CHINH THUC trong Bang 4.5
+# tai lap dung bai goc, con bien the noi goc la phat hien phu co so lieu rieng.
+# Doi mot minh `senticgcn` sang true se lam hieu so asgcn -> senticgcn lan hai
+# bien thay vi do dung phan tri thuc cam xuc.
+
+extends: asgcn.yaml
+
+model:
+  # Bang diem cam xuc tung tu, dung cho cong thuc (2) cua bai:
+  #     S_ij = diem(w_i) + diem(w_j)
+  #
+  # Day la tu dien QUY NAP TU TAP TRAIN o CD1.4a, khong phai SenticNet. Khac
+  # ban chat: SenticNet la tri thuc thuong thuc ben ngoai, khong biet gi ve bo
+  # du lieu; file nay sinh ra tu chinh nhan cua train. Khong ro ri sang test,
+  # nhung PHAI noi ro o muc 4.3 cua bao cao — neu `senticgcn` thang `asgcn`,
+  # mot phan co the den tu thong tin nhan di vong vao trong so canh.
+  #
+  # Do phu do that: 83,3 % token tap train, 81,4 % tap test, khong Example nao
+  # rong. Hinh 3 cua bai cho thay tren 60 % thi diem so tang deu.
+  #
+  # `scripts/build_affective_lexicon.py` thuoc S3.2, chua toi luot (quy tac 6).
+  lexicon_path: data/lexicon_from_train.json

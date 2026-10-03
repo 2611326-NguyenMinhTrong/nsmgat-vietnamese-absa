@@ -73,6 +73,11 @@ import torch.nn as nn
 NORMALIZE_MODES = ("sym", "row", "row_plus1", "none")
 EPS = 1e-12
 
+# Nguong cua day bay o `row_plus1`. Dat 1e-6 chu khong sat 0: cach gia tri nho
+# nhat do duoc tren du lieu that (1,1e-3) ba bac do lon, nen khong the bao nham,
+# ma van bat duoc truong hop mau so thuc su trung 0. Xem `_normalize`.
+EPS_MAU_SO = 1e-6
+
 
 class GCNLayer(nn.Module):
     """Mot lop GCN: (x, adj) -> x'. KHONG kem ham kich hoat.
@@ -179,9 +184,38 @@ class GCNLayer(nn.Module):
         deg_safe = deg.clamp(min=EPS)
 
         if self.normalize == "row_plus1":
-            # Cong thuc ASGCN goc. Khong can torch.where: mau so (d_i + 1) >= 1 nen
-            # khong bao gio chia cho 0, va hang cua token dem von da toan 0.
-            return adj * (deg + 1.0).reciprocal().unsqueeze(2)
+            # Cong thuc (3) cua ASGCN, cung la cong thuc (7) cua Sentic-GCN.
+            #
+            # VOI `asgcn`: adj nhi phan co self-loop nen deg >= 1, mau so >= 2.
+            #
+            # VOI `senticgcn`: adj mang diem cam xuc nen deg la TONG CO DAU, khong
+            # phai phep dem. Mau so AM DUOC, va khi am thi ca hang doi dau. Day
+            # KHONG phai loi can sua: do dung la dieu cong thuc (4) va (7) cua bai
+            # quy dinh khi vung lan can rat tieu cuc. Hoc vien chot 03/10/2026 chay
+            # y het bai goc, nen o day khong kep, khong dich thang diem.
+            #
+            # Do that tren UIT-ViSFD voi `data/lexicon_from_train.json`:
+            #   |mau so| nho nhat = 1,1e-3  -> khuech dai nhieu nhat 909 lan
+            #   so token co |mau so| < 1e-3 = 0 tren ca train/dev/test
+            # Nen chia cho so am hay so nho deu ra so huu han, khong sinh NaN.
+            mau = deg + 1.0
+
+            # DAY BAY, khong phai cai kep. Mau so bang DUNG 0 moi sinh inf roi NaN.
+            # Theo so do o tren thi khong bao gio xay ra, nen dong nay khong doi mot
+            # chu so nao cua ket qua. No chi de phong truong hop doi tu dien hoac doi
+            # du lieu ma roi trung so 0: luc do nhan mot thong bao ro rang, thay vi
+            # mot bang ket qua toan NaN ma khong biet vi sao.
+            if bool(torch.any(mau.abs() < EPS_MAU_SO)):
+                xau = mau[mau.abs() < EPS_MAU_SO]
+                raise ValueError(
+                    f"Mau so chuan hoa (E_i + 1) gan bang 0: {xau.flatten()[:5].tolist()}.\n"
+                    "  Cong thuc (7) chia cho (E_i + 1), nen gia tri nay sinh inf roi NaN.\n"
+                    "  Voi `senticgcn`, E_i la TONG DIEM CAM XUC cua vung lan can chu khong\n"
+                    "  phai so hang xom, nen no co the trung 0. Da do tren UIT-ViSFD:\n"
+                    "  khong token nao co |E_i + 1| < 1e-3. Gap loi nay tuc la du lieu hoac\n"
+                    "  tu dien da doi — do lai bang scripts/soi_khia_canh.py truoc khi chay tiep."
+                )
+            return adj * mau.reciprocal().unsqueeze(2)
 
         if self.normalize == "row":
             inv = torch.where(has_deg, deg_safe.reciprocal(), torch.zeros_like(deg))

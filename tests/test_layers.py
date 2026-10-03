@@ -240,3 +240,61 @@ def test_dropout_chi_hoat_dong_khi_train() -> None:
     lan_1 = lop(x, ADJ_MAU)
     lan_2 = lop(x, ADJ_MAU)
     assert not torch.allclose(lan_1, lan_2)
+
+
+# --- [CD1.6b] Mau so cua row_plus1 khi trong so canh mang DAU ------------------
+#
+# Voi `senticgcn`, adj mang diem cam xuc nen deg la tong co dau, khong phai phep
+# dem. Hoc vien chot 03/10/2026: chay Y HET bai goc, khong kep mau so, khong dich
+# thang diem. Ba test duoi khoa dung quyet dinh do.
+
+
+def _adj_mot_canh(gia_tri: float) -> torch.Tensor:
+    """Do thi 1 token, chi co self-loop mang trong so cho truoc -> deg = gia_tri."""
+    return torch.tensor([[[gia_tri]]])
+
+
+def test_row_plus1_KHONG_kep_mau_so_am() -> None:
+    """Mau so am thi ca hang doi dau. Day la dieu cong thuc (7) quy dinh, khong
+    phai loi — ket qua phai am chu khong duoc kep ve 0 hay ve duong."""
+    lop = GCNLayer(1, 1, bias=False, normalize="row_plus1")
+    with torch.no_grad():
+        lop.linear.weight.fill_(1.0)
+    lop.eval()
+
+    # deg = -3  ->  mau so = -2  ->  (-3 / -2) * x = 1,5x
+    ra = lop(torch.tensor([[[2.0]]]), _adj_mot_canh(-3.0))
+    assert ra.item() == pytest.approx(3.0)
+    assert torch.isfinite(ra).all()
+
+
+def test_row_plus1_mau_so_nho_thi_khuech_dai_chu_khong_chan() -> None:
+    """|mau so| nho nhat do duoc tren UIT-ViSFD la 1,1e-3, khuech dai 909 lan.
+    Day bay dat o 1e-6 nen khong duoc dong vao vung nay."""
+    lop = GCNLayer(1, 1, bias=False, normalize="row_plus1")
+    with torch.no_grad():
+        lop.linear.weight.fill_(1.0)
+    lop.eval()
+
+    ra = lop(torch.tensor([[[1.0]]]), _adj_mot_canh(-1.0 + 1.1e-3))
+    assert torch.isfinite(ra).all()
+    assert abs(ra.item()) > 100.0
+
+
+def test_row_plus1_DAY_BAY_bao_ro_khi_mau_so_bang_0() -> None:
+    """Mau so bang dung 0 moi sinh inf roi NaN. Phai dung han va noi ro, thay vi
+    tra ve mot bang ket qua toan NaN ma khong biet vi sao."""
+    lop = GCNLayer(1, 1, normalize="row_plus1")
+    with pytest.raises(ValueError, match="gan bang 0"):
+        lop(torch.tensor([[[1.0]]]), _adj_mot_canh(-1.0))
+
+
+def test_day_bay_KHONG_kich_hoat_voi_do_thi_nhi_phan() -> None:
+    """`asgcn` dung adj nhi phan co self-loop nen deg >= 1 va mau so >= 2. Day bay
+    khong duoc cham toi no — neu cham, ba seed asgcn da chay se khong tai lap duoc."""
+    lop = GCNLayer(4, 4, normalize="row_plus1")
+    for _ in range(50):
+        n = int(torch.randint(1, 12, (1,)))
+        adj = (torch.rand(3, n, n) > 0.5).float()
+        adj = torch.maximum(adj, torch.eye(n).expand(3, n, n))  # luon co self-loop
+        assert torch.isfinite(lop(torch.randn(3, n, 4), adj)).all()

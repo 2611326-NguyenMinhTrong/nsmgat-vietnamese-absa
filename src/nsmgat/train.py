@@ -29,6 +29,7 @@ from nsmgat.models.bilstm import BiLSTMModel
 from nsmgat.models.dummy import DummyModel
 from nsmgat.models.lexicon import LexiconModel
 from nsmgat.models.phobert import PhoBERTClassifier
+from nsmgat.models.senticgcn import SenticGCNModel
 from nsmgat.trainer import Trainer, resolve_device
 # load_config nam o utils/io.py de cong cu nho khong bi keo theo transformers
 # (xem ghi chu trong ham do). Van import lai o day de
@@ -49,6 +50,9 @@ MODEL_REGISTRY: Dict[str, Type[BaseModel]] = {
     # [CD1.6a] + cu phap. Dung CHUNG class cho ca hai config: asgcn.yaml va
     # asgcn_linked.yaml chi khac khoa `link_roots` (GAP-007 phuong an C).
     "asgcn": ASGCNModel,
+    # [CD1.6b] + tri thuc cam xuc. Ke thua ASGCNModel, khac dung GIA TRI
+    # trong o ma tran ke: A_ij = D_ij x (s_i + s_j + 1), cong thuc (4).
+    "senticgcn": SenticGCNModel,
 }
 
 

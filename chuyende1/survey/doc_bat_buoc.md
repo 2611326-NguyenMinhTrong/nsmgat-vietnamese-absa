@@ -22,7 +22,7 @@ trả lời** rằng vừa gắn cờ — không im lặng thêm vào. Học vi�
 | 2 | `PhoBERT` | 02/09/2026 | **GVHD đã chọn làm TLTK chính số [2]** trong bản duyệt. Là baseline `phobert` và là bộ mã hoá nền của cả Sentic-GCN lẫn NS-MGAT | 🔴 | ☐ |
 | 3 | `UIT-ViSFD` | 09/09/2026 | **Bài giới thiệu chính tập dữ liệu của đề tài.** Quyết định câu "kết quả của em có so được với bài báo không" — xem REQ-008 rào cản 1 | 🔴 | ☑ **20/09/2026** — đạt trắc nghiệm 01, 15/15 |
 | 4 | `ASGCN` | 09/09/2026 | **Baseline chính thức** (bản GVHD duyệt mục 4). Ý tưởng đồ thị phụ thuộc theo khía cạnh — nền trực tiếp của CĐ2. Có một vấn đề thiết kế phải giải trước CD1.6a | 🔴 | ☑ **01/10/2026** — đạt trắc nghiệm 02, 15/15 |
-| 5 | `Sentic-GCN` | 09/09/2026 | **Baseline chính thức.** Là mô hình gần NS-MGAT nhất trong các công trình đã có — hội đồng chắc chắn hỏi "khác gì Sentic-GCN?" | 🔴 | ☐ |
+| 5 | `Sentic-GCN` | 09/09/2026 | **Baseline chính thức.** Là mô hình gần NS-MGAT nhất trong các công trình đã có — hội đồng chắc chắn hỏi "khác gì Sentic-GCN?" | 🔴 | ☐ **Đã có toàn văn 02/10/2026**, đề 04 chờ làm |
 | 6 | `ATAE-LSTM` | 09/09/2026 | Kiến trúc mà baseline `bilstm` (CD1.4b) dựa theo. Cần để nói đúng "của em khác bản gốc ở đâu" | 🟡 | ☐ |
 | 7 | `PhoBERT-ViSFD-2022` | 09/09/2026 | Công trình đã áp PhoBERT lên chính UIT-ViSFD → **dải tham chiếu để biết kết quả CD1.5 có bất thường không** | 🟡 | ☐ |
 | 8 | `MooreNegationTSA` | 22/09/2026 | **Bằng chứng định lượng mạnh nhất cho CH3**: mọi mô hình phân loại cảm xúc theo mục tiêu tụt 24–25 điểm F1 trên câu có phủ định/suy đoán; học đa nhiệm với tác vụ phủ định giúp lại 3,8 điểm. Là mốc so sánh trực tiếp cho cách NS-MGAT xử lý phủ định | 🔴 | ☐ |
@@ -250,17 +250,23 @@ Nếu tới CD1.6a mới phát hiện điều này thì đã muộn.
 
 **Ngày gắn cờ:** 09/09/2026 · **Mức ưu tiên:** 🔴 — đọc trước CD1.6b (Tuần 6)
 
-> ⚠️ **CHẶN TRẢ PHÍ — kiểm tra 22/09/2026.** Cả hai nguồn dưới đây từng ghi "đọc miễn phí"
-> đều **không còn truy cập được**: ScienceDirect đòi mua bài (Elsevier), kho Warwick báo
-> *"Research output not available from this repository"*. Claude Code đã thử tải PDF qua cả
-> hai đường — không bịa nội dung khi không đọc được nguồn, nên dòng `Sentic-GCN` trong
-> `survey_matrix.csv` vẫn để `chua_kiem`.
+> ✅ **ĐÃ CÓ TOÀN VĂN — 02/10/2026.** Học viên tự tìm được bản PDF chính thức
+> (*Knowledge-Based Systems* 235 (2022) 107643, 11 trang) và đưa vào phiên làm việc. Rào cản
+> trả phí ghi ngày 22/09 đã gỡ.
 >
-> **Học viên cần tự tìm cách tiếp cận, ví dụ:**
-> - Thư viện UTE — tra xem trường có mua gói Elsevier/ScienceDirect không (mục "Tài nguyên số")
-> - Trang cá nhân của tác giả (Bin Liang, Erik Cambria) — nhiều tác giả tự đăng bản PDF được phép
-> - ResearchGate — nút "Request full-text" gửi thẳng cho tác giả
-> - Hỏi trực tiếp GVHD — trường có thể có quyền truy cập mà học viên không có
+> **Đề trắc nghiệm 04 đã sẵn sàng**, 10 câu, ở `chuyende1/trac-nghiem/de/04_Sentic-GCN.md`.
+> Ô "Đã đọc kỹ" ở bảng đầu file chỉ được tick khi đạt bài đó, theo đúng lệ của ba bài trước.
+>
+> **Một việc đã làm được ngay nhờ có toàn văn:** bản cài đặt `senticgcn` suýt dựng sai. Trước
+> khi có bài, Claude Code đọc mã nguồn trên <https://github.com/BinLiang-NLP/Sentic-GCN> và
+> thấy từ lạ nhận trọng số 0, tức token bị cắt khỏi đồ thị. **Bài báo nói khác**: công thức
+> (4) có số hạng +1 làm nền nên cạnh vẫn mang trọng số 1, và từ lạ chỉ làm đồ thị suy biến về
+> đúng ma trận kề của ASGCN. Với từ điển tiếng Việt phủ 83 %, hiểu theo mã sẽ cắt nhầm 17 %
+> token mà không có gì báo lỗi. Mã nguồn và bài báo còn lệch nhau ở hai chỗ nữa — xem phần
+> giải thích của đề 04.
+>
+> Dòng `Sentic-GCN` trong `survey_matrix.csv` vẫn đang `chua_kiem`, **cần cập nhật** sau khi
+> học viên làm xong trắc nghiệm.
 
 **Nguồn:**
 - ScienceDirect (bản chính thức, **trả phí**): <https://www.sciencedirect.com/science/article/abs/pii/S0950705121009059>
