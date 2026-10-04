@@ -38,14 +38,25 @@ Download .ipynb.
 ## Hai điều dễ hiểu nhầm
 
 **Vân tay cấu hình khác nhau giữa các seed là đúng, không phải dấu hiệu sai.** Số seed được
-ghi vào cấu hình trước khi bấm vân tay, nên mỗi seed có một vân tay riêng. Muốn kiểm, tính
-lại vân tay từ chính file cấu hình với số seed tương ứng rồi mới so:
+ghi vào cấu hình trước khi bấm vân tay, nên mỗi seed có một vân tay riêng. Tên mô hình truyền
+ở `--model` cũng được ghi vào theo cùng cách. Muốn kiểm, tính lại vân tay từ chính file cấu
+hình, tiêm **cả hai** giá trị đó rồi mới so:
 
 ```python
 from nsmgat.utils.io import load_config, config_hash
-cfg = load_config("configs/asgcn.yaml"); cfg["seed"] = 1337
+cfg = load_config("configs/senticgcn.yaml")
+cfg["seed"] = 1337                                   # so seed cua lan chay
+cfg.setdefault("model", {})["name"] = "senticgcn"    # gia tri da truyen o --model
 print(config_hash(cfg))
 ```
+
+Bỏ dòng thứ tư thì `phobert`, `asgcn`, `asgcn_linked` vẫn ra đúng, vì tên trong file cấu hình
+của chúng vốn trùng với `--model`. Riêng `senticgcn` sẽ lệch cả ba seed: `senticgcn.yaml` kế
+thừa `asgcn.yaml` nên tên có sẵn trong file là `asgcn`. Xem
+[GAP-023](../../chuyende1/gaps/GAP-023_doan-lenh-kiem-van-tay-thieu-ten-mo-hinh.md).
+
+Giá trị `--model` của từng thí nghiệm: `phobert` cho `phobert`, `asgcn` cho cả `asgcn` lẫn
+`asgcn_linked`, `senticgcn` cho `senticgcn`.
 
 **Số epoch có thể khác nhau giữa các seed.** Cơ chế dừng sớm theo macro-F1 trên tập dev cắt
 lần chạy ở những chỗ khác nhau tuỳ seed. Thời gian huấn luyện vì thế cũng chênh.

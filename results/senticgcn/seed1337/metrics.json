@@ -1,0 +1,31 @@
+{
+  "exp_name": "senticgcn",
+  "seed": 1337,
+  "dataset": "visfd",
+  "test": {
+    "accuracy": 0.9132698601606665,
+    "macro_f1": 0.8639518930713682,
+    "f1_per_class": [
+      0.931345980126468,
+      0.7127403846153846,
+      0.9477693144722524
+    ]
+  },
+  "diagnostic": {
+    "negation": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "contrast": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "regular": {
+      "macro_f1": 0.0,
+      "n": 0
+    }
+  },
+  "train_time_sec": 4214.7,
+  "n_params": 136181763,
+  "config_hash": "0caf4ff9183f"
+}

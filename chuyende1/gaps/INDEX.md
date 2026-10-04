@@ -49,6 +49,8 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 
 | [GAP-022](GAP-022_tieu-chi-kiem-van-tay-bo-quen-seed.md) | 02/10/2026 | Phương pháp | Trung bình (suýt loại 2 lần chạy đúng) | Tiêu chí kiểm file tải về ghi "vân tay phải là `d2d2aebdc30f`", nhưng `train.py` tiêm `cfg["seed"]` trước khi bấm vân tay nên mỗi seed có một vân tay riêng. Giá trị kỳ vọng được tính bằng đường KHÁC với đường sinh ra giá trị thật | ✅ Đã sửa — kiểm lại bằng đúng đường, cả 3 seed khớp; ghi cách tính đúng vào `notebooks/da-chay/QUY-UOC.md` |
 
+| [GAP-023](GAP-023_doan-lenh-kiem-van-tay-thieu-ten-mo-hinh.md) | 04/10/2026 | Phương pháp | Nhẹ (không số liệu nào đổi) | Đoạn lệnh kiểm vân tay trong `notebooks/da-chay/QUY-UOC.md` chỉ tiêm seed, trong khi `train.py` tiêm cả seed lẫn tên mô hình. Vô hình suốt 9 lần chạy vì tên trong file cấu hình trùng `--model`; `senticgcn.yaml` kế thừa `asgcn.yaml` nên là thí nghiệm đầu tiên lệch. Claude kiểm theo đoạn đó và báo lệch cả ba seed đúng. Lần thứ hai cùng bài học với GAP-022 | ✅ Đã sửa tài liệu — còn đề xuất gom thành một hàm dùng chung, chờ học viên quyết |
+
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
 ---

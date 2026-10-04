@@ -3,6 +3,9 @@
 > Bậc cuối của thang baseline trong CĐ1. Hai bậc trước:
 > [CD1.6a_chay-3-seed.md](CD1.6a_chay-3-seed.md) và
 > [CD1.6a_asgcn-linked-va-soi-khia-canh.md](CD1.6a_asgcn-linked-va-soi-khia-canh.md).
+>
+> Phiếu này là phần mã và cấu hình. Kết quả 3 seed nằm ở phiếu kế:
+> [CD1.6b_chay-3-seed.md](CD1.6b_chay-3-seed.md).
 
 **Ngày:** 03/10/2026 · **Step:** CD1.6b · **Ánh xạ plan gốc:** S1.3 · **Chưa chạy huấn luyện**
 

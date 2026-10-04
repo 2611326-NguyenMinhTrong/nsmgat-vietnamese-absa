@@ -30,7 +30,8 @@ from soi_khia_canh import (  # noqa: E402
 )
 
 KET_QUA = REPO_ROOT / "results"
-LAN_CHAY = [(e, s) for e in ("phobert", "asgcn", "asgcn_linked") for s in (42, 1337, 2024)]
+LAN_CHAY = [(e, s) for e in ("phobert", "asgcn", "asgcn_linked", "senticgcn")
+            for s in (42, 1337, 2024)]
 
 
 def _co_du_ket_qua() -> bool:
@@ -39,7 +40,7 @@ def _co_du_ket_qua() -> bool:
 
 can_ket_qua = pytest.mark.skipif(
     not _co_du_ket_qua(),
-    reason="Chua tai du predictions.jsonl cua 3 mo hinh x 3 seed tu Colab ve",
+    reason="Chua tai du predictions.jsonl cua 4 mo hinh x 3 seed tu Colab ve",
 )
 
 
