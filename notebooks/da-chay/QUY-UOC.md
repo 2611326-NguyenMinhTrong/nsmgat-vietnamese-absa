@@ -23,8 +23,19 @@ output, không đoán theo tên file.
 
 ## Cách lấy file
 
-Trên Colab, sau khi lần chạy kết thúc và **trước khi xoá output**: File, Download,
-Download .ipynb.
+Trên Colab, sau khi lần chạy kết thúc và **trước khi xoá output hay đóng tab**: File, Download,
+Download .ipynb. Notebook mở từ GitHub không được Colab tự lưu, đóng tab là mất output.
+
+## Thí nghiệm không có notebook
+
+| Thí nghiệm | Vì sao thiếu | Bằng chứng còn lại |
+|---|---|---|
+| `senticgcn`, cả ba seed, chạy ngày 03/10/2026 | Không tải notebook về trước khi đóng phiên, xem [GAP-024](../../chuyende1/gaps/GAP-024_mat-notebook-phien-colab-senticgcn.md) | `logs/senticgcn/seed{42,1337,2024}.log` ghi từng epoch, và vân tay cấu hình trong `metrics.json` khớp giá trị tính lại từ `configs/senticgcn.yaml` |
+
+Với các lần chạy này, mục "Mã commit in ra ở mục Lấy code" trong bảng dưới **không đối chiếu
+được**. Thứ thay được một phần: giữa hai commit của kho trong ngày 03/10/2026 chỉ có
+`notebooks/colab_train.ipynb` thay đổi, nên dù phiên nào kéo commit nào thì mã mô hình và file
+cấu hình vẫn là một.
 
 ## Người kiểm chứng đối chiếu những gì
 

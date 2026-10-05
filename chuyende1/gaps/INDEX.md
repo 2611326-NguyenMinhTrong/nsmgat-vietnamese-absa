@@ -51,6 +51,8 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 
 | [GAP-023](GAP-023_doan-lenh-kiem-van-tay-thieu-ten-mo-hinh.md) | 04/10/2026 | Phương pháp | Nhẹ (không số liệu nào đổi) | Đoạn lệnh kiểm vân tay trong `notebooks/da-chay/QUY-UOC.md` chỉ tiêm seed, trong khi `train.py` tiêm cả seed lẫn tên mô hình. Vô hình suốt 9 lần chạy vì tên trong file cấu hình trùng `--model`; `senticgcn.yaml` kế thừa `asgcn.yaml` nên là thí nghiệm đầu tiên lệch. Claude kiểm theo đoạn đó và báo lệch cả ba seed đúng. Lần thứ hai cùng bài học với GAP-022 | ✅ Đã sửa tài liệu — còn đề xuất gom thành một hàm dùng chung, chờ học viên quyết |
 
+| [GAP-024](GAP-024_mat-notebook-phien-colab-senticgcn.md) | 04/10/2026 | Tài liệu | Nhẹ (số liệu nguyên vẹn, mất một lớp bằng chứng) | Mất notebook phiên Colab của cả ba seed `senticgcn`. Mục 10 của `colab_train.ipynb` và ô 10 của `SO_TAY_LENH.md`, hai chỗ đọc lúc chạy, ghi "chỉ cần `metrics.json` và `predictions.jsonl`"; yêu cầu giữ notebook chỉ nằm ở `QUY-UOC.md`, file đọc lúc kiểm chứng. Notebook mở từ GitHub không tự lưu nên không cứu được | ⚪ Sống chung — học viên quyết 05/10 không chạy lại; nhật ký từng epoch và vân tay cấu hình là bằng chứng thay thế. Đã sửa cả ba tài liệu |
+
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
 ---

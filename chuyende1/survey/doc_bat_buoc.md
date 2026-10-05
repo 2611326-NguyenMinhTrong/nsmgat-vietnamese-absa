@@ -22,7 +22,7 @@ trả lời** rằng vừa gắn cờ — không im lặng thêm vào. Học vi�
 | 2 | `PhoBERT` | 02/09/2026 | **GVHD đã chọn làm TLTK chính số [2]** trong bản duyệt. Là baseline `phobert` và là bộ mã hoá nền của cả Sentic-GCN lẫn NS-MGAT | 🔴 | ☐ |
 | 3 | `UIT-ViSFD` | 09/09/2026 | **Bài giới thiệu chính tập dữ liệu của đề tài.** Quyết định câu "kết quả của em có so được với bài báo không" — xem REQ-008 rào cản 1 | 🔴 | ☑ **20/09/2026** — đạt trắc nghiệm 01, 15/15 |
 | 4 | `ASGCN` | 09/09/2026 | **Baseline chính thức** (bản GVHD duyệt mục 4). Ý tưởng đồ thị phụ thuộc theo khía cạnh — nền trực tiếp của CĐ2. Có một vấn đề thiết kế phải giải trước CD1.6a | 🔴 | ☑ **01/10/2026** — đạt trắc nghiệm 02, 15/15 |
-| 5 | `Sentic-GCN` | 09/09/2026 | **Baseline chính thức.** Là mô hình gần NS-MGAT nhất trong các công trình đã có — hội đồng chắc chắn hỏi "khác gì Sentic-GCN?" | 🔴 | ☐ **Đã có toàn văn 02/10/2026**, đề 04 chờ làm |
+| 5 | `Sentic-GCN` | 09/09/2026 | **Baseline chính thức.** Là mô hình gần NS-MGAT nhất trong các công trình đã có — hội đồng chắc chắn hỏi "khác gì Sentic-GCN?" | 🔴 | ☑ **05/10/2026** — đạt trắc nghiệm 04, 10/10 |
 | 6 | `ATAE-LSTM` | 09/09/2026 | Kiến trúc mà baseline `bilstm` (CD1.4b) dựa theo. Cần để nói đúng "của em khác bản gốc ở đâu" | 🟡 | ☐ |
 | 7 | `PhoBERT-ViSFD-2022` | 09/09/2026 | Công trình đã áp PhoBERT lên chính UIT-ViSFD → **dải tham chiếu để biết kết quả CD1.5 có bất thường không** | 🟡 | ☐ |
 | 8 | `MooreNegationTSA` | 22/09/2026 | **Bằng chứng định lượng mạnh nhất cho CH3**: mọi mô hình phân loại cảm xúc theo mục tiêu tụt 24–25 điểm F1 trên câu có phủ định/suy đoán; học đa nhiệm với tác vụ phủ định giúp lại 3,8 điểm. Là mốc so sánh trực tiếp cho cách NS-MGAT xử lý phủ định | 🔴 | ☐ |
@@ -265,12 +265,17 @@ Nếu tới CD1.6a mới phát hiện điều này thì đã muộn.
 > token mà không có gì báo lỗi. Mã nguồn và bài báo còn lệch nhau ở hai chỗ nữa — xem phần
 > giải thích của đề 04.
 >
-> Dòng `Sentic-GCN` trong `survey_matrix.csv` vẫn đang `chua_kiem`, **cần cập nhật** sau khi
-> học viên làm xong trắc nghiệm.
+> ✅ **ĐẠT TRẮC NGHIỆM 04 — 05/10/2026**, 10/10, đúng cả 4 câu trọng yếu.
+>
+> Dòng `Sentic-GCN` trong `survey_matrix.csv` đã chuyển sang `da_doc_toan_van` cùng ngày, mọi ô
+> đều trỏ về câu hoặc bảng của chính bài. Kết quả 3 seed của bản cài đặt `senticgcn` nằm ở
+> `chuyende1/notes/CD1.6b_chay-3-seed.md`.
 
 **Nguồn:**
+- **Bản đọc miễn phí, do tác giả tự lưu:** <https://sentic.net/sentic-gcn.pdf> — đúng bản chính
+  thức 11 trang, tìm thấy 05/10/2026
 - ScienceDirect (bản chính thức, **trả phí**): <https://www.sciencedirect.com/science/article/abs/pii/S0950705121009059>
-  — Knowledge-Based Systems, vol. 235, bài số 107643
+  — Knowledge-Based Systems, vol. 235 (2022), bài số 107643, DOI `10.1016/j.knosys.2021.107643`
 - ~~Bản đọc miễn phí (kho lưu trữ ĐH Warwick)~~: <https://wrap.warwick.ac.uk/id/eprint/160893/> — **đã hỏng, không có file**
 - Mã nguồn chính chủ (đọc được, không trả phí): <https://github.com/BinLiang-NLP/Sentic-GCN> — code + README có thể hé lộ một phần kiến trúc dù chưa có toàn văn bài báo
 - Bản cài đặt lại có tài liệu: <https://sgnlp.aisingapore.net/docs/model/senticgcn.html>
@@ -301,7 +306,7 @@ Sentic-GCN cần SenticNet, mà SenticNet không có bản tiếng Việt tươn
   khỏi phần cú pháp không? Nếu có, phần tri thức đóng góp bao nhiêu điểm?
 - Mô hình có giải thích được quyết định không, hay chỉ tăng điểm số?
 
-**Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
+**Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☑ Đã đọc kỹ (đạt trắc nghiệm 04 ngày 05/10/2026)
 
 **Ghi chú sau khi đọc** *(điền bởi học viên):*
 

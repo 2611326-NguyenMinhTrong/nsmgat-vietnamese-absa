@@ -326,7 +326,8 @@ các mô hình. Nên quyết xong trước khi đo NS-MGAT.
   viên tập chẩn đoán.
 - Bốn câu hỏi gửi GVHD vẫn chưa gửi. Kết quả âm của `asgcn` cùng `asgcn_linked` cũng chưa gửi,
   nay nên gửi kèm `senticgcn` và quan sát ở mục 3.6.
-- Điều kiện tiên quyết còn thiếu: notebook phiên Colab của `senticgcn`, xem mục 6.
+- Điều kiện tiên quyết còn thiếu: không. Notebook phiên Colab của `senticgcn` đã mất và được
+  ghi nhận ở GAP-024, xem mục 6 và mục 8.
 
 ---
 
@@ -370,10 +371,12 @@ mà bỏ bước tiêm tên mô hình. Dữ liệu đúng, phép kiểm sai. Cù
 **Khối `diagnostic` trong cả ba file bằng 0 với `n = 0`.** Không phải lỗi, tập chẩn đoán phủ
 định và tương phản chưa dựng.
 
-**Chưa có trong kho:** `[TODO: notebooks/da-chay/senticgcn/phien-<ngày>.ipynb]`. Theo nhật ký,
-ba lần chạy bắt đầu lúc 08:26, 12:45 và 19:05 ngày 03/10 theo giờ của Colab, cách nhau nhiều
-giờ, nên nhiều khả năng là hơn một phiên. Thiếu notebook thì không đối chiếu được mã commit mà
-từng lần chạy đã kéo về.
+**Không có và sẽ không có:** notebook phiên Colab của `senticgcn`. Học viên xác nhận ngày
+05/10/2026 là đã mất, và quyết không chạy lại. Ghi ở
+[GAP-024](../gaps/GAP-024_mat-notebook-phien-colab-senticgcn.md). Theo nhật ký, ba lần chạy
+bắt đầu lúc 08:26, 12:45 và 19:05 ngày 03/10 theo giờ của Colab. Thiếu notebook thì không đối
+chiếu được mã commit mà từng lần chạy đã kéo về; thứ thay được một phần là giữa hai commit của
+kho trong ngày đó chỉ có `notebooks/colab_train.ipynb` thay đổi.
 
 **Chưa chạy kiểm định ý nghĩa thống kê.**
 
@@ -408,6 +411,11 @@ từng lần chạy đã kéo về.
 
 ## 8. GHI CHÚ SAU KHI TRAO ĐỔI
 
-| Câu hỏi của học viên | Trả lời tóm tắt | Có dẫn tới thay đổi code không |
+Học viên trả lời ngày 05/10/2026:
+
+| Câu hỏi ở mục 7 | Trả lời của học viên | Có dẫn tới thay đổi không |
 |---|---|---|
-| | | |
+| 1. Notebook phiên Colab còn không | **Đã mất, bỏ qua.** Không chạy lại | Có. Ghi GAP-024; sửa mục 10 của `notebooks/colab_train.ipynb`, ô 10 của `SO_TAY_LENH.md` và `notebooks/da-chay/QUY-UOC.md` để lần sau không mất |
+| 2. Có kiểm quan sát về epoch 3 bằng thí nghiệm không | Chưa trả lời | Không. Mục 3.6 vẫn là quan sát, hai kết luận cũ chưa sửa |
+| 3. Có gom hai dòng tiêm trong `train.py` thành một hàm không | Chưa trả lời | Không. `train.py` giữ nguyên |
+| Trắc nghiệm 04 | **Đạt 10/10**, đúng cả 4 câu trọng yếu | Có. Tick `doc_bat_buoc.md`; dòng Sentic-GCN trong `survey_matrix.csv` sang `da_doc_toan_van`, đọc lại toàn văn từ bản tác giả tự lưu ở sentic.net vì PDF ngày 02/10 không nằm trong kho |
