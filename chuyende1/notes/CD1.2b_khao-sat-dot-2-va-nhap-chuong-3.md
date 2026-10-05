@@ -12,7 +12,7 @@
 
 | File | Tạo/Sửa | Một câu mô tả |
 |---|---|---|
-| `chuyende1/report/nhap/Chuong3_KhaoSat.md` | Tạo | Bản nháp Chương 3, đủ mười mục 3.1 đến 3.10, 45 tài liệu được trích, **chưa commit** |
+| `chuyende1/report/nhap/Chuong3_KhaoSat.md` | Tạo | Bản nháp Chương 3, đủ mười mục 3.1 đến 3.10, 45 tài liệu được trích. **Không lên GitHub**, đã chặn bằng `.gitignore` theo quyết định của học viên, xem mục 8 |
 | `chuyende1/survey/gap_analysis.md` | Sửa | Bốn khoảng trống, mỗi cái trỏ về các dòng cụ thể của ma trận |
 | `chuyende1/tables/bang_3_9_khao_sat.md` | Sửa | Sinh lại bằng công cụ: từ 1 lên 46 công trình |
 | `chuyende1/survey/survey_matrix.csv` | Sửa | Dòng `Sentic-GCN`: thêm số của BERT thuần trong Bảng 3 của bài vào `ghi_chu` |
@@ -245,6 +245,55 @@ dòng tiêm trong `train.py` thành một hàm không.
 
 ## 8. GHI CHÚ SAU KHI TRAO ĐỔI
 
-| Câu hỏi của học viên | Trả lời tóm tắt | Có dẫn tới thay đổi code không |
+Học viên trả lời và hỏi lại cùng ngày 05/10/2026. **Các con số ở mục 1 đến 7 là số tại thời
+điểm viết phiếu.** Sau trao đổi, ma trận tăng từ 46 lên 49 dòng đã đọc toàn văn, tức từ 45 lên
+48 công trình, và bản nháp trích 48 tài liệu.
+
+### 8.1 Trả lời của học viên
+
+| Câu hỏi ở mục 7 | Trả lời | Đã làm gì theo đó |
 |---|---|---|
-| | | |
+| 3. Bản nháp có lên GitHub không | **Không** | Thêm `chuyende1/report/nhap/` vào `.gitignore`, đã push các file còn lại |
+| 2. Báo cáo có nêu công cụ trí tuệ nhân tạo hỗ trợ khảo sát không | **Không nêu** | Ghi vào GAP-026. Mục 3.1 vẫn mô tả đúng việc đã làm với tài liệu và không vẽ phễu |
+| Bốn bài cần tải | Lấy được hai bài cuối, hai bài IEEE không truy cập được | Đọc toàn văn cả hai, xem mục 8.2 |
+| 1. GAP-026, phương án A hay B | Chưa trả lời | Vẫn mở |
+| 4. GAP-025, bài `VoZhang2015` | Chưa trả lời | Vẫn mở |
+
+### 8.2 Học viên hỏi: bốn bài này để làm gì, có quan trọng không
+
+Trả lời ngắn: **cả bốn đều để kiểm một câu ở mục 3.8** của bản nháp, câu nói rằng ngoài bài
+giới thiệu tập dữ liệu thì chưa thấy kết quả đã công bố nào trên UIT-ViSFD. Câu đó quyết định
+bạn trả lời hội đồng thế nào khi bị hỏi "so với bài khác trên cùng dữ liệu thì sao". Đọc xong
+hai bài lấy được, cộng một bài mở tìm thêm, thì **câu đó sai và đã được sửa.**
+
+| Bài | Để làm gì | Đọc xong thấy gì | Quan trọng cỡ nào |
+|---|---|---|---|
+| VLSP Shared Task, JCC 2018. **Đã có, đã đọc** | Mô tả bộ dữ liệu theo khía cạnh thứ hai của tiếng Việt, để mục 3.8 không còn ô trống | Nhà hàng 4.751 và khách sạn 5.600 đánh giá. Chỉ ba đội nộp, cả ba dùng SVM hoặc perceptron với n-gram, đội tốt nhất F1 0,61. Hai hệ thống năm 2016 đã dùng danh sách từ phủ định làm đặc trưng | **Vừa.** Lấp ô trống cuối của Bảng 3.3. Không đổi kết luận nào |
+| Tổng quan của Thin, Hao, Nguyen, ACM 2023. **Đã có, đã đọc** | Tưởng là có kết quả trên UIT-ViSFD | **Không có UIT-ViSFD và không phải bài toán theo khía cạnh.** Nhưng cho hai thứ khác: bằng chứng rằng PhoBERT là lựa chọn tốt nhất trong mười mô hình tiền huấn luyện cho tiếng Việt, và một bảng 34 công trình cảm xúc tiếng Việt | **Cao, theo cách khác dự kiến.** Bảng 34 công trình là thước đo độc lập cho độ phủ của khảo sát: ma trận chỉ có 1 trong 34. Nó cũng chỉ ra bốn bài tiếng Việt cũ có dùng luật cú pháp, Tree-LSTM và xử lý phủ định, khiến hai câu "duy nhất" trong bản nháp phải viết lại |
+| "A New Approach for Vietnamese ABSA", KSE 2022, IEEE. **Chưa có** | PhoBERT trên chính UIT-ViSFD, là con số gần với baseline `phobert` của bạn nhất | Chưa đọc được. Nhưng số chính của nó, macro-F1 78,76 %, đã có qua bài thứ năm bên dưới trích lại | **Hạ xuống thấp.** Có thì đọc phần tiền xử lý. Không có thì báo cáo vẫn viết được, miễn ghi là số trích lại |
+| "Multi-task Solution for ACSA on Vietnamese Datasets", IEEE. **Chưa có** | Cùng dạng bài toán nhóm khía cạnh trên dữ liệu tiếng Việt | Chưa đọc được, cũng chưa biết bài có chạy trên UIT-ViSFD không | **Thấp tới vừa.** Không chặn việc gì |
+| **Bài thứ năm, tìm thêm được:** Thin và Nguyen, VNU Journal of Science 2023, truy cập mở | Hiện ra khi tra tên hai bài IEEE | **Có kết quả trên chính UIT-ViSFD**, macro-F1 81,10 %, và gom mọi kết quả trước đó trên tập này vào một bảng | **Cao nhất trong cả năm.** Thay được vai trò của hai bài IEEE. Đã gắn cờ 🔴 trong `doc_bat_buoc.md` |
+
+**Điều quan trọng nhất rút ra, phải nhớ khi viết Chương 4 và khi bảo vệ:**
+
+Trên UIT-ViSFD đã có kết quả công bố: 63,06 rồi 74,44 rồi 78,76 rồi 81,10 macro-F1. Nhưng
+những con số đó đo bài toán **tự phát hiện khía cạnh kèm cảm xúc**, một dự đoán chỉ đúng khi
+đúng cả hai. Bạn làm bài toán **cho sẵn khía cạnh**. Macro-F1 0,8664 của `phobert` cao hơn
+81,10 **không** có nghĩa là mô hình của bạn tốt hơn, và hai con số không được đặt cạnh nhau như
+cùng một thang.
+
+### 8.3 Thay đổi sau trao đổi
+
+| File | Thay đổi |
+|---|---|
+| `chuyende1/survey/survey_matrix.csv` | `VLSP-2018` sang `da_doc_toan_van`; thêm `ThinVNSentimentOverview`, `ThinGenerativeACSA2023`; thêm `PhoBERT-ViSFD-2022` ở mức `chua_kiem`; sửa nơi công bố của `UIT-ViSFD` |
+| `chuyende1/report/nhap/Chuong3_KhaoSat.md` | Mục 3.4, 3.6, 3.8 viết lại theo ba bài mới; mọi con số 45 thành 48; danh mục 48 tài liệu |
+| `chuyende1/survey/gap_analysis.md` | Khoảng trống 3 phát biểu hẹp lại thành giao của ba điều kiện; thêm bảng kết quả đã công bố trên UIT-ViSFD |
+| `chuyende1/survey/survey_protocol.md` | Ghi hai truy vấn ngày 05/10; N₄ và N₅ bằng 49 |
+| `chuyende1/survey/doc_bat_buoc.md` | Gắn cờ 🔴 bài `ThinGenerativeACSA2023`; cập nhật mục `PhoBERT-ViSFD-2022` |
+| `chuyende1/gaps/GAP-027_*.md` | Mới: ma trận ghi sai nơi công bố của bài UIT-ViSFD, KSE thay vì KSEM |
+| `chuyende1/gaps/GAP-026_*.md` | Thêm mục 5b: phép thử độ phủ, 1 trên 34 và 3 trên 11 |
+| `scripts/survey_tools.py` | Sửa một dòng ví dụ ghi KSE 2021 |
+
+Bản nháp nay dài 5.102 âm tiết phần thân, vượt ngân sách 7 trang nhiều hơn trước. Việc cắt để
+dành cho lúc ghép chương.

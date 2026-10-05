@@ -91,6 +91,42 @@ Dù chọn phương án nào, còn một việc chỉ học viên quyết đư�
 tìm và đọc tài liệu có công cụ trí tuệ nhân tạo hỗ trợ hay không**, theo quy định của trường
 và ý kiến của GVHD. Claude Code không quyết thay việc này và không viết câu nào che nó đi.
 
+**Học viên quyết ngày 05/10/2026: báo cáo không nêu.** Hệ quả cho cách viết mục 3.1: mô tả
+đúng những gì đã làm với tài liệu, tức mở rộng từ các công trình nền tảng và đọc toàn văn từng
+bài, không vẽ phễu sàng lọc và không viết câu nào khẳng định một quá trình tìm kiếm chưa từng
+xảy ra. Lựa chọn giữa phương án A và B ở trên **vẫn chưa được trả lời**.
+
+## 5b. Một phép thử độ phủ làm được ngay, ngày 05/10/2026
+
+Ngày 05/10 học viên lấy được bài tổng quan của Thin, Hao và Nguyen (ACM TALLIP 2023), và Claude
+Code tìm được bài của Thin và Nguyen (VNU Journal of Science 2023). Cả hai có phần tổng quan
+riêng về nghiên cứu tiếng Việt, tức là hai **danh sách do người khác lập, độc lập với ma trận
+của ta**. Đem đối chiếu:
+
+| Danh sách bên ngoài | Số công trình | Đã có trong ma trận |
+|---|---|---|
+| Bảng 1 của bài tổng quan: nghiên cứu cảm xúc tiếng Việt, phần lớn ở mức câu và mức tài liệu | 34 | **1** (`VietSentiWordNet`) |
+| Các công trình cảm xúc **theo khía cạnh** cho tiếng Việt mà bài của Thin và Nguyen trích dẫn | 11 | **3** (`VLSP-2018`, `UIT-ViSFD`, và `PhoBERT-ViSFD-2022` mới ở mức `chua_kiem`) |
+
+Hàng thứ nhất nhẹ hơn vẻ ngoài, vì tiêu chí loại số 4 của giao thức vốn gạt phần lớn công trình
+mức câu ra ngoài. Hàng thứ hai thì đúng phạm vi của đề tài, và độ phủ là 3 trên 11.
+
+Tám công trình theo khía cạnh cho tiếng Việt mà ma trận chưa có, kể theo danh mục của Thin và
+Nguyen: phương pháp biến đổi của Thin và cộng sự (2018, cùng số tạp chí với bài VLSP mà học viên
+đã tải được); mạng tích chập sâu cho phát hiện khía cạnh (NAFOSTED 2018); bộ dữ liệu UIT_ABSA mức tài
+liệu (KSE 2019); hai bộ dữ liệu lớn mức câu (ACM TALLIP 2021); attention cửa sổ nhỏ của Bui
+Le-Minh và cộng sự (KSE 2021); kiến trúc đa nhiệm mức tài liệu (IJMLC 2022); mô hình gộp nhiều
+BERT (NAFOSTED 2022); và một bài dùng dữ liệu gán nhãn tiếng nước ngoài (2020).
+
+**Điều này biến lo ngại ở mục 4 thành con số.** Nó cũng cho thấy phương án A không phải làm
+cho đủ thủ tục: riêng mảng tiếng Việt theo khía cạnh, là mảng hội đồng trong nước rành nhất,
+ma trận đang thiếu phần lớn.
+
+Một điều đỡ lo: theo mô tả của chính Thin và Nguyen, các công trình trên dùng SVM, mạng tích
+chập, mạng tuần tự, BERT đa nhiệm, attention và mô hình sinh. Không công trình nào là mạng nơ-
+ron đồ thị hay kết hợp nơ-ron với ký hiệu. Khoảng trống thứ ba vì vậy nhiều khả năng vẫn đứng,
+nhưng đó là suy từ nguồn phụ, chưa phải kết luận từ việc đọc.
+
 ## 6. Bài học — phòng lần sau bằng cách nào
 
 **Trước khi dùng một con số để mô tả một quá trình, đọc lại từng dòng dữ liệu sinh ra con số

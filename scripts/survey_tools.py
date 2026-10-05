@@ -591,8 +591,8 @@ def _them_sheet_huongdan(wb) -> None:
         ("hoi_nghi_tap_chi", "Nơi công bố; chỉ có tiền ấn phẩm thì ghi arXiv",
          "Trang nguồn gốc; nếu arXiv không ghi thì tra thêm DBLP/Google Scholar",
          "'<tên bài đầy đủ>' dblp — DBLP liệt kê rất chuẩn nơi công bố chính thức",
-         "EMNLP-IJCNLP 2019", "KSE 2021 (tra thêm — DBLP/Semantic Scholar lúc tra bị chặn, "
-         "ghi rõ trong ghi_chu)"),
+         "EMNLP-IJCNLP 2019", "KSEM 2021 (tra thêm qua Crossref vì trang arXiv không ghi; lần đầu "
+         "ghi nhầm thành KSE, xem GAP-027)"),
         ("ho_phuong_phap", "Nhóm phương pháp Chương 3 — G1..G6 / TAI_NGUYEN",
          "Đọc Abstract/Introduction để hiểu bản chất kỹ thuật — không tìm trên mạng",
          "Đối chiếu bảng 6 nhóm ở mục 9 protocol: dùng đồ thị→G4, PLM tiền huấn luyện→G3...",

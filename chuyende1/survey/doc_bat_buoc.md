@@ -30,6 +30,8 @@ trả lời** rằng vừa gắn cờ — không im lặng thêm vào. Học vi�
 | 10 | `KiritchenkoNegators` | 22/09/2026 | **Luận cứ phản biện** đề tài phải trả lời được: bài kết luận tác động của từ phủ định biến thiên mạnh nên học thống kê hứa hẹn hơn luật cố định | 🟡 | ☐ |
 | 11 | `TranValenceShiftersVN` | 22/09/2026 | Công trình duy nhất tìm được về từ đổi cực tính (phủ định, tương phản, nhân quả...) trong **tiếng Việt** — trả lời câu "tiếng Việt đã có ai làm phủ định chưa" | 🟡 | ☐ |
 
+| 12 | `ThinGenerativeACSA2023` | 05/10/2026 | **Công trình đã công bố có kết quả trên chính UIT-ViSFD** cho bài toán nhóm khía cạnh (macro-F1 81,10 %), kèm bảng tổng hợp mọi kết quả trước đó trên tập này. Quyết định câu trả lời cho "kết quả của em so với bài đã công bố thì sao" | 🔴 | ☐ |
+
 **Mức ưu tiên:** 🔴 phải đọc trước khi viết Chương 3/5 · 🟡 nên đọc trước khi bảo vệ · 🟢 tham khảo thêm nếu có thời gian
 
 ---
@@ -361,6 +363,22 @@ bài — nhưng phần **mô tả phương pháp** trong Chương 4 thì phụ t
 > ⚠️ **Chưa xác minh đầy đủ.** IEEE chặn truy cập nên tôi chưa đọc được nội dung. Thông tin
 > duy nhất chắc chắn: bài này áp PhoBERT lên chính UIT-ViSFD. Tên tác giả, năm, và mọi con
 > số **phải do bạn kiểm chứng**. Trường có thể có quyền truy cập IEEE — thử qua thư viện ĐH.
+>
+> **Cập nhật 05/10/2026.** Học viên thử và không truy cập được IEEE Xplore. Nhưng phần lớn thứ
+> cần ở bài này nay đã có qua một bài khác đọc được, `ThinGenerativeACSA2023` ở cuối file:
+>
+> - **Thông tin thư mục**, theo danh mục tài liệu của bài đó: B. H. Le, H. M. Nguyen,
+>   N. K. P. Nguyen, B. T. Nguyen, 14th International Conference on Knowledge and Systems
+>   Engineering (KSE), 2022, tr. 1–6.
+> - **Con số chính, là số trích lại chứ chưa đối chiếu bản gốc:** macro-F1 78,76 % trên
+>   UIT-ViSFD, với PhoBERT kết hợp các bước tiền xử lý đơn giản.
+> - **Trả lời câu hỏi thứ ba bên dưới:** họ đặt bài toán giống bài gốc UIT-ViSFD, tức mô hình
+>   tự phát hiện khía cạnh. **Không giống ta.** Vì vậy con số 78,76 % không dùng làm dải kiểm
+>   tra cho `phobert` của ta được như mục "Vì sao quan trọng" bên dưới từng kỳ vọng.
+>
+> Mức cần thiết của bản gốc vì thế hạ xuống: có thì tốt, để đọc phần tiền xử lý và siêu tham
+> số; không có thì báo cáo vẫn viết được, miễn ghi rõ đây là số trích lại. Dòng tương ứng trong
+> `survey_matrix.csv` đang ở mức `chua_kiem`.
 
 **Vì sao bài này quan trọng với luận văn của bạn:**
 
@@ -497,6 +515,54 @@ một kết quả đã kiểm chứng.
 
 - Bài liệt kê những loại từ đổi cực tính nào cho tiếng Việt? Loại nào phổ biến nhất trong dữ liệu của họ?
 - Những loại nào có trong dữ liệu điện thoại của UIT-ViSFD mà bài chưa đề cập?
+
+**Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
+
+**Ghi chú sau khi đọc** *(điền bởi học viên):*
+
+…
+
+---
+
+### `ThinGenerativeACSA2023` — Aspect-Category based Sentiment Analysis with Unified Sequence-To-Sequence Transfer Transformers (Thin & Nguyen, VNU Journal of Science 2023)
+
+**Ngày gắn cờ:** 05/10/2026 · **Mức ưu tiên:** 🔴 — đọc trước khi viết mục 3.8 và Chương 4
+**Nguồn:** truy cập mở, 11 trang: <https://jcsce.vnu.edu.vn/index.php/jcsce/article/view/662/182>
+· DOI `10.25073/2588-1086/vnucsce.662`
+
+**Vì sao bài này quan trọng với luận văn của bạn:**
+
+Đây là công trình **đã công bố, đọc được, có kết quả trên chính UIT-ViSFD** cho bài toán nhóm
+khía cạnh. Bảng 6 của bài gom mọi kết quả trước đó trên tập này vào một chỗ:
+
+| Mô hình | Macro-F1 trên UIT-ViSFD |
+|---|---|
+| BiLSTM-CNN, của bài giới thiệu tập dữ liệu | 63,06 |
+| PhoBERT đa nhiệm, nhóm tác giả tự cài | 74,44 |
+| PhoBERT kết hợp tiền xử lý, Le và cộng sự 2022, số trích lại | 78,76 |
+| viT5 bản lớn, mô hình của bài | **81,10** |
+
+Hội đồng gần như chắc chắn hỏi: *"Kết quả của em so với các bài đã công bố trên cùng dữ liệu
+thì thế nào?"*. Câu trả lời đúng phụ thuộc hoàn toàn vào việc hiểu bài này, vì có một cái bẫy:
+
+**Các con số trên đo một bài toán khác với bài toán của bạn.** Ở bài này mô hình phải tự phát
+hiện nhóm khía cạnh, và một dự đoán chỉ tính là đúng khi đúng cả khía cạnh lẫn cực tính. Đề
+tài của bạn cho sẵn khía cạnh và chỉ phân loại ba lớp. Macro-F1 0,8664 của `phobert` cao hơn
+81,10 không có nghĩa là mô hình của bạn tốt hơn. Đặt hai con số cạnh nhau như cùng một thang
+là sai, và là chỗ dễ bị bắt nhất.
+
+Bài còn là nơi duy nhất hiện đọc được số của hai bài IEEE mà ta không truy cập được.
+
+**Câu hỏi cần trả lời được sau khi đọc:**
+
+- Bài định nghĩa một dự đoán "đúng" như thế nào? Vì sao điều đó làm con số không so được với
+  Chương 4 của bạn?
+- Con số 63,06 % của BiLSTM-CNN đến từ đâu, và nó có khớp với số trong bài gốc UIT-ViSFD không?
+- Bảng 8 cho F1 theo từng khía cạnh. Khía cạnh nào yếu nhất, và tác giả giải thích bằng gì?
+  So với phát hiện của bạn về SER&ACC, SCREEN, STORAGE thì giống hay khác?
+- Bài có dùng đồ thị cú pháp hay tri thức ngoài không? Mục kết luận nói gì về hướng tiếp theo?
+- Nhãn khía cạnh được chuyển thành câu tiếng Việt bằng cách nào? *(liên quan tới bảng tên
+  tiếng Việt của mười khía cạnh mà đề tài tự đặt)*
 
 **Trạng thái đọc:** ☐ Chưa đọc · ☐ Đã đọc lướt · ☐ Đã đọc kỹ
 

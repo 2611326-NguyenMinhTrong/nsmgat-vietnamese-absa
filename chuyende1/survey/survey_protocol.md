@@ -111,11 +111,11 @@ Phễu đi xuống dần: N₁ ≥ N₂ ≥ N₃ ≥ N₄ ≥ N₅.
 
 | Bước | Số bài | Ngày | Cách lấy số |
 |---|---|---|---|
-| N₁ — thu thập thô | **258** | 22/09/2026 | Cộng cột "Số kết quả" ở mục 6 (28 truy vấn: 111 đợt 2 + 147 đợt 3) |
-| N₂ — sau khi loại trùng | **24** | 22/09/2026 | 11 bài đợt 2 + 13 bài đợt 3, không trùng nhau |
-| N₃ — sau sàng tiêu đề + tóm tắt | **24** | 22/09/2026 | Cả 24 đều đúng phạm vi mục 4 sau khi đọc tiêu đề và tóm tắt |
-| N₄ — sau đọc toàn văn (vào ma trận) | **46** | 05/10/2026 | `survey_tools.py stats` → dòng N4. Ngày 22/09 là 45; ngày 05/10 thêm `Sentic-GCN` |
-| N₅ — phân tích sâu trong Chương 3 | **46** | 05/10/2026 | `survey_tools.py stats` → dòng N5 |
+| N₁ — thu thập thô | **276** | 05/10/2026 | Cộng cột "Số kết quả" ở mục 6 (30 truy vấn: 111 đợt 2 + 147 đợt 3 + 18 ngày 05/10). Ngày 22/09 là 258 |
+| N₂ — sau khi loại trùng | **25** | 05/10/2026 | 11 bài đợt 2 + 13 bài đợt 3 + 1 bài ngày 05/10, không trùng nhau. Ngày 22/09 là 24 |
+| N₃ — sau sàng tiêu đề + tóm tắt | **25** | 05/10/2026 | Cả 25 đều đúng phạm vi mục 4 sau khi đọc tiêu đề và tóm tắt |
+| N₄ — sau đọc toàn văn (vào ma trận) | **49** | 05/10/2026 | `survey_tools.py stats` → dòng N4. Ngày 22/09 là 45; ngày 05/10 thêm `Sentic-GCN`, `VLSP-2018`, `ThinVNSentimentOverview`, `ThinGenerativeACSA2023` |
+| N₅ — phân tích sâu trong Chương 3 | **49** | 05/10/2026 | `survey_tools.py stats` → dòng N5. 49 dòng là **48 công trình**, vì `ATAE-LSTM` và `BiLSTM-attention` là cùng một bài báo |
 
 **Chỉ tiêu:** N₁ ≥ 70 · N₄ ≥ 45 · N₅ ≈ 25.
 
@@ -124,17 +124,17 @@ Phễu đi xuống dần: N₁ ≥ N₂ ≥ N₃ ≥ N₄ ≥ N₅.
 N₁ ở đây là tổng số dòng đã lướt qua, không phải tổng số bài tồn tại khớp truy vấn. Ghi rõ
 để không hiểu nhầm là đã quét hết 111 bài.
 
-**Vì sao N₄ (46) lớn hơn N₃ (24):** N₄ đếm mọi dòng đã kiểm chứng trong ma trận. Đếm lại từ
-chính ma trận ngày 05/10/2026, 46 dòng đó chia làm **ba** phần chứ không phải hai:
+**Vì sao N₄ (49) lớn hơn N₃ (25):** N₄ đếm mọi dòng đã kiểm chứng trong ma trận. Đếm lại từ
+chính ma trận ngày 05/10/2026, 49 dòng đó chia làm **ba** phần chứ không phải hai:
 
 | Phần | Số dòng | Nhận ra bằng gì |
 |---|---|---|
-| Đi qua phễu tìm kiếm có ghi nhật ký ở mục 6 | **24** | Tổng cột "Số giữ lại" của 28 truy vấn |
+| Có truy vấn tương ứng trong nhật ký mục 6 | **26** | 25 là tổng cột "Số giữ lại" của 30 truy vấn. Thêm 1 là `ThinVNSentimentOverview`: tra tên ngày 22/09, lúc đó ghi giữ lại 0 vì chưa tải được, học viên lấy được toàn văn ngày 05/10 |
 | Tìm mới nhưng **không có truy vấn nào trong nhật ký** | **1** | `VoZhang2015`: `ghi_chu` ghi "Tim moi 22/09/2026" nhưng mục 6 không có dòng nào nhắc tới bài này |
-| "Hạt giống", tên lấy sẵn từ kế hoạch, không qua bước tìm | **21** | 22 dòng hạt giống trừ `VLSP-2018` còn `chua_kiem` |
+| "Hạt giống", tên lấy sẵn từ kế hoạch, không qua bước tìm | **22** | Cả 22 dòng hạt giống, sau khi `VLSP-2018` được đọc toàn văn ngày 05/10 |
 
-Khi vẽ sơ đồ luồng ở mục 3.1 của báo cáo phải tách các nhánh này ra, không được vẽ như thể 46
-bài cùng đi qua một phễu 258 kết quả.
+Khi vẽ sơ đồ luồng ở mục 3.1 của báo cáo phải tách các nhánh này ra, không được vẽ như thể 49
+dòng cùng đi qua một phễu 276 kết quả.
 
 > ⚠️ **Bản trước của đoạn này ghi "24 dòng qua phễu và 21 dòng hạt giống" cho mốc 45.** Con số
 > đó sai một đơn vị ở cả hai vế: ngày 22/09 thực tế là 24 qua phễu, 1 không có nhật ký và 20
@@ -188,6 +188,8 @@ Ghi **ngay lúc đang tìm**, không ghi lại từ trí nhớ. Cột "Truy vấ
 | 22/09/2026 | Web search (Claude Code) | `"Is word segmentation necessary for Vietnamese sentiment classification" Duc-Vu Nguyen conference published` | 9 | 0 *(xác minh nơi công bố)* |
 | 22/09/2026 | Web search (Claude Code) | `"Is word segmentation necessary for Vietnamese sentiment classification" 2022 International Conference NICS OR KSE OR MAPR OR RIVF IEEE 10013874` | 9 | 0 *(xác minh nơi công bố; kết quả cuối lấy từ Crossref)* |
 | 22/09/2026 | Web search (Claude Code) | `Moore Barnes 2021 "Multi-task Learning of Negation and Speculation for Targeted Sentiment Classification" NAACL` | 9 | 1 |
+| 05/10/2026 | Web search (Claude Code) | `"Multi-task Solution for Aspect Category Sentiment Analysis on Vietnamese Datasets" pdf` | 9 | 1 *(bài cần tìm nằm trên IEEE, không có bản mở; giữ lại bài của Thin và Nguyen 2023 trên VNU Journal of Science hiện ra trong kết quả, truy cập mở)* |
+| 05/10/2026 | Web search (Claude Code) | `"A New Approach for Vietnamese Aspect-Based Sentiment Analysis" PhoBERT UIT-ViSFD pdf` | 9 | 0 *(bài cần tìm nằm trên IEEE, không có bản mở; kết quả lặp lại bài của Thin và Nguyen 2023 đã giữ ở dòng trên)* |
 
 *(ví dụ, giữ lại để tham khảo định dạng)* 21/09/2026 · Google Scholar · `"aspect-based sentiment analysis" Vietnamese` · 47 · 6
 

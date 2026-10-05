@@ -57,6 +57,8 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 
 | [GAP-026](GAP-026_nhat-ky-tim-kiem-la-tra-ten-bai-khong-phai-pheu-sang-loc.md) | 05/10/2026 | Phương pháp | **Nghiêm trọng nếu để nguyên** (cách mô tả phương pháp khảo sát trước hội đồng) | Nhật ký tìm kiếm có 28 truy vấn, nhưng 26 là tra theo tên bài đã biết để tìm bản gốc, chỉ 2 là từ khoá mở. Con số "258 kết quả, giữ lại 24" vì thế không mô tả một quá trình sàng lọc, và không vẽ được thành sơ đồ phễu ở mục 3.1 như dàn ý yêu cầu. Nội dung ma trận vẫn đáng tin vì từng bài đã đọc toàn văn; thứ thiếu là bằng chứng về độ phủ | 🔴 Mở — bản nháp Chương 3 đã viết đúng thực tế; chờ học viên chọn: chạy thêm một lượt tìm từ khoá mở có ghi nhật ký, hoặc gọi đúng tên là khảo sát có chủ đích |
 
+| [GAP-027](GAP-027_sai-noi-cong-bo-cua-bai-uit-visfd.md) | 05/10/2026 | Số liệu | **Nghiêm trọng nếu lọt vào bản nộp** | Ma trận khảo sát ghi bài giới thiệu UIT-ViSFD công bố ở **KSE 2021**; đúng là **KSEM 2021** (Knowledge Science, Engineering and Management, LNCS, tr. 647–658). `ghi_chu` của chính dòng đó đã tự nhận "chưa đối chiếu được bằng nguồn thứ hai", còn `doc_bat_buoc.md` thì có sẵn đường dẫn Springer đúng. Lộ ra khi đọc danh mục tài liệu của Thin và Nguyen (2023), kiểm lại bằng Crossref | ✅ Đã sửa — ma trận, Bảng 3.9, bản nháp Chương 3 và dòng ví dụ trong `survey_tools.py` |
+
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
 ---
