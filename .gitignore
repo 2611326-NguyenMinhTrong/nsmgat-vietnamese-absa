@@ -71,6 +71,7 @@ Thumbs.db
 # dinh dang) va so sach van tay. Deu sinh lai duoc bang lenh - nguon su that la
 # script + noi dung, khong day file build len GitHub cong khai
 chuyende1/report/*.docx
+chuyende1/report/*.docx.bak
 chuyende1/report/.generated.json
 chuyende1/docs/*
 
@@ -84,3 +85,9 @@ chuyende1/report/nhap/
 # tung epoch cua moi thi nghiem. Chin file hien co cong lai 40 KB; moi thi
 # nghiem moi tu dong duoc giu, khong phai sua file nay nua.
 !/logs/**/*.log
+
+# Tap ung vien va file chu thich cua tap chan doan: chua cau cua UIT-ViSFD, giong
+# data/processed/ khong dua len GitHub cong khai. Quyet dinh 06/10/2026.
+data/diagnostic/candidates*.csv
+data/diagnostic/*.xlsx
+data/diagnostic/*.bak

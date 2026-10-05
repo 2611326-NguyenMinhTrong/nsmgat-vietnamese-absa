@@ -87,7 +87,9 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `requirements.txt` | [CD1.1] Thêm `python-docx>=1.1` — CI cài từ file này |
 | `data/diagnostic/` | Tập chẩn đoán 300 câu (CD1.8) |
 | `scripts/build_diagnostic_candidates.py` + `tests/test_diagnostic_candidates.py` | [CD1.8a] Lọc 800 Example ứng viên **chỉ từ tập test**, bốn nhóm theo từ khoá, cân bằng nhãn. Danh sách từ khoá nằm trong script, **không** ở `src/nsmgat/rules/` (thư mục đó thuộc CĐ2, mục 2.3). Từ chối ghi đè file đã có chú thích. Sinh `data/diagnostic/candidates.csv` |
-| `docs/annotation_guideline.md` | Hướng dẫn chú thích (S6.2) |
+| `scripts/nhap_chuong_vao_docx.py` + `tests/test_nhap_chuong_vao_docx.py` | [CD1.12] Ghép mọi bản nháp `ChuongN_*.md` trong `chuyende1/report/nhap/` vào cuốn Word: đánh số trích dẫn `[@khoá]` theo toàn văn, thay phần thân từng chương, viết lại mục TÀI LIỆU THAM KHẢO từ `tai_lieu.json`. Tự sao lưu trước khi ghi; có chương đã có nội dung thì dừng trừ khi có `--ghi-de` |
+| `scripts/chu_thich_chan_doan.py` + `tests/test_chu_thich_chan_doan.py` | [CD1.8b] Chú thích tập chẩn đoán qua Excel: `excel` (CSV → `.xlsx` có ô chọn giá trị, khoá cột dữ liệu, thứ tự dòng xen kẽ bốn nhóm), `tu-excel` (kiểm rồi mới ghi về CSV, có sao lưu), `tien-do`. Hai bộ giá trị hợp lệ `HIEN_TUONG` và `NHAN_KIEM_TRA` định nghĩa ở đây, hướng dẫn chép theo |
+| `docs/annotation_guideline.md` | [CD1.8b] Hướng dẫn chú thích, phiên bản 1 ngày 06/10/2026. Không lên GitHub |
 
 ### 2.3. Module KHÔNG ĐƯỢC ĐỘNG VÀO
 
