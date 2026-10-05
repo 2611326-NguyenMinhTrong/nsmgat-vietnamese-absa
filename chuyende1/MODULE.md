@@ -86,6 +86,7 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `notebooks/colab_train.ipynb` | [CD1.5] Notebook huấn luyện trên Colab — dùng cho **mọi** mô hình cần GPU (`phobert`, `asgcn`, `senticgcn`). Nối `results/`/`checkpoints/`/`logs/` sang Drive bằng symlink để giữ `config_hash` y như chạy ở máy |
 | `requirements.txt` | [CD1.1] Thêm `python-docx>=1.1` — CI cài từ file này |
 | `data/diagnostic/` | Tập chẩn đoán 300 câu (CD1.8) |
+| `scripts/build_diagnostic_candidates.py` + `tests/test_diagnostic_candidates.py` | [CD1.8a] Lọc 800 Example ứng viên **chỉ từ tập test**, bốn nhóm theo từ khoá, cân bằng nhãn. Danh sách từ khoá nằm trong script, **không** ở `src/nsmgat/rules/` (thư mục đó thuộc CĐ2, mục 2.3). Từ chối ghi đè file đã có chú thích. Sinh `data/diagnostic/candidates.csv` |
 | `docs/annotation_guideline.md` | Hướng dẫn chú thích (S6.2) |
 
 ### 2.3. Module KHÔNG ĐƯỢC ĐỘNG VÀO
