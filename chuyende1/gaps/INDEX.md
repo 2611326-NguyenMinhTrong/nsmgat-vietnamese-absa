@@ -53,6 +53,10 @@ và đã sửa xong. Sai sót đã sửa vẫn phải ghi — giá trị nằm �
 
 | [GAP-024](GAP-024_mat-notebook-phien-colab-senticgcn.md) | 04/10/2026 | Tài liệu | Nhẹ (số liệu nguyên vẹn, mất một lớp bằng chứng) | Mất notebook phiên Colab của cả ba seed `senticgcn`. Mục 10 của `colab_train.ipynb` và ô 10 của `SO_TAY_LENH.md`, hai chỗ đọc lúc chạy, ghi "chỉ cần `metrics.json` và `predictions.jsonl`"; yêu cầu giữ notebook chỉ nằm ở `QUY-UOC.md`, file đọc lúc kiểm chứng. Notebook mở từ GitHub không tự lưu nên không cứu được | ⚪ Sống chung — học viên quyết 05/10 không chạy lại; nhật ký từng epoch và vân tay cấu hình là bằng chứng thay thế. Đã sửa cả ba tài liệu |
 
+| [GAP-025](GAP-025_pheu-sang-loc-lech-mot-bai-so-voi-ma-tran.md) | 05/10/2026 | Số liệu | Nhẹ (lệch một đơn vị, nhưng nằm ở sơ đồ hội đồng sẽ hỏi) | Giao thức khảo sát ghi 45 dòng đã kiểm chứng gồm "24 qua phễu tìm kiếm và 21 hạt giống". Đếm lại từ ma trận: 25 dòng ghi là tìm mới, nhật ký chỉ giữ lại 24. `VoZhang2015` không có truy vấn nào trong nhật ký. Số hạng "21" nhiều khả năng ra từ phép trừ chứ không được đếm | 🟡 Đã sửa con số thành ba phần 24, 1 và 21 — còn chờ học viên quyết cách xử lý bài lọt nhật ký |
+
+| [GAP-026](GAP-026_nhat-ky-tim-kiem-la-tra-ten-bai-khong-phai-pheu-sang-loc.md) | 05/10/2026 | Phương pháp | **Nghiêm trọng nếu để nguyên** (cách mô tả phương pháp khảo sát trước hội đồng) | Nhật ký tìm kiếm có 28 truy vấn, nhưng 26 là tra theo tên bài đã biết để tìm bản gốc, chỉ 2 là từ khoá mở. Con số "258 kết quả, giữ lại 24" vì thế không mô tả một quá trình sàng lọc, và không vẽ được thành sơ đồ phễu ở mục 3.1 như dàn ý yêu cầu. Nội dung ma trận vẫn đáng tin vì từng bài đã đọc toàn văn; thứ thiếu là bằng chứng về độ phủ | 🔴 Mở — bản nháp Chương 3 đã viết đúng thực tế; chờ học viên chọn: chạy thêm một lượt tìm từ khoá mở có ghi nhật ký, hoặc gọi đúng tên là khảo sát có chủ đích |
+
 **Trạng thái:** 🔴 Mở · 🟡 Đang xử lý · ✅ Đã sửa · ⚪ Chấp nhận sống chung (ghi rõ lý do trong file)
 
 ---

@@ -114,8 +114,8 @@ Phễu đi xuống dần: N₁ ≥ N₂ ≥ N₃ ≥ N₄ ≥ N₅.
 | N₁ — thu thập thô | **258** | 22/09/2026 | Cộng cột "Số kết quả" ở mục 6 (28 truy vấn: 111 đợt 2 + 147 đợt 3) |
 | N₂ — sau khi loại trùng | **24** | 22/09/2026 | 11 bài đợt 2 + 13 bài đợt 3, không trùng nhau |
 | N₃ — sau sàng tiêu đề + tóm tắt | **24** | 22/09/2026 | Cả 24 đều đúng phạm vi mục 4 sau khi đọc tiêu đề và tóm tắt |
-| N₄ — sau đọc toàn văn (vào ma trận) | **xem `survey_tools.py stats`** | 22/09/2026 | `survey_tools.py stats` → dòng N4 |
-| N₅ — phân tích sâu trong Chương 3 | **xem `survey_tools.py stats`** | 22/09/2026 | `survey_tools.py stats` → dòng N5 |
+| N₄ — sau đọc toàn văn (vào ma trận) | **46** | 05/10/2026 | `survey_tools.py stats` → dòng N4. Ngày 22/09 là 45; ngày 05/10 thêm `Sentic-GCN` |
+| N₅ — phân tích sâu trong Chương 3 | **46** | 05/10/2026 | `survey_tools.py stats` → dòng N5 |
 
 **Chỉ tiêu:** N₁ ≥ 70 · N₄ ≥ 45 · N₅ ≈ 25.
 
@@ -124,10 +124,24 @@ Phễu đi xuống dần: N₁ ≥ N₂ ≥ N₃ ≥ N₄ ≥ N₅.
 N₁ ở đây là tổng số dòng đã lướt qua, không phải tổng số bài tồn tại khớp truy vấn. Ghi rõ
 để không hiểu nhầm là đã quét hết 111 bài.
 
-**Vì sao N₄ (45) lớn hơn N₃ (24):** N₄ đếm mọi dòng đã kiểm chứng trong ma trận, gồm 24 dòng
-đi qua phễu tìm kiếm có ghi log ở trên và 21 dòng "hạt giống" (tên lấy sẵn từ kế hoạch, không qua
-bước tìm). Khi vẽ sơ đồ luồng ở mục 3.1 của báo cáo phải tách hai nhánh này ra, không được vẽ
-như thể 45 bài cùng đi qua một phễu 249 kết quả.
+**Vì sao N₄ (46) lớn hơn N₃ (24):** N₄ đếm mọi dòng đã kiểm chứng trong ma trận. Đếm lại từ
+chính ma trận ngày 05/10/2026, 46 dòng đó chia làm **ba** phần chứ không phải hai:
+
+| Phần | Số dòng | Nhận ra bằng gì |
+|---|---|---|
+| Đi qua phễu tìm kiếm có ghi nhật ký ở mục 6 | **24** | Tổng cột "Số giữ lại" của 28 truy vấn |
+| Tìm mới nhưng **không có truy vấn nào trong nhật ký** | **1** | `VoZhang2015`: `ghi_chu` ghi "Tim moi 22/09/2026" nhưng mục 6 không có dòng nào nhắc tới bài này |
+| "Hạt giống", tên lấy sẵn từ kế hoạch, không qua bước tìm | **21** | 22 dòng hạt giống trừ `VLSP-2018` còn `chua_kiem` |
+
+Khi vẽ sơ đồ luồng ở mục 3.1 của báo cáo phải tách các nhánh này ra, không được vẽ như thể 46
+bài cùng đi qua một phễu 258 kết quả.
+
+> ⚠️ **Bản trước của đoạn này ghi "24 dòng qua phễu và 21 dòng hạt giống" cho mốc 45.** Con số
+> đó sai một đơn vị ở cả hai vế: ngày 22/09 thực tế là 24 qua phễu, 1 không có nhật ký và 20
+> hạt giống đã kiểm chứng. Xem
+> [GAP-025](../gaps/GAP-025_pheu-sang-loc-lech-mot-bai-so-voi-ma-tran.md). `VoZhang2015` tìm ra
+> bằng đường nào thì **chưa xác định được**; không được viết vào báo cáo là "truy vết trích
+> dẫn" khi chưa có bằng chứng.
 
 Đợt 3 (22/09/2026) có 2 truy vấn chỉ để xác minh nơi công bố của một bài đã tìm thấy, không để
 tìm bài mới — vẫn ghi vào bảng dưới cho đủ, cột "Số giữ lại" bằng 0.
