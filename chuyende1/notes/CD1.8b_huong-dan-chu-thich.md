@@ -137,3 +137,68 @@ candidates.csv --excel--> candidates_chu_thich.xlsx --(gán tay)--> tu-excel -->
 
 Bạn có câu hỏi phụ nào về phần này không? Step kế là CD1.8c, phần gán tay của bạn; trong lúc
 đó tôi có thể làm song song CD1.7 (mốc tham chiếu bằng mô hình ngôn ngữ lớn) nếu bạn muốn.
+
+---
+
+## 8. BỔ SUNG 08/10/2026 — CD1.8c làm gì, ở file nào, dòng nào, để làm gì
+
+Học viên hỏi lại sau khi đọc phiếu, tức mục 7 ở trên chưa đủ rõ. Mục này trả lời từng ý.
+
+### 8.1. Làm gì
+
+Với mỗi dòng, đọc câu và điền hai ô: hiện tượng nào tác động lên khía cạnh của dòng
+(`phenomenon`), và nhãn cảm xúc gốc có đúng không (`nhan_kiem_tra`). Ô thứ ba `ghi_chu` chỉ điền
+khi quy tắc yêu cầu.
+
+### 8.2. Ở file nào
+
+| File | Bạn làm gì với nó |
+|---|---|
+| `data/diagnostic/candidates_chu_thich.xlsx` | **File duy nhất bạn gõ vào.** Mở bằng Excel |
+| `docs/annotation_guideline.md` | Mở bên cạnh để tra. Mục 4 (cây quyết định), mục 6 (K1 đến K10) |
+| `data/diagnostic/candidates.csv` | **Không mở.** Lệnh `tu-excel` tự cập nhật |
+
+### 8.3. Dòng nào, cột nào
+
+- Bắt đầu ở dòng có `stt` = 1, đi xuống lần lượt, không bỏ dòng, không chọn dòng.
+- Bạn **không** phải làm hết 800 dòng. Dừng khi lệnh `tien-do` báo "còn thiếu" bằng 0 ở cả
+  `negation`, `contrast`, `regular`. Chưa biết sẽ dừng ở dòng thứ mấy; ước lượng 350 đến 500.
+- Cột đọc: `text` (câu), `aspect` (khía cạnh của dòng), `nhan_goc`, `tu_khoa_kich_hoat` (gợi ý
+  từ cần xét, có thể sót hoặc thừa).
+- Cột điền, ba cột màu vàng bên phải: `phenomenon`, `nhan_kiem_tra`, `ghi_chu`.
+
+### 8.4. Ý nghĩa của từng thứ bạn điền
+
+| Bạn điền | Nó trở thành gì |
+|---|---|
+| `phenomenon` | Chia mẫu vào ba nhóm phủ định, chuyển ý, thường. Mỗi mô hình được chấm riêng trên từng nhóm; đó là mục 4.6 của báo cáo và là bằng chứng cho câu "mô hình yếu ở câu có phủ định" trong Chương 5 |
+| `nhan_kiem_tra` | Tỉ lệ nhãn gốc bạn không đồng ý. Dùng để biết một lỗi của mô hình là lỗi thật hay do nhãn gốc sai |
+| `ghi_chu` | Chỗ dựa khi hoà giải với người chú thích thứ hai, và nguồn ca điển hình cho mục 5.3 |
+
+### 8.5. Chín dòng đầu của file, làm mẫu
+
+Nhãn dưới đây là đề xuất của Claude theo quy tắc, để bạn thấy cách lập luận. **Bạn tự gán rồi
+so; không chép.** Chín dòng này không được đưa cho người chú thích thứ hai xem.
+
+| stt | Khía cạnh, nhãn gốc | Đoạn câu quyết định | `phenomenon` | Lập luận |
+|---|---|---|---|---|
+| 1 | PERFORMANCE, negative | "đã lỗi . dùng 1 lúc nóng máy" | regular | Ý về hiệu năng nằm ở hai câu không có từ phủ định. "sd k ra gì" ở câu cuối nói chung về máy. Ghi chú "phân vân: both" theo K10 |
+| 2 | CAMERA, neutral | "camera tạm ổn ,pin tốt nhưng sạc nhanh" | regular | K6: hai vế của "nhưng" cùng tích cực |
+| 3 | GENERAL, positive | "mình rất thích" | regular | Cùng câu, cùng lý do |
+| 4 | SCREEN, neutral | "màn hình cũng ổn" | regular | Cùng lý do. Nhãn gốc trung tính cho "cũng ổn": cần định nghĩa lớp trung tính mới duyệt được |
+| 5 | FEATURES, negative | "vừa bị đơ vừa nhảy màn hình liên tục, dù đã hỗ trợ kỹ thuật hết 3 lần" | contrast | "dù" là nhượng bộ: đã sửa ba lần mà vẫn lỗi. "chưa được 2 tháng" chỉ thời gian, không phủ định ý kiến |
+| 6 | PRICE, neutral | "với tầm giá là quá ngon" | regular | Không có từ phủ định hay từ nối |
+| 7 | PRICE, negative | "Máy cũng đâu phải rẻ mà chơi game thì giật lag" | both | "đâu phải rẻ" phủ định ý về giá; "mà" nối hai ý trái chờ đợi. Ghi chú "đâu phải; mà". Cột từ khoá chỉ ghi "không", là từ của câu "sim không nhận", thuộc khía cạnh khác: ví dụ cho việc cột này vừa sót vừa thừa |
+| 8 | GENERAL, positive | "Dùng 5 tháng vẫn thấy ổn: … nhưng màn hình lâu lâu bị … bóng mờ" | contrast | K8: câu tổng kết nằm trong vế A, vế B tiêu cực. Dấu hai chấm không phải ranh giới |
+| 9 | PRICE, neutral | "nhưng trong tầm giá này là quá ổn , nên không đòi hỏi gì thêm" | regular | K2: giá là khung, ý kiến thuộc về máy. Ghi chú "giá làm khung" |
+
+Ba dòng 1, 7, 9 là loại ca bạn sẽ gặp nhiều và dễ lệch với người thứ hai nhất. Nếu bạn gán
+khác tôi ở các dòng này thì đó là tín hiệu quy tắc K2, K10 cần viết lại, báo trước khi gán tiếp.
+
+### 8.6. Trình tự một buổi
+
+1. Mở `candidates_chu_thich.xlsx`, tới dòng trống đầu tiên.
+2. Gán 60 đến 90 phút.
+3. Lưu (Ctrl+S), **đóng Excel**.
+4. `.\.venv\Scripts\python.exe scripts\chu_thich_chan_doan.py tu-excel`
+5. Đọc bảng tiến độ lệnh in ra. Chép thư mục `data/diagnostic/` ra ngoài máy.
