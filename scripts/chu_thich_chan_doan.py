@@ -189,6 +189,15 @@ def cmd_tu_excel(xlsx: Path, csv_path: Path) -> int:
                 print(f"DỪNG: uid {r['uid']} xuất hiện hai lần trong {xlsx}")
                 return 1
             moi[r["uid"]] = r
+    # Ghi lại đúng nhãn gốc vào ô kiểm tra nghĩa là "đồng ý": quy về một cách viết để
+    # tỉ lệ bất đồng với nhãn gốc không bị đếm sai.
+    quy_ve = [r["uid"] for r in moi.values() if r["nhan_kiem_tra"] and r["nhan_kiem_tra"] == r["nhan_goc"]]
+    for uid in quy_ve:
+        moi[uid]["nhan_kiem_tra"] = "dong_y"
+    if quy_ve:
+        print(f"{len(quy_ve)} dòng ghi nhan_kiem_tra trùng nhãn gốc, đã quy về dong_y khi ghi CSV "
+              f"(file .xlsx không bị sửa): {', '.join(u.replace('visfd-test-', '') for u in quy_ve[:10])}"
+              + (" …" if len(quy_ve) > 10 else ""))
     rows = doc_csv(csv_path)
     loi: List[str] = []
     if set(moi) != {r["uid"] for r in rows}:

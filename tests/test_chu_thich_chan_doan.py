@@ -138,3 +138,14 @@ def test_tien_do_dem_theo_hien_tuong(tmp_path, capsys):
     assert f"Đã gán 2 / {len(rows)} dòng." in ra and "dong_y=1" in ra
     dong = next(d for d in ra.splitlines() if d.startswith("negation"))
     assert dong.split()[-1] == "99"  # còn thiếu 99 để đủ 100
+
+
+def test_ghi_lai_dung_nhan_goc_thi_quy_ve_dong_y(tmp_path, capsys):
+    p = _csv(tmp_path)
+    x = tmp_path / "a.xlsx"
+    m.main(["excel", "--csv", str(p), "--xlsx", str(x)])
+    r0 = m.doc_csv(p)[0]
+    _dien(x, {r0["uid"]: ("regular", r0["nhan_goc"], "")})
+    assert m.main(["tu-excel", "--xlsx", str(x), "--csv", str(p)]) == 0
+    assert m.doc_csv(p)[0]["nhan_kiem_tra"] == "dong_y"
+    assert "đã quy về dong_y" in capsys.readouterr().out
