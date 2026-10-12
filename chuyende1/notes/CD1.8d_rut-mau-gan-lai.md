@@ -87,3 +87,18 @@ Vì sao cần: nhóm phủ định đo việc mô hình có hiểu từ phủ đ
    777, 786, 787 của `candidates_chu_thich.xlsx`.
 2. Xem 6 dòng PRICE giữ `positive` ở stt 190, 410, 464, 494, 614, 630.
 3. Từ 27/10: gán lại `gan_lai_60.xlsx`, không mở trước ngày đó.
+
+## 8. BỔ SUNG 13/10 (đêm): học viên trả lời hai việc đầu của mục 7
+
+- **14 dòng K2: đồng ý.** Đã đổi `phenomenon` thành `regular` trong `candidates.csv`, sửa theo
+  `uid`, có sao lưu, mỗi dòng có ghi chú "13/10: đổi thành regular theo K2, giá làm khung".
+  Số dòng theo nhóm: negation 119, contrast 181, both 84, regular 415, bo 1.
+- **6 dòng PRICE: giữ `positive`.** Không đổi gì.
+- Một trong 14 dòng (00950 PRICE) nằm trong mẫu 60 dòng. Không rút lại mẫu; lệnh `kappa` đọc nhãn
+  lần đầu từ CSV lúc chạy nên sẽ dùng nhãn đã sửa. Theo nhãn lần đầu, mẫu hiện là 14 negation,
+  15 contrast, 15 both, 16 regular.
+- Số sơ bộ theo nhóm ghi ở các phiếu trước tính trên cách chia cũ, nay đã cũ.
+- Bản `.xlsx` học viên lưu lúc 01:40 có một dòng sửa nhầm (stt 228 thay cho 229). Không đưa vào
+  CSV. Chi tiết ở `chuyende1/gaps/GAP-030_stt-khac-so-dong-excel.md`.
+- `excel --ghi-de` nay dừng gọn với mã 2 khi file đang mở trong Excel. Cả bộ: 415 passed.
+- Mục 9 của `docs/annotation_guideline.md` có thêm đoạn giải thích gán lại để làm gì.

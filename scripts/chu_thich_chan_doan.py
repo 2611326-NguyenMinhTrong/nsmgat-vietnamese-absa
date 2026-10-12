@@ -123,6 +123,13 @@ def cmd_excel(csv_path: Path, xlsx: Path, seed: int, ghi_de: bool) -> int:
         print("CSV đang có giá trị không hợp lệ, sửa trước khi xuất:\n  " + "\n  ".join(loi[:20]))
         return 1
     if xlsx.exists():
+        try:  # Excel đang mở file thì Windows khoá ghi; thử trước để khỏi sinh bản sao lưu thừa
+            with open(xlsx, "r+b"):
+                pass
+        except PermissionError:
+            print(f"DỪNG: không ghi được {xlsx}, file đang mở trong Excel.\n"
+                  f"Đóng Excel (thay đổi chưa đưa về CSV bằng `tu-excel` sẽ mất), rồi chạy lại lệnh này.")
+            return 2
         shutil.copy2(xlsx, xlsx.with_name(f"{xlsx.stem}.{dt.datetime.now():%Y%m%d-%H%M%S}.xlsx.bak"))
     luu_workbook(thu_tu_chu_thich(rows, seed), xlsx)
     print(f"Đã ghi {xlsx}: {len(rows)} dòng, {sum(da_xong(r) for r in rows)} dòng đã có chú thích.\n"

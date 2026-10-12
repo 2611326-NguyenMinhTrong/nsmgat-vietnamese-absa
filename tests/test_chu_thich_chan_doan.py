@@ -149,3 +149,20 @@ def test_ghi_lai_dung_nhan_goc_thi_quy_ve_dong_y(tmp_path, capsys):
     assert m.main(["tu-excel", "--xlsx", str(x), "--csv", str(p)]) == 0
     assert m.doc_csv(p)[0]["nhan_kiem_tra"] == "dong_y"
     assert "đã quy về dong_y" in capsys.readouterr().out
+
+
+def test_excel_dang_mo_thi_dung_gon_khong_sinh_ban_sao_luu(tmp_path, monkeypatch, capsys):
+    p = _csv(tmp_path)
+    x = tmp_path / "a.xlsx"
+    m.main(["excel", "--csv", str(p), "--xlsx", str(x)])
+    truoc = x.read_bytes()
+
+    def mo(f, mode="r", *a, **k):
+        if mode == "r+b":
+            raise PermissionError(13, "Permission denied")
+        return open(f, mode, *a, **k)
+
+    monkeypatch.setattr(m, "open", mo, raising=False)
+    assert m.main(["excel", "--csv", str(p), "--xlsx", str(x), "--ghi-de"]) == 2
+    assert "đang mở trong Excel" in capsys.readouterr().out
+    assert x.read_bytes() == truoc and not list(tmp_path.glob("a.*.xlsx.bak"))
