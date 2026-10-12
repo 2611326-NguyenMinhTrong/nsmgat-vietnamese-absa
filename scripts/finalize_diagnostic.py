@@ -217,8 +217,8 @@ def dem_theo_nhom(rows: Sequence[Dong], goc: Path, mo_hinh: Sequence[str]):
     return cau, ra
 
 
-def cham_mot_mo_hinh(o, so_lan: int, rng, khoi: int = 500) -> Dict[str, dict]:
-    """o: (nhóm, seed, câu, 9). Mỗi nhóm: trung bình ba seed, khoảng tin cậy 95 %, và hiệu so với nhóm mốc."""
+def cham_mot_mo_hinh(o, so_lan: int, rng, khoi: int = 500, ten_nhom: Sequence[str] = NHOM_CHAM) -> Dict[str, dict]:
+    """o: (nhóm, seed, câu, 9). Mỗi nhóm: trung bình ba seed, khoảng tin cậy 95 %, và hiệu so với nhóm mốc (nhóm đầu)."""
     import numpy as np
 
     so_cau = o.shape[2]
@@ -234,7 +234,7 @@ def cham_mot_mo_hinh(o, so_lan: int, rng, khoi: int = 500) -> Dict[str, dict]:
         mau["accuracy"].append(a.mean(axis=2))
         con -= n
     ra: Dict[str, dict] = {}
-    for g, nhom in enumerate(NHOM_CHAM):
+    for g, nhom in enumerate(ten_nhom):
         ra[nhom] = {"n": int(o[g, 0].sum())}
         for k in ("macro_f1", "accuracy"):
             m = np.concatenate(mau[k])  # (số lần, nhóm)
@@ -253,15 +253,15 @@ def _pt(x: float) -> str:
     return f"{x * 100:.1f}".replace(".", ",")
 
 
-def bang_cham(kq: Dict[str, dict], do_do: str, tieu_de: str) -> str:
+def bang_cham(kq: Dict[str, dict], do_do: str, tieu_de: str, nhom: Sequence[str] = NHOM_CHAM, ten: Dict[str, str] = TEN_NHOM) -> str:
     """Một bảng: hàng là mô hình, cột là nhóm; ô nhóm khác mốc kèm hiệu so với nhóm thường."""
     n = next(iter(kq.values()))
     dong = [tieu_de, "",
-            "| Mô hình | " + " | ".join(f"{TEN_NHOM[g]} (n = {n[g]['n']})" for g in NHOM_CHAM) + " |",
-            "|---|" + "---|" * len(NHOM_CHAM)]
+            "| Mô hình | " + " | ".join(f"{ten.get(g, g)} (n = {n[g]['n']})" for g in nhom) + " |",
+            "|---|" + "---|" * len(nhom)]
     for exp, r in kq.items():
         o = []
-        for g in NHOM_CHAM:
+        for g in nhom:
             x = r[g][do_do]
             s = f"{_pt(x['gia_tri'])} [{_pt(x['ci95_duoi'])}; {_pt(x['ci95_tren'])}]"
             if "p" in x:
