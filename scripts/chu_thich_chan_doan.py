@@ -113,10 +113,6 @@ def da_xong(r: Dong) -> bool:
 
 
 def cmd_excel(csv_path: Path, xlsx: Path, seed: int, ghi_de: bool) -> int:
-    from openpyxl import Workbook
-    from openpyxl.styles import Alignment, Font, PatternFill, Protection
-    from openpyxl.worksheet.datavalidation import DataValidation
-
     if xlsx.exists() and not ghi_de:
         print(f"DỪNG: {xlsx} đã tồn tại. Nếu trong đó có chú thích chưa đưa về CSV thì chạy `tu-excel` trước.\n"
               f"Chắc chắn muốn tạo lại từ CSV: thêm --ghi-de (file .xlsx cũ được sao lưu).")
@@ -128,12 +124,23 @@ def cmd_excel(csv_path: Path, xlsx: Path, seed: int, ghi_de: bool) -> int:
         return 1
     if xlsx.exists():
         shutil.copy2(xlsx, xlsx.with_name(f"{xlsx.stem}.{dt.datetime.now():%Y%m%d-%H%M%S}.xlsx.bak"))
+    luu_workbook(thu_tu_chu_thich(rows, seed), xlsx)
+    print(f"Đã ghi {xlsx}: {len(rows)} dòng, {sum(da_xong(r) for r in rows)} dòng đã có chú thích.\n"
+          f"Chỉ ba cột màu vàng sửa được. Gán xong một đợt: lưu, đóng Excel, chạy `tu-excel`.")
+    return 0
+
+
+def luu_workbook(rows: Sequence[Dong], xlsx: Path) -> None:
+    """Ghi các dòng, theo đúng thứ tự được đưa vào, ra file .xlsx có ô chọn giá trị và khoá cột dữ liệu."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font, PatternFill, Protection
+    from openpyxl.worksheet.datavalidation import DataValidation
 
     wb = Workbook()
     ws = wb.active
     ws.title = TEN_SHEET
     ws.append(list(COT_XLSX))
-    for i, r in enumerate(thu_tu_chu_thich(rows, seed), start=1):
+    for i, r in enumerate(rows, start=1):
         ws.append([i] + [r[c] for c in COT_XLSX[1:]])
     xam = PatternFill("solid", fgColor="EDEDED")
     vang = PatternFill("solid", fgColor="FFF2CC")
@@ -167,9 +174,6 @@ def cmd_excel(csv_path: Path, xlsx: Path, seed: int, ghi_de: bool) -> int:
     ws.protection.autoFilter = False
     xlsx.parent.mkdir(parents=True, exist_ok=True)
     wb.save(xlsx)
-    print(f"Đã ghi {xlsx}: {len(rows)} dòng, {sum(da_xong(r) for r in rows)} dòng đã có chú thích.\n"
-          f"Chỉ ba cột màu vàng sửa được. Gán xong một đợt: lưu, đóng Excel, chạy `tu-excel`.")
-    return 0
 
 
 def cmd_tu_excel(xlsx: Path, csv_path: Path) -> int:
