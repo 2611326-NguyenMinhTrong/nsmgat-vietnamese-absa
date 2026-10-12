@@ -91,3 +91,5 @@ chuyende1/report/nhap/
 data/diagnostic/candidates*.csv
 data/diagnostic/*.xlsx
 data/diagnostic/*.bak
+# Tap chan doan da chot chua cau cua UIT-ViSFD, khong dua len GitHub (cung quyet dinh 06/10/2026).
+data/diagnostic/*.jsonl
