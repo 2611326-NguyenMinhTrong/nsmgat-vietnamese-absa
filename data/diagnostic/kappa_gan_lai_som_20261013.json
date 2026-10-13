@@ -1,0 +1,45 @@
+{
+  "loai": "gan_lai_som_chua_du_14_ngay",
+  "ngay_rut": "13/10/2026",
+  "ngay_tinh": "13/10/2026",
+  "so_dong": 60,
+  "phan_tang": true,
+  "moi_nhom": 15,
+  "phenomenon": {
+    "kappa": 0.7330367074527253,
+    "ti_le_trung": 0.8,
+    "ti_le_trung_ngau_nhien": 0.25083333333333335,
+    "bang": {
+      "negation->negation": 10,
+      "negation->both": 2,
+      "negation->regular": 2,
+      "contrast->contrast": 14,
+      "contrast->regular": 1,
+      "both->negation": 5,
+      "both->contrast": 1,
+      "both->both": 9,
+      "regular->contrast": 1,
+      "regular->regular": 15
+    }
+  },
+  "nhan_cam_xuc": {
+    "kappa": 0.7530864197530863,
+    "ti_le_trung": 0.8333333333333334,
+    "so_dong_lech": 10
+  },
+  "uid_lech": [
+    "visfd-test-02106-GENERAL",
+    "visfd-test-00398-PERFORMANCE",
+    "visfd-test-01058-PRICE",
+    "visfd-test-01932-GENERAL",
+    "visfd-test-02155-GENERAL",
+    "visfd-test-01350-CAMERA",
+    "visfd-test-00366-BATTERY",
+    "visfd-test-00961-PERFORMANCE",
+    "visfd-test-01381-GENERAL",
+    "visfd-test-00002-DESIGN",
+    "visfd-test-00336-PRICE",
+    "visfd-test-00988-FEATURES"
+  ],
+  "ghi_chu": "Hoc vien gan lai ngay 13/10/2026, cung ngay rut mau. Nhan lan dau cua 32 dong da co trong CSV tu 11/10 04:56, 27 dong vao CSV trong khoang 11/10 04:56 den 13/10 00:55, 1 dong doi luc 13/10 01:45 (K2). Khong dong nao cach du 14 ngay. Khong dung file nay lam ket qua do nhat quan chinh thuc; lenh chot chi doc kappa.json."
+}

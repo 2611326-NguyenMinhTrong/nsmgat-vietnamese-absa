@@ -102,3 +102,19 @@ Vì sao cần: nhóm phủ định đo việc mô hình có hiểu từ phủ đ
   CSV. Chi tiết ở `chuyende1/gaps/GAP-030_stt-khac-so-dong-excel.md`.
 - `excel --ghi-de` nay dừng gọn với mã 2 khi file đang mở trong Excel. Cả bộ: 415 passed.
 - Mục 9 của `docs/annotation_guideline.md` có thêm đoạn giải thích gán lại để làm gì.
+
+## 9. BỔ SUNG 13/10 (sáng): học viên đã gán lại 60 dòng ngay trong ngày
+
+- File `gan_lai_60.xlsx` được điền xong lúc 09:19 ngày 13/10, cùng ngày rút mẫu. Lệnh `kappa` dừng
+  với mã 2 vì chưa tới 27/10. `kappa.json` không được tạo, lệnh `chot` vẫn khoá.
+- Nhãn lần đầu của 60 dòng vào CSV từ 05/10 đến 13/10, nên hai lần gán cách nhau từ dưới 8 giờ đến
+  dưới 8 ngày. Không dòng nào đủ 14 ngày.
+- Đo sớm, lưu ở `data/diagnostic/kappa_gan_lai_som_20261013.json`: nhóm hiện tượng kappa 0,733,
+  trùng 48 trên 60. Tách theo dấu hiệu: có phủ định kappa 0,900; có chuyển ý kappa 0,700. Trong 12
+  dòng lệch, 7 dòng lệch giữa `both` và `negation`; nhóm `both` giữ nguyên 9 trên 15.
+- Nhãn cảm xúc sau kiểm tra: kappa 0,753, lệch 10 dòng. Lần 1 không đồng ý với nhãn gốc ở 12 dòng,
+  lần 2 ở 7 dòng, cả hai lần ở 5 dòng.
+- Đây không phải số đo chính thức. Ba phương án đo lại và phân tích ở
+  `chuyende1/gaps/GAP-032_gan-lai-som-hon-moc-14-ngay.md`.
+- File sinh thêm: `data/diagnostic/gan_lai_60.lan2-20261013.xlsx.bak` (bản sao file lần 2) và
+  `chuyende1/report/nhap/lech_gan_lai_1310.md` (các dòng lệch, để học viên xem). Cả hai chỉ nằm trên máy.
