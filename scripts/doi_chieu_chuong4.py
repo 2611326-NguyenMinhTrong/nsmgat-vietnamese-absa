@@ -7,6 +7,7 @@ tìm thấy. Không sửa gì trong bản nháp.
     python scripts/doi_chieu_chuong4.py                 # kiểm bản nháp mặc định
     python scripts/doi_chieu_chuong4.py --in-bang       # in thêm các bảng tính lại, để chép khi cần
     python scripts/doi_chieu_chuong4.py --do-cat        # đo thêm tỉ lệ mẫu bị cắt ở 128 subword (cần bộ tách từ PhoBERT)
+    python scripts/doi_chieu_chuong4.py --do-mau-so     # đo thêm mẫu số chuẩn hoá không dương của Sentic-GCN ở mục 4.3 (cần torch)
 
 Mã thoát 0 khi mọi con số đều khớp, 1 khi có chỗ lệch.
 
@@ -414,6 +415,16 @@ def so_lieu_chan_doan(goc: Path):
     return kiem, {k: "\n".join(v) for k, v in bang.items()}
 
 
+def do_mau_so(goc: Path) -> List[Tuple[str, str]]:
+    """Mẫu số chuẩn hoá không dương của Sentic-GCN trên tập huấn luyện, đo bằng chính lớp mô hình (GAP-033)."""
+    import build_lexicon_external as ble
+
+    r = ble.thong_ke_mau_so(goc / "data/lexicon_from_train.json", goc / "data/processed", phan=("train",))["train"]
+    print(f"  train: {r['tu_mau_so_khong_duong']} trong {r['so_tu']} lượt từ có mẫu số <= 0, thuộc {r['mau_dinh']} trong {r['so_mau']} mẫu")
+    return [("Lời văn 4.3, mẫu số không dương", f"có {tp(r['tu_mau_so_khong_duong'] / r['so_tu'] * 100, 3)} % số từ rơi vào trường hợp đó, "
+                                                 f"thuộc {tp(r['mau_dinh'] / r['so_mau'] * 100)} % số mẫu")]
+
+
 def chuan(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
@@ -424,6 +435,7 @@ def main(argv=None) -> int:
     ap.add_argument("--nhap", type=Path, default=NHAP_MAC_DINH, help="bản nháp Chương 4")
     ap.add_argument("--in-bang", action="store_true", help="in các bảng tính lại")
     ap.add_argument("--do-cat", action="store_true", help="đo thêm tỉ lệ mẫu bị cắt ở 128 subword")
+    ap.add_argument("--do-mau-so", action="store_true", help="đo thêm tỉ lệ từ và mẫu có mẫu số chuẩn hoá không dương ở Sentic-GCN (cần torch)")
     a = ap.parse_args(argv)
 
     van = chuan((a.goc / a.nhap).read_text(encoding="utf-8"))
@@ -436,6 +448,8 @@ def main(argv=None) -> int:
         bang.update(cd[1])
     if a.do_cat:
         kiem += do_ti_le_cat(a.goc)
+    if a.do_mau_so:
+        kiem += do_mau_so(a.goc)
     if a.in_bang:
         for ten, noi_dung in bang.items():
             print(f"--- Bảng {ten}\n{noi_dung}\n")

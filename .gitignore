@@ -93,3 +93,7 @@ data/diagnostic/*.xlsx
 data/diagnostic/*.bak
 # Tap chan doan da chot chua cau cua UIT-ViSFD, khong dua len GitHub (cung quyet dinh 06/10/2026).
 data/diagnostic/*.jsonl
+
+# Bang diem cam xuc dung tu tu dien co san (SenticNet tieng Viet, VietSentiWordNet). SenticNet chi cho
+# dung phi thuong mai, kho VietSentiWordNet khong ghi giay phep: khong dua len GitHub. Quyet dinh 13/10/2026.
+data/processed/lexicon_*.json

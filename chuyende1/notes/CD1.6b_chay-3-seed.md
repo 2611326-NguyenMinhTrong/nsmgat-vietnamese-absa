@@ -273,7 +273,8 @@ cắt chứ không phải tự dừng.
 
 ### 3.7 Lo ngại về hội tụ không xảy ra
 
-Phiếu trước đo được khoảng 70 % số lô có ít nhất một token mang mẫu số âm, và để ngỏ câu hỏi
+Phiếu trước đo được khoảng 70 % số lô có ít nhất một token mang mẫu số âm (sửa 13/10/2026, GAP-033: 70 % là tính cả
+token có mẫu số không quá 0,1; riêng mẫu số không dương là khoảng 55 % số lô), và để ngỏ câu hỏi
 chuyện đó có phá hội tụ không. Ba seed trả lời là không:
 
 | | epoch 1, train_loss | epoch 1, dev macro-F1 | epoch 8, train_loss |

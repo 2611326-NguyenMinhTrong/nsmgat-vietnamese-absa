@@ -96,6 +96,7 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `scripts/doi_chieu_chuong4.py` | [CD1.12b] Tính lại mọi con số của Chương 4 từ dữ liệu và file kết quả, dựng lại dòng bảng và cụm chữ phải có, tìm trong bản nháp, in chỗ lệch. Từ 13/10 kiểm cả mục 4.1.2, 4.6 và Bảng 4.10 đến 4.16 của tập chẩn đoán |
 | `scripts/doi_chieu_ban_goc.py` + `tests/test_doi_chieu_ban_goc.py` | [CD1.12b] `tai`: tải bản gốc của các công trình về `data/cache/nguon_goc/` và trích chữ. `kiem`: với mỗi con số dẫn từ công trình khác, tìm nó trong văn bản bản gốc. Không kiểm được ngữ cảnh (GAP-031) |
 | `scripts/do_phu_tu_dien.py` + `tests/test_do_phu_tu_dien.py` | [CD1.12b] Đo độ phủ của VietSentiWordNet và SenticNet tiếng Việt trên UIT-ViSFD. File từ điển không nằm trong repo |
+| `scripts/build_lexicon_external.py` + `tests/test_build_lexicon_external.py` | [CD1.6c] `senticnet`, `vswn`: đổi SenticNet tiếng Việt và VietSentiWordNet sang bảng điểm mà `senticgcn` đọc được, ghi vào `data/processed/` (không lên GitHub). `kiem`: đo độ phủ và mẫu số chuẩn hoá của một bảng điểm bằng chính lớp mô hình; mã thoát 1 nếu lần huấn luyện sẽ dừng vì mẫu số bằng 0. Khác `scripts/build_affective_lexicon.py` của S3.2, vẫn chưa viết |
 | `docs/annotation_guideline.md` | [CD1.8b] Hướng dẫn chú thích, phiên bản 1 ngày 06/10/2026. Không lên GitHub |
 
 ### 2.3. Module KHÔNG ĐƯỢC ĐỘNG VÀO

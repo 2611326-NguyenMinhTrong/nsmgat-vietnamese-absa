@@ -59,8 +59,9 @@ Cong thuc (7) chuan hoa A~_i = A_i/(E_i + 1) voi E_i = sum_j A_ij. O `asgcn`,
 E_i la SO HANG XOM nen mau so >= 2. O day E_i la TONG CO DAU cua diem cam xuc
 vung lan can, nen mau so AM DUOC, va khi am thi ca hang doi dau.
 
-Do that tren UIT-ViSFD: 0,079 % token co mau so <= 0, 3,70 % Example dinh it nhat
-mot token nhu vay, |mau so| nho nhat la 1,1e-3 nen khuech dai nhieu nhat 909 lan.
+Do that tren tap train cua UIT-ViSFD: 0,079 % token co mau so <= 0, 2,50 % Example dinh it nhat
+mot token nhu vay (con so 3,70 % ghi o day truoc 13/10/2026 la dem theo nguong mau so <= 0,1,
+xem GAP-033), |mau so| nho nhat la 1,1e-3 nen khuech dai nhieu nhat 909 lan.
 Khong token nao co |mau so| < 1e-3, nghia la KHONG sinh NaN.
 
 Hoc vien chot 03/10/2026: chay y het bai goc, khong kep mau so, khong dich thang

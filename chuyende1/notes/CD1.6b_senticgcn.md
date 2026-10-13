@@ -95,14 +95,17 @@ dấu** của điểm cảm xúc vùng lân cận, nên mẫu số âm được,
 | | train | dev | test |
 |---|---|---|---|
 | Token có mẫu số ≤ 0 | 735 (0,079 %) | 86 | 251 |
-| Example dính ít nhất một token như vậy | 884 (**3,70 %**) | 3,23 % | 3,93 % |
+| Example dính ít nhất một token như vậy | 596 (**2,50 %**) | 69 (2,08 %) | 193 (2,87 %) |
+| Example có ít nhất một token mẫu số ≤ 0,1 | 884 (3,70 %) | 107 (3,23 %) | 264 (3,93 %) |
 | \|mẫu số\| nhỏ nhất | 1,1 × 10⁻³ | 7,0 × 10⁻³ | 1,1 × 10⁻³ |
 | Khuếch đại lớn nhất | 909 lần | 143 lần | 909 lần |
 | Token có \|mẫu số\| < 10⁻³ | **0** | 0 | 0 |
 
 Hai điều đọc ra. Thứ nhất, **không sinh NaN**: chia cho số âm hay số nhỏ đều ra số hữu hạn,
-và không ca nào đủ gần 0. Thứ hai, 3,70 % Example nghĩa là với lô 32 mẫu thì khoảng **70 %
-số lô** có ít nhất một token bị đổi dấu hoặc khuếch đại.
+và không ca nào đủ gần 0. Thứ hai, 2,50 % Example nghĩa là với lô 32 mẫu thì khoảng **55 %
+số lô** có ít nhất một token bị đổi dấu; tính cả token bị khuếch đại từ 10 lần trở lên (mẫu số ≤ 0,1; 3,70 % Example) thì khoảng 70 % số lô.
+
+*Sửa ngày 13/10/2026 (GAP-033): bản đầu của bảng này ghi 884 (3,70 %) ở hàng "Example dính", tức đã đặt số đếm theo ngưỡng 0,1 dưới tiêu chí mẫu số ≤ 0.*
 
 Học viên chốt 03/10/2026: **chạy y hệt bài gốc.** Đổi dấu là điều công thức quy định khi vùng
 lân cận rất tiêu cực, không phải lỗi cài đặt. Sửa đi là sửa phương pháp.

@@ -78,3 +78,13 @@ lượt từ của tập huấn luyện, 94,4 % số mẫu có ít nhất một 
 
 Hệ quả: một bản Sentic-GCN dùng tri thức thật sự bên ngoài là làm được. Xem GAP-031 và
 `chuyende1/notes/CD1.12b_ra-soat-chuong-2-4.md` mục 5.
+
+## 9. Bổ sung ngày 13/10/2026 (trưa): "làm được" ở mục 8 chưa đúng
+
+Câu cuối mục 8 viết một bản Sentic-GCN dùng tri thức bên ngoài "là làm được". Kiểm bằng chính lớp mô hình thì chưa: với công thức
+chuẩn hoá của bài, cả hai từ điển có sẵn đều cho mẫu số bằng đúng 0 ở một số từ, và `GCNLayer` dừng huấn luyện khi gặp. Tập huấn
+luyện có 31 mẫu như vậy với VietSentiWordNet và 110 mẫu với SenticNet tiếng Việt; bậc 5 đang dùng thì không có mẫu nào. Với SenticNet
+tiếng Việt, 61,27 % số mẫu huấn luyện có ít nhất một hàng đổi dấu, so với 2,50 % ở bậc 5.
+
+Số đo, công cụ và ba lựa chọn xử lý ở `chuyende1/notes/CD1.6c_tu-dien-co-san-kiem-truoc.md`. Lệnh:
+`python scripts/build_lexicon_external.py kiem --tu-dien <bảng điểm>`.
