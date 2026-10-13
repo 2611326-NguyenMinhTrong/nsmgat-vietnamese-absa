@@ -1,7 +1,7 @@
 # GAP-003 — Chạy `llm_zs` 3 seed ở temperature 0 cho độ lệch chuẩn giả tạo
 
 **Ngày phát hiện:** 27/08/2026 · **Phát hiện bởi:** Claude Code (khi rà lại giao thức thực nghiệm)
-**Loại:** phương pháp · **Mức độ:** **nghiêm trọng** (ảnh hưởng kết luận) · **Trạng thái:** 🔴 Mở
+**Loại:** phương pháp · **Mức độ:** **nghiêm trọng** (ảnh hưởng kết luận) · **Trạng thái:** 🟡 Đang xử lý: công cụ đã viết theo phương án ở mục 4, chờ học viên xác nhận (mục 8)
 
 ---
 
@@ -75,3 +75,16 @@ và đại lượng đó có tồn tại ở mọi mô hình không?** Quy tắc
 
 - [x] **Có** — mục 4.2 phải định nghĩa "seed" riêng cho baseline không huấn luyện; nếu không,
       cột `± std` trong bảng kết quả chính sẽ bị hiểu sai.
+
+## 8. Cập nhật ngày 13/10/2026
+
+`scripts/eval_llm.py` được viết theo đúng phương án ở mục 4:
+
+- Zero-shot: một lần chạy, ghi vào `results/gpt4o_zeroshot/seed42/`. Số 42 ở đây chỉ là tên thư mục.
+  Lệnh `bang` in một giá trị, không in độ lệch chuẩn.
+- Few-shot: ba lần chạy với ba bộ ví dụ, mỗi bộ 6 ví dụ (2 mỗi lớp) rút từ tập huấn luyện bằng seed
+  42, 1337 và 2024. Độ lệch chuẩn in ra đo độ nhạy với việc chọn ví dụ.
+
+File cấu hình là `configs/llm.yaml`, không phải `configs/llm_zs.yaml` như bảng ở mục 5 ghi, vì hai
+chế độ dùng chung một file. Chưa có lần gọi API nào. Phương án này chưa được học viên xác nhận; nó
+làm số lần gọi tăng từ 1.000 lên 2.000.

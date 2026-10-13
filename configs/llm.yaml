@@ -1,0 +1,64 @@
+# [CD1.7] Moc tham chieu bang mo hinh ngon ngu lon, goi qua API. Doc boi scripts/eval_llm.py.
+# KHONG extends base.yaml: o day khong huan luyen gi, va khong mo hinh nao khac doc file nay.
+# Doi bat ky dong nao duoi day la doi van tay cau hinh (config_hash) ghi trong metrics.json.
+
+nha_cung_cap:
+  dia_chi: https://api.openai.com/v1
+  # Ten BIEN MOI TRUONG chua khoa API. Khoa khong bao gio nam trong file nao cua repo.
+  bien_khoa: OPENAI_API_KEY
+
+# Ten mo hinh gui len API. Ten phien ban ma API thuc su tra ve duoc ghi vao llm_meta.json.
+mo_hinh: gpt-4o
+tham_so:
+  temperature: 0
+  max_completion_tokens: 10
+  seed: 42
+
+# Ten thu muc ket qua (GAP-004: giu ten goc cua plan).
+ten_thi_nghiem:
+  zs: gpt4o_zeroshot
+  fs: gpt4o_fewshot
+
+du_lieu:
+  train: data/processed/visfd_train.jsonl
+  test: data/processed/visfd_test.jsonl
+
+# Tap con cua tap kiem tra: rut phan tang theo nhan, giu ti le ba nhan.
+tap_con:
+  so_mau: 500
+  seed: 42
+  tep_uid: results/llm_subset_uids.json
+
+# Vi du cho che do few-shot: rut tu tap HUAN LUYEN, moi lop `moi_lop` vi du.
+# Chi lay binh luan dai tu `tu_toi_thieu` den `tu_toi_da` tu de cau lenh khong qua dai.
+vi_du:
+  moi_lop: 2
+  tu_toi_thieu: 5
+  tu_toi_da: 40
+
+# Thu tu la thu tu nhan cua du lieu: 0, 1, 2.
+nhan: ["tiêu cực", "trung tính", "tích cực"]
+
+# Cung cach goi ten nhu Bang 4.3 cua bao cao, bo dau gach duoi vi mo hinh nhan van ban tho.
+khia_canh:
+  BATTERY: pin
+  SCREEN: màn hình
+  CAMERA: camera
+  FEATURES: tính năng
+  PERFORMANCE: hiệu năng
+  STORAGE: bộ nhớ
+  DESIGN: thiết kế
+  PRICE: giá
+  GENERAL: tổng thể
+  "SER&ACC": dịch vụ và phụ kiện
+
+he_thong: >-
+  Bạn phân loại cảm xúc theo khía cạnh cho bình luận tiếng Việt về điện thoại thông minh.
+  Với mỗi bình luận và một khía cạnh được hỏi, hãy cho biết cảm xúc của người viết đối với
+  riêng khía cạnh đó. Chỉ trả lời bằng đúng một trong ba nhãn: tiêu cực, trung tính, tích cực.
+  Không giải thích.
+
+nguoi_dung: |-
+  Bình luận: {binh_luan}
+  Khía cạnh: {khia_canh}
+  Cảm xúc:
