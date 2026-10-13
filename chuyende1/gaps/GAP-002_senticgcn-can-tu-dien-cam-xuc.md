@@ -65,3 +65,16 @@ ngoài) chứ không chỉ phụ thuộc code.
 
 - [x] **Có** — dù xử lý theo phương án nào, độ phủ của từ điển cảm xúc phải được nêu trong
       mục 4.3 (mô tả mô hình) và nhắc lại ở mục 6.2 (hạn chế).
+
+## 8. Bổ sung ngày 13/10/2026
+
+Mục 1 viết "SenticNet là tài nguyên tiếng Anh, không có bản tiếng Việt tương đương chất lượng". Nửa đầu của vế sau **sai**: trang tải
+về của SenticNet có mục tài nguyên tiếng Việt (`senticnet_vi.zip`, 36.520 khái niệm, hầu hết viết không dấu). Nửa sau thì phép đo
+ngày 13/10 ủng hộ: tra không dấu phủ 52,4 % số lượt từ của tập huấn luyện nhưng lẫn nhiều lượt trùng mặt chữ (`máy` thành `may`,
+điểm âm 0,951).
+
+Phương án A của mục 5 (đo độ phủ của VietSentiWordNet) cũng đã làm ngày này: bản công khai 1.3.5 có 1.192 mục từ, phủ 8,66 % số
+lượt từ của tập huấn luyện, 94,4 % số mẫu có ít nhất một từ tra được. Lệnh: `python scripts/do_phu_tu_dien.py`.
+
+Hệ quả: một bản Sentic-GCN dùng tri thức thật sự bên ngoài là làm được. Xem GAP-031 và
+`chuyende1/notes/CD1.12b_ra-soat-chuong-2-4.md` mục 5.

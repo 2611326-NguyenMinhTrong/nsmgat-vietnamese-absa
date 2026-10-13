@@ -7,6 +7,7 @@ Ba lệnh:
     validate  kiểm cấu trúc file — cột, giá trị hợp lệ, trùng ref_key, mâu thuẫn nội tại
     stats     tiến độ khảo sát — phủ 6 nhóm tới đâu, kiểm chứng được bao nhiêu, N4/N5
     table     sinh Bảng 3.9 cho báo cáo — CHỈ từ những dòng đã kiểm chứng
+    table-gon sinh bảng tổng hợp gọn đưa vào mục 3.9 — mỗi bài báo đã đọc toàn văn một dòng, cột đầu mang khoá trích dẫn
 
 Vì sao có `table` mà không copy tay từ CSV: quy tắc số 7 của repo cấm bịa trích dẫn.
 Ở đây quy tắc đó được cưỡng chế bằng code — dòng còn `chua_kiem` không thể lọt vào bảng
@@ -341,6 +342,71 @@ def build_table_markdown(rows: list[dict[str, str]]) -> str:
         f"{skipped} dòng còn `chua_kiem` đã bị loại khỏi bảng này.*"
     )
     return "\n".join(lines) + "\n"
+
+
+# --- table-gon ----------------------------------------------------------------
+#
+# Bang tong hop DUA VAO BAO CAO (muc 3.9). Khac `table`: chi gom cac cot phan loai
+# ngan, khong chep o `ket_qua_tot_nhat` (o do la ghi chu lam viec, qua dai cho mot
+# bang in). Cot dau mang khoa trich dan dang [@khoa] de cong cu ghep chuong danh so.
+
+TEN_BAO_CAO = {
+    "Lexicon-based": "Hatzivassiloglou và McKeown", "CouncillNegationScope": "Councill và cộng sự", "Jiang2011": "Jiang và cộng sự",
+    "NRCCanada2014": "NRC-Canada", "VoZhang2015": "Vo và Zhang", "MooreNegationTSA": "Moore và Barnes", "ViABSALipstick": "Tran và cộng sự",
+    "PhoBERTPhoneReviewsCTU": "Ngo và cộng sự", "ThinVNSentimentOverview": "Thin và cộng sự", "WordSegVNSentiment": "Nguyen và Nguyen",
+    "SocherRNTN2013": "Socher và cộng sự", "DongAdaRNN2014": "Dong và cộng sự", "RGAT": "R-GAT", "Sentic-GCN": "Sentic GCN",
+    "ThinGenerativeACSA2023": "Thin và Nguyen", "GenerativeABSA": "Zhang và cộng sự", "ChatGPTSentiment": "Wang và cộng sự",
+    "VariaInstructTuning": "Varia và cộng sự", "NeuroSymbolic3rdWave": "Garcez và Lamb", "KoconNeuroSymbolic": "Kocon và cộng sự",
+    "HamiltonNeSyNLP": "Hamilton và cộng sự", "HuLogicRules2016": "Hu và cộng sự", "SenticNet": "SenticNet 7", "VietSentiWordNet": "Vu và Park",
+    "TranValenceShiftersVN": "Tran và Phan", "KiritchenkoNegators": "Kiritchenko và Mohammad", "SemEval2014": "SemEval 2014",
+    "SemEval2015": "SemEval 2015", "SemEval2016": "SemEval 2016", "VLSP-2018": "VLSP 2018",
+}
+NHOM_BAO_CAO = {"G1_co_dien": "Cổ điển", "G2_tuan_tu_attention": "Tuần tự", "G3_plm": "Tiền huấn luyện", "G4_do_thi": "Đồ thị",
+                "G5_sinh_prompting": "Sinh", "G6_neuro_symbolic": "Nơ-ron và ký hiệu", GROUP_RESOURCE: "Tài nguyên"}
+NGON_NGU_BAO_CAO = {"vi": "Việt", "en": "Anh", "da_ngu": "Đa ngữ", "khac": "Khác"}
+
+
+def cong_trinh_da_doc(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Cac dong da doc toan van, moi BAI BAO mot dong: hai dong trung tieu de la mot cong trinh."""
+    ra, da_gap = [], set()
+    for r in chi_du_lieu(rows):
+        if r["trang_thai"] != STATUS_TOAN_VAN or r["tieu_de"] in da_gap:
+            continue
+        da_gap.add(r["tieu_de"])
+        ra.append(r)
+    return ra
+
+
+def build_compact_table(rows: list[dict[str, str]]) -> str:
+    def co_khong(gia_tri: str) -> str:
+        return "Có" if gia_tri.startswith(("co", "mot_phan")) else "Không"
+
+    thu_tu = list(NHOM_BAO_CAO)
+    ds = sorted(cong_trinh_da_doc(rows), key=lambda r: (thu_tu.index(r["ho_phuong_phap"]), r["nam"], r["ref_key"]))
+    dong = ["| Công trình | Năm | Nhóm | Ngôn ngữ | Dùng đồ thị | Tri thức ngoài | Phủ định, chuyển ý | Có giải thích |", "|---|---|---|---|---|---|---|---|"]
+    for r in ds:
+        k = r["ref_key"]
+        dong.append(f"| {TEN_BAO_CAO.get(k, k)} [@{k}] | {r['nam']} | {NHOM_BAO_CAO[r['ho_phuong_phap']]} | "
+                    f"{NGON_NGU_BAO_CAO.get(r['ngon_ngu'], r['ngon_ngu'])} | {co_khong(r['co_dung_do_thi'])} | {co_khong(r['co_tri_thuc_ngoai'])} | "
+                    f"{co_khong(r['xu_ly_phu_dinh_chuyen_y'])} | {co_khong(r['co_giai_thich'])} |")
+    return "\n".join(dong) + "\n"
+
+
+def cmd_table_gon(rows, out_path: Path) -> int:
+    ds = cong_trinh_da_doc(rows)
+    if not ds:
+        print("Chưa có công trình nào ở mức da_doc_toan_van.", file=sys.stderr)
+        return 1
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(build_compact_table(rows), encoding="utf-8")
+
+    def dem(cot: str) -> int:
+        return sum(r[cot].startswith(("co", "mot_phan")) for r in ds)
+
+    print(f"OK -> {out_path}  ({len(ds)} công trình | từ 2020: {sum(int(r['nam']) >= 2020 for r in ds)} | tiếng Việt: "
+          f"{sum(r['ngon_ngu'] == 'vi' for r in ds)} | dùng đồ thị: {dem('co_dung_do_thi')} | phủ định, chuyển ý: {dem('xu_ly_phu_dinh_chuyen_y')} | "
+          f"có giải thích: {dem('co_giai_thich')})")
+    return 0
 
 
 # --- CLI ----------------------------------------------------------------------
@@ -844,11 +910,12 @@ def cmd_tu_excel(xlsx: Path, csv_path: Path, columns: list[str], ghi_de: bool = 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=("validate", "stats", "table", "excel", "tu-excel"))
+    parser.add_argument("command", choices=("validate", "stats", "table", "table-gon", "excel", "tu-excel"))
     parser.add_argument("--xlsx", type=Path, default=None,
                         help="Duong dan file Excel (mac dinh: canh file csv)")
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV)
-    parser.add_argument("-o", "--out", type=Path, default=DEFAULT_TABLE_OUT)
+    parser.add_argument("-o", "--out", type=Path, default=None,
+                        help="file ra của `table` (mặc định bang_3_9_khao_sat.md) hoặc `table-gon` (mặc định bang_3_4_tong_hop.md)")
     parser.add_argument("--ghi-de", action="store_true",
                         help="tu-excel: nhập ngược DÙ file .csv đã đổi sau khi xuất "
                              "(mọi thay đổi trong .csv sẽ mất)")
@@ -876,7 +943,9 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_validate(rows, columns)
     if args.command == "stats":
         return cmd_stats(rows)
-    return cmd_table(rows, args.out)
+    if args.command == "table-gon":
+        return cmd_table_gon(rows, args.out or DEFAULT_TABLE_OUT.with_name("bang_3_4_tong_hop.md"))
+    return cmd_table(rows, args.out or DEFAULT_TABLE_OUT)
 
 
 if __name__ == "__main__":

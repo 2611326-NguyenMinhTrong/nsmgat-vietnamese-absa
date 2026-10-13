@@ -179,3 +179,39 @@ def test_co_sao_luu_va_chi_xem_khong_ghi(tmp_path):
     _chay(tmp_path, p)
     bak = list(tmp_path.glob("cuon.*.docx.bak"))
     assert len(bak) == 1 and bak[0].read_bytes() == truoc
+
+
+def _anh(tmp_path: Path) -> Path:
+    from PIL import Image
+
+    p = tmp_path / "h.png"
+    Image.new("RGB", (200, 100), "white").save(p)
+    return p
+
+
+def test_hinh_duoc_chen_ngay_tren_ten_hinh_voi_do_rong_yeu_cau(tmp_path):
+    anh = _anh(tmp_path)
+    md = f"# Chương 4. TÊN\n\nĐoạn trước.\n\n![10]({anh.as_posix()})\n\nHình 4.1: Tên hình\n\n![]({anh.as_posix()})\n"
+    khoi = m.doc_markdown(md)
+    assert [k[0] for k in khoi] == ["doan", "hinh", "ten", "hinh"]
+    assert khoi[1][1] == (anh.as_posix(), 10.0) and khoi[3][1][1] == m.RONG_HINH_CM
+    cuon, nhap = _cuon(tmp_path), tmp_path / "nhap"
+    nhap.mkdir()
+    (nhap / "Chuong4_X.md").write_text(md, encoding="utf-8")
+    (nhap / m.TEN_FILE_TAI_LIEU).write_text(json.dumps(TL), encoding="utf-8")
+    assert m.main(["--nhap", str(nhap), "--docx", str(cuon), "--ghi-de"]) == 0
+    doc = Document(str(cuon))
+    assert len(doc.inline_shapes) == 2 and round(doc.inline_shapes[0].width.cm, 1) == 10.0
+    than = m._than_muc(*m.tim_muc_cap_mot(doc, "Chương 4."))
+    vi_tri = [i for i, e in enumerate(than) if e.xpath(".//w:drawing")]
+    assert "".join(than[vi_tri[0] + 1].itertext()).startswith("Hình 4.1:")
+
+
+def test_hinh_khong_co_tren_dia_thi_dung_khong_ghi(tmp_path, capsys):
+    cuon, nhap = _cuon(tmp_path), tmp_path / "nhap"
+    nhap.mkdir()
+    (nhap / "Chuong4_X.md").write_text("# Chương 4. TÊN\n\n![](khong/co/hinh.png)\n\nHình 4.1: Tên\n", encoding="utf-8")
+    (nhap / m.TEN_FILE_TAI_LIEU).write_text(json.dumps(TL), encoding="utf-8")
+    truoc = cuon.read_bytes()
+    assert m.main(["--nhap", str(nhap), "--docx", str(cuon), "--ghi-de"]) == 1
+    assert "không có trên đĩa" in capsys.readouterr().out and cuon.read_bytes() == truoc

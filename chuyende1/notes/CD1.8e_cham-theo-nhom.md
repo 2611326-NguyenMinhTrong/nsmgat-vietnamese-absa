@@ -68,8 +68,8 @@ dấu của mô hình từ điển.]`
 
 ## 5. GIỚI HẠN PHẢI NÓI TRONG BÁO CÁO
 
-- Tập chẩn đoán không phải mẫu ngẫu nhiên của tập kiểm tra: ứng viên được lọc bằng từ khoá, câu
-  dài 5 đến 40 từ. Nhóm thường ở đây không đại diện cho toàn tập kiểm tra.
+- Tập chẩn đoán không phải mẫu ngẫu nhiên của tập kiểm tra: ứng viên được lọc bằng từ khoá, ưu tiên
+  câu dài 5 đến 40 từ (thực tế các dòng được chọn dài 7 đến 42 từ). Nhóm thường ở đây không đại diện cho toàn tập kiểm tra.
 - Nhãn hiện tượng do một người gán. Độ nhất quán chưa đo.
 - Mô hình đã được chọn và báo cáo trên tập kiểm tra; tập chẩn đoán là một lát cắt của chính tập
   đó, không phải dữ liệu mới.

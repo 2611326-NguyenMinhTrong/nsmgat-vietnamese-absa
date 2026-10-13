@@ -28,7 +28,8 @@ Cú pháp Markdown nhận (đủ cho bản nháp chương, cố ý hẹp):
   # ...            dòng tiêu đề chương, BỎ QUA (Word đã có sẵn tiêu đề chương)
   ## / ###         mục cấp 2 / cấp 3
   Bảng N.M: ...    tên bảng, đặt trên bảng
-  Hình N.M: ...    tên hình
+  Hình N.M: ...    tên hình, đặt dưới hình
+  ![](đường/dẫn.png)        hình, đường dẫn tính từ thư mục đang đứng (gốc repo); ![12](...) là rộng 12 cm, mặc định 15
   | a | b |        bảng (cần dòng phân cách ---)
   ... (N.M)        dòng kết thúc bằng số công thức thì canh giữa
   [@khoá]          trích dẫn; khoá phải có trong tai_lieu.json
@@ -50,7 +51,7 @@ from typing import Dict, List, Tuple
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import RGBColor
+from docx.shared import Cm, RGBColor
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -71,8 +72,10 @@ MAU_DANH_DAU = re.compile(r"(\[(?:TODO|CẦN KIỂM|CẦN TÌM|CHÈN)[^\]]*\])")
 MAU_TRICH_DAN = re.compile(r"\[@([^\]]+)\]")
 MAU_TEN_BANG_HINH = re.compile(r"^(Bảng|Hình) \d+\.\d+:")
 MAU_CONG_THUC = re.compile(r"\(\d+\.\d+\)$")
+MAU_HINH = re.compile(r"^!\[(\d*(?:[.,]\d+)?)\]\(([^)]+)\)$")
+RONG_HINH_CM = 15.0  # khổ A4 trừ lề trái 3,5 cm và lề phải 2 cm còn 15,5 cm
 
-# Một khối: (loại, nội dung). Loại: h2 | h3 | ten | bang | cong_thuc | doan
+# Một khối: (loại, nội dung). Loại: h2 | h3 | ten | bang | cong_thuc | hinh | doan
 Khoi = Tuple[str, object]
 
 
@@ -144,6 +147,10 @@ def doc_markdown(van_ban: str) -> List[Khoi]:
         elif MAU_TEN_BANG_HINH.match(d):
             khoi.append(("ten", d))
             i += 1
+        elif MAU_HINH.match(d):
+            rong, duong_dan = MAU_HINH.match(d).groups()
+            khoi.append(("hinh", (duong_dan.strip(), float(rong.replace(",", ".")) if rong else RONG_HINH_CM)))
+            i += 1
         elif MAU_CONG_THUC.search(d):
             khoi.append(("cong_thuc", d))
             i += 1
@@ -191,6 +198,13 @@ def _them_khoi(doc: DocumentType, khoi: Khoi):
             for c, o in enumerate(hang):
                 _chay(bang.cell(r, c).paragraphs[0], o, co=TABLE_TEXT_SIZE, dam=(r == 0))
         return bang._tbl
+    if loai == "hinh":
+        duong_dan, rong = nd
+        para = doc.add_paragraph()
+        para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        para.paragraph_format.keep_with_next = True  # giữ hình cùng trang với tên hình ngay dưới
+        para.add_run().add_picture(str(duong_dan), width=Cm(rong))
+        return para._p
     para = doc.add_paragraph()
     para.paragraph_format.line_spacing = LINE_SPACING
     if loai == "cong_thuc":
@@ -280,6 +294,10 @@ def main(argv=None) -> int:
         dem: Dict[str, int] = {}
         for loai, _ in khoi_chuong[so]:
             dem[loai] = dem.get(loai, 0) + 1
+        thieu = [nd[0] for loai, nd in khoi_chuong[so] if loai == "hinh" and not Path(nd[0]).is_file()]
+        if thieu:
+            print(f"DỪNG: Chương {so} gọi tới hình không có trên đĩa: {thieu}. Vẽ lại bằng scripts/make_figures.py.")
+            return 1
         so_dau = len(MAU_DANH_DAU.findall(than[so]))
         la_khung = chuong_con_la_khung(doc, so)
         if not la_khung:

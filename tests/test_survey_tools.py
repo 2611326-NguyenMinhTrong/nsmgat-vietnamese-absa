@@ -332,3 +332,18 @@ def test_cli_bao_loi_csv_hong_thay_vi_crash(tmp_path, capsys):
 
     assert main(["validate", "--csv", str(csv_path)]) == 1
     assert "SAI CẤU TRÚC" in capsys.readouterr().err
+
+
+def test_bang_gon_moi_bai_bao_mot_dong_va_mang_khoa_trich_dan():
+    """Bảng đưa vào báo cáo: bỏ dòng chưa đọc, gộp hai dòng trùng tiêu đề, cột đầu có [@khoá]."""
+    import survey_tools as st
+
+    rows = st.load_rows()
+    ds = st.cong_trinh_da_doc(rows)
+    assert len({r["tieu_de"] for r in ds}) == len(ds)
+    assert all(r["trang_thai"] == st.STATUS_TOAN_VAN for r in ds)
+    bang = st.build_compact_table(rows).strip().split("\n")
+    assert len(bang) == len(ds) + 2 and bang[0].count("|") == 9
+    assert all(d.count("|") == 9 and "[@" in d for d in bang[2:])
+    khoa = [d.split("[@")[1].split("]")[0] for d in bang[2:]]
+    assert len(set(khoa)) == len(khoa) and "ATAE-LSTM" in khoa and "BiLSTM-attention" not in khoa
