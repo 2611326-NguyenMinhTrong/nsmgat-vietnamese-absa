@@ -40,7 +40,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 NGUON_MAC_DINH = Path("data/cache/nguon_goc")
-NHAP_MAC_DINH = Path("chuyende1/report/nhap")
+NHAP_MAC_DINH = Path("chuyende1/report/nhap_rut_gon")  # bản chính từ 13/10/2026; bản đầy đủ: --nhap chuyende1/report/nhap
 MA_TRAN = Path("chuyende1/survey/survey_matrix.csv")
 CHUONG_MAC_DINH = ("Chuong1_TongQuan.md", "Chuong2_CoSoLyThuyet.md", "Chuong3_KhaoSat.md", "Chuong4_ThucNghiem.md")
 # Đường dẫn bản mở cho những công trình mà cột nguon_url của ma trận không suy ra được file PDF,

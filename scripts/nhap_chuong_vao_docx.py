@@ -1,13 +1,17 @@
 """[CD1.12] Đưa các bản nháp Markdown của từng chương vào cuốn Word của Chuyên đề 1.
 
-Bản nháp viết ở chuyende1/report/nhap/ChuongN_*.md, trích dẫn bằng khoá dạng
-[@PhoBERT]. Cuốn nộp là chuyende1/report/ChuyenDe1_NguyenMinhTrong.docx.
+Bản nháp viết ở chuyende1/report/nhap_rut_gon/ChuongN_*.md, trích dẫn bằng khoá dạng
+[@PhoBERT]. Cuốn nộp là chuyende1/report/ChuyenDe1_NguyenMinhTrong_rutgon.docx.
+
+Từ 13/10/2026 bản rút gọn là bản chính, nên hai đường dẫn mặc định trỏ vào nó. Bản đầy đủ
+(chuyende1/report/nhap/ và ChuyenDe1_NguyenMinhTrong.docx) được giữ nguyên làm bản lưu; muốn
+ghép nó thì phải chỉ rõ --nhap và --docx.
 
 Script đọc MỌI file ChuongN_*.md đang có trong thư mục nháp, theo thứ tự chương,
 rồi làm ba việc trong một lần chạy:
   1. đánh số trích dẫn theo thứ tự xuất hiện lần đầu TRONG TOÀN VĂN (kiểu IEEE);
   2. thay phần thân của từng chương đó trong file Word;
-  3. viết lại mục TÀI LIỆU THAM KHẢO từ chuyende1/report/nhap/tai_lieu.json.
+  3. viết lại mục TÀI LIỆU THAM KHẢO từ tai_lieu.json của thư mục nháp.
 Chương nào chưa có file nháp thì giữ nguyên trong Word. Luôn ghép tất cả cùng
 lúc, vì thêm một trích dẫn ở Chương 1 làm đổi số ở mọi chương sau.
 
@@ -60,8 +64,8 @@ from ute_docx import CAPTION_SIZE, FONT, LINE_SPACING, SIZE, TABLE_TEXT_SIZE, ap
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-DOCX_MAC_DINH = Path("chuyende1/report/ChuyenDe1_NguyenMinhTrong.docx")
-NHAP_MAC_DINH = Path("chuyende1/report/nhap")
+DOCX_MAC_DINH = Path("chuyende1/report/ChuyenDe1_NguyenMinhTrong_rutgon.docx")
+NHAP_MAC_DINH = Path("chuyende1/report/nhap_rut_gon")
 TEN_FILE_TAI_LIEU = "tai_lieu.json"
 TIEU_DE_TAI_LIEU = "TÀI LIỆU THAM KHẢO"
 TEN_FILE_PHU_LUC = "PhuLuc.md"

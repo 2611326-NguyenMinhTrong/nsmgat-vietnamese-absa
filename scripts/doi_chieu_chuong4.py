@@ -38,6 +38,9 @@ import compare_baselines as cb  # noqa: E402
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
+# Vẫn trỏ vào bản đầy đủ: 153 chỗ kiểm gắn với số bảng và nguyên văn của bản đó. Bản rút gọn (bản chính từ
+# 13/10/2026) đánh số bảng lại và viết lại một số câu, nên chưa kiểm thẳng được bằng công cụ này; nó được kiểm
+# gián tiếp qua doi_chieu_ban_rut_gon.py (không con số, không hàng bảng nào nằm ngoài bản đầy đủ).
 NHAP_MAC_DINH = Path("chuyende1/report/nhap/Chuong4_ThucNghiem.md")
 MO_HINH = ("lexicon", "bilstm", "phobert", "asgcn", "asgcn_linked", "senticgcn")
 TEN = cb.TEN_HIEN_THI

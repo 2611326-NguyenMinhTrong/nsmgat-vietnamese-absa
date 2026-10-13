@@ -15,6 +15,10 @@ Mã thoát 1 khi có con số lạ, hàng bảng lạ hoặc khoá trích dẫn 
 
 GIỚI HẠN: công cụ không biết một con số có còn gắn với đúng mô hình, đúng tập, đúng độ đo hay
 không. Điều đó chỉ kiểm được bằng cách đọc các câu ở mục 4; vì vậy mục 4 tồn tại.
+
+Từ 13/10/2026 bản rút gọn là bản chính và bản đầy đủ là bản lưu, không còn được cập nhật. Nội dung
+mới chỉ được viết vào bản rút gọn (ví dụ số đo của mục 4.3 và 4.5), nên sẽ bị công cụ này báo là
+lạ. Lúc đó các dòng báo lạ phải đúng bằng phần mới thêm, và phần mới thêm phải có cách kiểm riêng.
 """
 
 from __future__ import annotations

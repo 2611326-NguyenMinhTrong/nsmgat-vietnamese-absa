@@ -3,7 +3,7 @@
 **Ngày phát hiện:** 13/10/2026 · **Phát hiện bởi:** Claude Code, khi kiểm file trước lần nộp bốn chương đầu
 **Loại:** tài liệu · code
 **Mức độ:** trung bình (chưa có bản nào được nộp; sai từ ngày dựng khung 23/09 mà không ai thấy)
-**Trạng thái:** 🟡 Đang xử lý: mã đã sửa và file Word mới của bản rút gọn đã đúng; file Word hiện tại chưa đổi (mục 7)
+**Trạng thái:** ✅ Đã sửa ở mã và ở bản chính (bản rút gọn). File Word của bản đầy đủ được giữ nguyên làm bản lưu, vẫn khổ Letter, không nộp (mục 8)
 
 ---
 
@@ -72,3 +72,13 @@ kiểm của dàn ý từ đầu mà chưa lần nào được đo.
   tiêu đề cấp 1, 2, 3 là Times New Roman.
 - File `ChuyenDe1_NguyenMinhTrong.docx` **chưa đổi**: học viên yêu cầu giữ nguyên file hiện tại. Khi học viên đồng ý,
   chạy lần ghép kế tiếp của file đó với `--sua-dinh-dang` rồi đóng mục này.
+
+## 8. Đóng ngày 13/10/2026
+
+Học viên chọn bản rút gọn làm bản chính. File để nộp từ nay là `ChuyenDe1_NguyenMinhTrong_rutgon.docx`. Sau lần
+ghép lúc 15:09 ngày 13/10, hỏi lại Word trên một bản sao: khổ 21,0 x 29,7 cm, tiêu đề cấp 1, 2, 3 là
+Times New Roman. Bản mà học viên đã mở và lưu bằng Word lúc 15:03 cũng được hỏi lại và cho cùng kết quả, tức việc
+Word lưu lại không làm mất hai thiết lập.
+
+File `ChuyenDe1_NguyenMinhTrong.docx` là bản lưu của bản đầy đủ, vẫn ở khổ Letter với tiêu đề Calibri. Nó không
+được nộp. Nếu có lúc phải dùng lại, ghép nó với `--sua-dinh-dang` trước.
