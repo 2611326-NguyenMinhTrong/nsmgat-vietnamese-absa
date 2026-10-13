@@ -215,3 +215,56 @@ def test_hinh_khong_co_tren_dia_thi_dung_khong_ghi(tmp_path, capsys):
     truoc = cuon.read_bytes()
     assert m.main(["--nhap", str(nhap), "--docx", str(cuon), "--ghi-de"]) == 1
     assert "không có trên đĩa" in capsys.readouterr().out and cuon.read_bytes() == truoc
+
+
+# --- Phụ lục và cờ sửa định dạng ----------------------------------------------
+
+PL = """# PHỤ LỤC
+
+## Phụ lục A. Bảng đầy đủ
+
+Bảng A.1: Bảng chuyển từ thân bài
+
+| Công trình | Năm |
+|---|---|
+| Bài D [@D] | 2023 |
+| Bài A [@A] | 2020 |
+"""
+
+
+def test_phu_luc_duoc_ghep_va_trich_dan_danh_so_sau_cac_chuong(tmp_path):
+    p = _cuon(tmp_path)
+    nhap = _nhap(tmp_path)
+    (nhap / m.TEN_FILE_PHU_LUC).write_text(PL, encoding="utf-8")
+    assert m.main(["--nhap", str(nhap), "--docx", str(p)]) == 0
+    doc = Document(str(p))
+    chu = [x.text for x in doc.paragraphs]
+    vt = chu.index("PHỤ LỤC")
+    assert "Nội dung phụ lục." not in chu
+    assert chu[vt + 1] == "Phụ lục A. Bảng đầy đủ" and doc.paragraphs[vt + 1].style.name == "Heading 2"
+    assert chu[vt + 2] == "Bảng A.1: Bảng chuyển từ thân bài" and doc.paragraphs[vt + 2].style.name == "Caption"
+    bang = doc.tables[-1]
+    o = [c.text for r in bang.rows for c in r.cells]
+    # D chỉ được trích ở phụ lục nên nhận số sau mọi tài liệu của các chương; A giữ số đã có từ Chương 3
+    so_a = next(x for x in chu if x.endswith(TL["A"])).split("]")[0] + "]"
+    so_d = next(x for x in chu if x.endswith(TL["D"])).split("]")[0] + "]"
+    assert o == ["Công trình", "Năm", f"Bài D {so_d}", "2023", f"Bài A {so_a}", "2020"]
+    assert int(so_d.strip("[]")) > int(so_a.strip("[]"))
+
+
+def test_khong_co_file_phu_luc_thi_muc_phu_luc_giu_nguyen(tmp_path):
+    p = _cuon(tmp_path)
+    assert _chay(tmp_path, p) == 0
+    assert "Nội dung phụ lục." in [x.text for x in Document(str(p)).paragraphs]
+
+
+def test_co_sua_dinh_dang_doi_kho_giay_khong_co_thi_giu(tmp_path):
+    from docx.oxml.ns import qn
+
+    p = _cuon(tmp_path)
+    _chay(tmp_path, p)
+    assert int(Document(str(p)).sections[0]._sectPr.find(qn("w:pgSz")).get(qn("w:w"))) == 12240
+    _chay(tmp_path, p, "--ghi-de", "--sua-dinh-dang")
+    doc = Document(str(p))
+    assert abs(doc.sections[0].page_width.cm - 21.0) < 0.01
+    assert doc.styles["Heading 1"].element.rPr.find(qn("w:rFonts")).get(qn("w:asciiTheme")) is None

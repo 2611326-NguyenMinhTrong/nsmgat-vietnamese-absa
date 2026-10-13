@@ -43,6 +43,10 @@ MARGIN_RIGHT = Cm(2.0)
 MARGIN_TOP = Cm(3.0)
 MARGIN_BOTTOM = Cm(3.5)
 
+# Kho A4. File mau mac dinh cua python-docx la kho Letter (21,59 x 27,94 cm), nen phai dat ro (GAP-034).
+PAGE_WIDTH = Cm(21.0)
+PAGE_HEIGHT = Cm(29.7)
+
 # Cỡ chữ tiêu đề. Phần I Phụ lục 10: "Chương 1" cỡ 16, "TỔNG QUAN" cỡ 18.
 # Ở đây gộp làm một dòng tiêu đề chương cỡ 16 cho gọn; mục con dùng cỡ thân bài.
 HEADING_SIZES = {1: Pt(16), 2: Pt(14), 3: Pt(13), 4: Pt(13)}
@@ -81,7 +85,9 @@ def add_field(run, instruction: str) -> None:
 
 
 def apply_page_setup(section) -> None:
-    """Lề theo Phần I mục 1. Gọi cho MỌI section, không dựa vào kế thừa."""
+    """Khổ A4 và lề theo Phần I mục 1. Gọi cho MỌI section, không dựa vào kế thừa."""
+    section.page_width = PAGE_WIDTH
+    section.page_height = PAGE_HEIGHT
     section.left_margin = MARGIN_LEFT
     section.right_margin = MARGIN_RIGHT
     section.top_margin = MARGIN_TOP
@@ -98,6 +104,10 @@ def _style_font(style, size, *, bold=False, italic=False) -> None:
     rfonts = rpr.get_or_add_rFonts()
     for attr in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
         rfonts.set(qn(attr), FONT)
+    # Style Heading cua file mau tro toi font chu de (Calibri). Khi con thuoc tinh do, Word dung font chu de
+    # va bo qua ten font vua dat o tren, nen phai xoa (GAP-034).
+    for attr in ("w:asciiTheme", "w:hAnsiTheme", "w:eastAsiaTheme", "w:cstheme"):
+        rfonts.attrib.pop(qn(attr), None)
 
 
 def apply_styles(doc: DocumentType) -> None:
@@ -126,6 +136,16 @@ def apply_styles(doc: DocumentType) -> None:
     caption.paragraph_format.line_spacing = 1.0
     caption.paragraph_format.space_after = Pt(6)
     caption.paragraph_format.keep_with_next = True
+
+
+def ap_lai_dinh_dang(doc: DocumentType) -> None:
+    """Áp lại khổ giấy, lề và các style lên một file ĐÃ CÓ, không đụng tới nội dung.
+
+    Dùng cho file dựng trước khi GAP-034 được sửa: các file đó ở khổ Letter và tiêu đề hiện bằng Calibri.
+    """
+    for section in doc.sections:
+        apply_page_setup(section)
+    apply_styles(doc)
 
 
 # --- Đánh số trang ------------------------------------------------------------

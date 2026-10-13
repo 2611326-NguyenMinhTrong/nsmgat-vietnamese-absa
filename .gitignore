@@ -78,6 +78,8 @@ chuyende1/docs/*
 # Ban nhap van xuoi cua tung chuong. Hoc vien chot 05/10/2026: KHONG day len
 # GitHub cong khai, giong file Word cua cuon bao cao.
 chuyende1/report/nhap/
+# Ban rut gon cua bon chuong dau (13/10/2026): cung la ban nhap, khong push.
+chuyende1/report/nhap_rut_gon/
 
 # [CD1.6a] Ngoai le phai dat o CUOI file: dong `*.log` cua muc LaTeX o tren
 # chan moi file .log, va trong .gitignore quy tac SAU thang quy tac TRUOC.

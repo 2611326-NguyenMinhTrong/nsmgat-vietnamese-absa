@@ -46,7 +46,7 @@ import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from docx import Document
 from docx.document import Document as DocumentType
@@ -55,7 +55,7 @@ from docx.shared import Cm, RGBColor
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from ute_docx import CAPTION_SIZE, FONT, LINE_SPACING, SIZE, TABLE_TEXT_SIZE  # noqa: E402
+from ute_docx import CAPTION_SIZE, FONT, LINE_SPACING, SIZE, TABLE_TEXT_SIZE, ap_lai_dinh_dang  # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -64,13 +64,16 @@ DOCX_MAC_DINH = Path("chuyende1/report/ChuyenDe1_NguyenMinhTrong.docx")
 NHAP_MAC_DINH = Path("chuyende1/report/nhap")
 TEN_FILE_TAI_LIEU = "tai_lieu.json"
 TIEU_DE_TAI_LIEU = "TÀI LIỆU THAM KHẢO"
+TEN_FILE_PHU_LUC = "PhuLuc.md"
+TIEU_DE_PHU_LUC = "PHỤ LỤC"
+SO_PHU_LUC = 99  # khoa cua phu luc trong bang than: lon hon moi so chuong de trich dan duoc danh so sau cung
 SO_CHUONG = range(1, 7)
 DO = RGBColor(0xB0, 0x00, 0x00)
 DAU_KHUNG_RONG = "(Ngân sách:"
 DAU_HET_THAN = "## Tài liệu được trích"
 MAU_DANH_DAU = re.compile(r"(\[(?:TODO|CẦN KIỂM|CẦN TÌM|CHÈN)[^\]]*\])")
 MAU_TRICH_DAN = re.compile(r"\[@([^\]]+)\]")
-MAU_TEN_BANG_HINH = re.compile(r"^(Bảng|Hình) \d+\.\d+:")
+MAU_TEN_BANG_HINH = re.compile(r"^(Bảng|Hình) (?:\d+|[A-Z])\.\d+:")  # ca dang "Bảng A.1:" cua phu luc
 MAU_CONG_THUC = re.compile(r"\(\d+\.\d+\)$")
 MAU_HINH = re.compile(r"^!\[(\d*(?:[.,]\d+)?)\]\(([^)]+)\)$")
 RONG_HINH_CM = 15.0  # khổ A4 trừ lề trái 3,5 cm và lề phải 2 cm còn 15,5 cm
@@ -275,6 +278,8 @@ def main(argv=None) -> int:
     ap.add_argument("--chi-xem", action="store_true", help="chỉ in thống kê, không ghi file")
     ap.add_argument("--ghi-de", action="store_true",
                     help="ghi cả khi có chương đã có nội dung (mất chỗ sửa tay trong Word ở các chương đó, có sao lưu)")
+    ap.add_argument("--sua-dinh-dang", action="store_true",
+                    help="áp lại khổ A4, lề và font của các style lên file (file dựng trước 13/10/2026 ở khổ Letter, tiêu đề Calibri)")
     a = ap.parse_args(argv)
 
     cac_file = tim_file_chuong(a.nhap)
@@ -283,8 +288,12 @@ def main(argv=None) -> int:
         return 1
     tai_lieu = json.loads((a.nhap / TEN_FILE_TAI_LIEU).read_text(encoding="utf-8"))
     than = {so: p.read_text(encoding="utf-8") for so, p in cac_file.items()}
+    tep_phu_luc = a.nhap / TEN_FILE_PHU_LUC
+    if tep_phu_luc.exists():
+        than[SO_PHU_LUC] = tep_phu_luc.read_text(encoding="utf-8")
     than = {so: cat_than(t) for so, t in than.items()}
     than, thu_tu = danh_so_trich_dan(than, tai_lieu)
+    than_phu_luc = than.pop(SO_PHU_LUC, None)
 
     doc = Document(str(a.docx))
     da_co = []
@@ -304,6 +313,10 @@ def main(argv=None) -> int:
             da_co.append(so)
         print(f"Chương {so} ({cac_file[so].name}): {len(khoi_chuong[so])} khối {dem} | "
               f"chỗ đánh dấu: {so_dau} | trong Word: {'khung rỗng' if la_khung else 'ĐÃ CÓ NỘI DUNG'}")
+    khoi_pl: Optional[List[Khoi]] = None
+    if than_phu_luc is not None:
+        khoi_pl = doc_markdown(than_phu_luc)
+        print(f"Phụ lục ({TEN_FILE_PHU_LUC}): {len(khoi_pl)} khối, {sum(1 for loai, _ in khoi_pl if loai == 'bang')} bảng")
     khoi_tl: List[Khoi] = [("tai_lieu", f"[{n}] {tai_lieu[k]}") for n, k in enumerate(thu_tu, 1)]
     so_ck = sum(1 for _, nd in khoi_tl if MAU_DANH_DAU.search(nd))
     print(f"Tài liệu được trích: {len(thu_tu)} | trong đó còn đánh dấu chưa đối chiếu: {so_ck}")
@@ -318,6 +331,10 @@ def main(argv=None) -> int:
     for so, khoi in khoi_chuong.items():
         thay_than_muc(doc, f"Chương {so}.", khoi)
     thay_than_muc(doc, TIEU_DE_TAI_LIEU, khoi_tl)
+    if khoi_pl is not None:
+        thay_than_muc(doc, TIEU_DE_PHU_LUC, khoi_pl)
+    if a.sua_dinh_dang:
+        ap_lai_dinh_dang(doc)
     doc.save(str(a.docx))
     print(f"Đã ghi {a.docx}\nBản sao lưu: {ban}")
     print("Mở Word, bấm Ctrl+A rồi F9 để cập nhật mục lục.")

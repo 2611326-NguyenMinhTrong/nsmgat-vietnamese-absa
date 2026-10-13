@@ -212,3 +212,47 @@ def test_md_to_docx_giu_dinh_dang_ute(tmp_path):
 def test_new_document_khong_danh_so_trang_section_dau():
     doc = new_document()
     assert page_number_format(doc.sections[0]) == (None, None)
+
+
+# --- GAP-034: khổ giấy và font mà Word thật sự dùng ---------------------------
+
+
+def test_kho_giay_la_a4_o_moi_section(skeleton):
+    """Đọc thẳng w:pgSz. File mẫu của python-docx là khổ Letter (12240 x 15840), không phải A4."""
+    from docx.oxml.ns import qn
+
+    for i, section in enumerate(skeleton.sections):
+        pg = section._sectPr.find(qn("w:pgSz"))
+        assert abs(int(pg.get(qn("w:w"))) - 11906) <= 2, f"section {i}"
+        assert abs(int(pg.get(qn("w:h"))) - 16838) <= 2, f"section {i}"
+
+
+def test_style_tieu_de_khong_con_tro_toi_font_chu_de(skeleton):
+    """Còn thuộc tính asciiTheme thì Word hiện Calibri dù style.font.name trả về Times New Roman."""
+    from docx.oxml.ns import qn
+
+    for ten in ("Normal", "Heading 1", "Heading 2", "Heading 3", "Caption"):
+        rfonts = skeleton.styles[ten].element.rPr.find(qn("w:rFonts"))
+        assert rfonts.get(qn("w:ascii")) == "Times New Roman", ten
+        for attr in ("w:asciiTheme", "w:hAnsiTheme", "w:eastAsiaTheme", "w:cstheme"):
+            assert rfonts.get(qn(attr)) is None, f"{ten} còn {attr}"
+
+
+def test_ap_lai_dinh_dang_sua_file_dung_truoc_do(tmp_path):
+    """File dựng bằng python-docx trần: khổ Letter, Heading trỏ font chủ đề. Áp lại thì hết, nội dung giữ nguyên."""
+    from docx import Document as _Document
+    from docx.oxml.ns import qn
+
+    from ute_docx import ap_lai_dinh_dang
+
+    doc = _Document()
+    doc.add_paragraph("Chương 1. THỬ", style="Heading 1")
+    doc.add_paragraph("Nội dung giữ nguyên.")
+    assert int(doc.sections[0]._sectPr.find(qn("w:pgSz")).get(qn("w:w"))) == 12240
+    ap_lai_dinh_dang(doc)
+    p = tmp_path / "a.docx"
+    doc.save(str(p))
+    lai = _Document(str(p))
+    assert abs(lai.sections[0].page_width.cm - 21.0) < 0.01 and abs(lai.sections[0].page_height.cm - 29.7) < 0.01
+    assert lai.styles["Heading 1"].element.rPr.find(qn("w:rFonts")).get(qn("w:asciiTheme")) is None
+    assert [x.text for x in lai.paragraphs] == ["Chương 1. THỬ", "Nội dung giữ nguyên."]

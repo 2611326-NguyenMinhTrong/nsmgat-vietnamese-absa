@@ -3,7 +3,7 @@
 **Ngày phát hiện:** 13/10/2026 · **Phát hiện bởi:** Claude Code, khi kiểm file trước lần nộp bốn chương đầu
 **Loại:** tài liệu · code
 **Mức độ:** trung bình (chưa có bản nào được nộp; sai từ ngày dựng khung 23/09 mà không ai thấy)
-**Trạng thái:** 🔴 Mở: chưa sửa, chờ học viên đồng ý cho sửa file Word
+**Trạng thái:** 🟡 Đang xử lý: mã đã sửa và file Word mới của bản rút gọn đã đúng; file Word hiện tại chưa đổi (mục 7)
 
 ---
 
@@ -61,3 +61,14 @@ Chưa sửa. Việc cần làm khi học viên đồng ý:
 Kiểm định dạng thì phải hỏi công cụ sẽ hiển thị file, không hỏi thư viện đã ghi file. Và một bảng
 kiểm chỉ có giá trị khi từng dòng của nó được đo trên sản phẩm; dòng "khổ A4" đã nằm trong bảng
 kiểm của dàn ý từ đầu mà chưa lần nào được đo.
+
+## 7. Cập nhật ngày 13/10/2026
+
+- `scripts/ute_docx.py`: `apply_page_setup` đặt khổ 21,0 x 29,7 cm; `_style_font` xoá bốn thuộc tính font chủ đề;
+  thêm `ap_lai_dinh_dang` để áp lại lên file đã có. Ba test mới đọc thẳng `w:pgSz` và `w:rFonts`.
+- `scripts/nhap_chuong_vao_docx.py` có cờ `--sua-dinh-dang`. Không bật mặc định, để lần ghép thường không tự
+  đổi file hiện tại.
+- File mới `ChuyenDe1_NguyenMinhTrong_rutgon.docx` được ghép với cờ đó. Hỏi lại Word: khổ 21,0 x 29,7 cm, font của
+  tiêu đề cấp 1, 2, 3 là Times New Roman.
+- File `ChuyenDe1_NguyenMinhTrong.docx` **chưa đổi**: học viên yêu cầu giữ nguyên file hiện tại. Khi học viên đồng ý,
+  chạy lần ghép kế tiếp của file đó với `--sua-dinh-dang` rồi đóng mục này.
