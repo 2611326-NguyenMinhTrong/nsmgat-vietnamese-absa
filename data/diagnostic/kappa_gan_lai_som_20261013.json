@@ -41,5 +41,5 @@
     "visfd-test-00336-PRICE",
     "visfd-test-00988-FEATURES"
   ],
-  "ghi_chu": "Hoc vien gan lai ngay 13/10/2026, cung ngay rut mau. Nhan lan dau cua 32 dong da co trong CSV tu 11/10 04:56, 27 dong vao CSV trong khoang 11/10 04:56 den 13/10 00:55, 1 dong doi luc 13/10 01:45 (K2). Khong dong nao cach du 14 ngay. Khong dung file nay lam ket qua do nhat quan chinh thuc; lenh chot chi doc kappa.json."
+  "ghi_chu": "Ban ghi lap luc phat hien hoc vien gan lai som (GAP-032), truoc khi co quyet dinh. Cung ngay 13/10/2026 hoc vien chon dung so do nay; ban chinh thuc la data/diagnostic/kappa.json (gan_som: true), noi dung so trung voi file nay."
 }

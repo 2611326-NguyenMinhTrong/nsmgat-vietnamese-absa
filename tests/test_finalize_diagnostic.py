@@ -1,4 +1,4 @@
-"""[CD1.8d] Kiểm scripts/finalize_diagnostic.py: rút mẫu gán lại và tính kappa."""
+"""[CD1.8d] Kiểm scripts/finalize_diagnostic.py: rút mẫu gán lại, tính kappa, chấm theo nhóm và chốt tập."""
 
 import datetime as dt
 import json
@@ -216,3 +216,100 @@ def test_tren_ket_qua_that_o_nhom_thuong_khop_sklearn():
         assert r[nhom]["n"] == len(uid)
         assert r[nhom]["accuracy"]["gia_tri"] == pytest.approx(np.mean(acc), abs=1e-12)
         assert r[nhom]["macro_f1"]["gia_tri"] == pytest.approx(np.mean(f1), abs=1e-12)
+
+
+# --- Gán lại sớm, dấu hiệu, và so mô hình trong từng nhóm (GAP-032) ----------------
+
+
+def test_do_trung_tach_duoc_dau_hieu_va_dem_dong_khong_dong_y():
+    uid = [f"u{i}" for i in range(6)]
+    h1 = ["both", "both", "negation", "contrast", "regular", "regular"]
+    h2 = ["negation", "both", "negation", "contrast", "regular", "contrast"]
+    k1 = ["dong_y", "negative", "positive", "dong_y", "khong_ro", "dong_y"]
+    k2 = ["dong_y", "negative", "dong_y", "neutral", "dong_y", "dong_y"]
+    lan1 = {u: {"phenomenon": a, "nhan_kiem_tra": b, "nhan_goc": "neutral"} for u, a, b in zip(uid, h1, k1)}
+    lan2 = {u: {"phenomenon": a, "nhan_kiem_tra": b, "nhan_goc": "neutral"} for u, a, b in zip(uid, h2, k2)}
+    t = m.do_trung(lan1, lan2, uid)
+    assert t["so_dong"] == 6 and t["uid_lech"] == ["u0", "u5"]
+    assert t["phenomenon"]["kappa"] == pytest.approx(cohen_kappa_score(h1, h2))
+    assert t["phenomenon"]["giu_nguyen"]["both"] == {"lan_1": 2, "giu": 1}
+    assert t["phenomenon"]["giu_nguyen"]["regular"] == {"lan_1": 2, "giu": 1}
+    # `both` thành `negation` không đổi dấu hiệu phủ định, chỉ đổi dấu hiệu chuyển ý
+    assert t["dau_hieu"]["phu_dinh"] == {"kappa": pytest.approx(1.0), "ti_le_trung": pytest.approx(1.0)}
+    cy1, cy2 = [x in ("contrast", "both") for x in h1], [x in ("contrast", "both") for x in h2]
+    assert t["dau_hieu"]["chuyen_y"]["kappa"] == pytest.approx(cohen_kappa_score(cy1, cy2))
+    assert t["dau_hieu"]["chuyen_y"]["ti_le_trung"] == pytest.approx(4 / 6)
+    assert t["nhan_cam_xuc"]["so_dong_lech"] == 2
+    assert t["nhan_cam_xuc"]["khong_dong_y_nhan_goc"] == {"lan_1": 3, "lan_2": 2, "ca_hai": 1}
+
+
+def test_kappa_gan_som_phai_khai_khoang_cach_va_ghi_ro_vao_file(tmp_path, capsys):
+    p, x = _csv(tmp_path), tmp_path / "lai.xlsx"
+    m.main(["rut-mau", "--csv", str(p), "--xlsx", str(x), "--moi-nhom", "5"])
+    _gan_lai(x, {r["uid"]: r for r in ct.doc_csv(p)}, doi=1)
+    out = tmp_path / "k.json"
+    chung = ["kappa", "--csv", str(p), "--xlsx", str(x), "--out", str(out)]
+    hom_nay = dt.date.today().strftime(m.DINH_DANG_NGAY)
+    assert m.main(chung) == 2  # chưa đủ 14 ngày, không có cờ nào
+    assert m.main(chung + ["--gan-som"]) == 1  # thiếu ngày và khoảng cách
+    assert m.main(chung + ["--gan-som", "--ngay-gan-lai", hom_nay, "--khoang-cach-toi-da", "8", "--bo-qua-ngay"]) == 1
+    muon = (dt.date.today() + dt.timedelta(days=m.SO_NGAY_CHO)).strftime(m.DINH_DANG_NGAY)
+    assert m.main(chung + ["--gan-som", "--ngay-gan-lai", muon, "--khoang-cach-toi-da", "20"]) == 1  # không còn là gán sớm
+    assert not out.exists()
+    capsys.readouterr()
+    assert m.main(chung + ["--gan-som", "--ngay-gan-lai", hom_nay, "--khoang-cach-toi-da", "8"]) == 0
+    kq = json.loads(out.read_text(encoding="utf-8"))
+    assert kq["loai"] == "nhat_quan_mot_nguoi" and kq["gan_som"] is True
+    assert kq["ngay_gan_lai"] == hom_nay and kq["khoang_cach_toi_da_ngay"] == 8 and kq["so_ngay_quy_uoc"] == 14
+    assert "cận trên" in capsys.readouterr().out
+    assert m.kappa_da_dat(out)
+
+
+def test_gop_nhom_va_so_voi_mo_hinh_moc_trong_tung_nhom(tmp_path):
+    rows = ct.doc_csv(_csv(tmp_path, moi_nhom=10))
+    ca_hai = {r["uid"] for r in rows if r["phenomenon"] == "both"}
+    for exp in ("phobert", "asgcn"):  # asgcn sai hết nhóm cả hai, phobert đúng hết
+        for s in m.cb.SEEDS:
+            d = tmp_path / "kq" / exp / f"seed{s}"
+            d.mkdir(parents=True)
+            with (d / "predictions.jsonl").open("w", encoding="utf-8") as fh:
+                for r in rows:
+                    g = m.MA_NHAN[r["nhan_goc"]]
+                    fh.write(json.dumps({"uid": r["uid"], "y_true": g, "y_pred": 2 if exp == "asgcn" and r["uid"] in ca_hai else g}) + "\n")
+    _, o = m.dem_theo_nhom(rows, tmp_path / "kq", ["phobert", "asgcn"])
+    gop = m.gop_nhom(o["asgcn"])
+    assert gop.shape == (3, 3, 40, 9)
+    r = m.cham_mot_mo_hinh(gop, 200, np.random.default_rng(0), ten_nhom=tuple(m.NHOM_GOP))
+    assert {g: r[g]["n"] for g in m.NHOM_GOP} == {"regular": 10, "co_phu_dinh": 20, "co_chuyen_y": 20}
+    assert r["co_phu_dinh"]["accuracy"]["gia_tri"] == pytest.approx(0.5)  # 10 dòng negation đúng, 10 dòng both sai
+    s = m.so_voi_mo_hinh_moc(o, "phobert", 300, np.random.default_rng(0))
+    assert list(s) == ["asgcn"]
+    assert s["asgcn"]["both"]["accuracy"]["hieu"] == pytest.approx(-1.0) and s["asgcn"]["both"]["accuracy"]["p"] < 0.05
+    assert s["asgcn"]["regular"]["accuracy"]["hieu"] == 0.0 and s["asgcn"]["regular"]["accuracy"]["p"] == 1.0
+    x = s["asgcn"]["both"]["macro_f1"]
+    assert x["hieu"] == pytest.approx(-1 / 3) and x["ci95_tren"] < 0
+
+
+def test_cham_ghi_them_phan_bo_bang_gop_bang_so_moc_va_canh_bao_gan_som(tmp_path):
+    p = _csv(tmp_path)
+    rows = ct.doc_csv(p)
+    rows[1]["nhan_kiem_tra"] = "positive"
+    rows[2]["nhan_kiem_tra"] = "khong_ro"
+    ct.ghi_csv(p, rows)
+    _du_doan(tmp_path / "kq", rows)
+    k = tmp_path / "k.json"
+    k.write_text(json.dumps({"phenomenon": {"kappa": 0.733}, "so_dong": 60, "gan_som": True, "ngay_gan_lai": "13/10/2026",
+                             "khoang_cach_toi_da_ngay": 8, "so_ngay_quy_uoc": 14, "uid_lech": ["x"]}), encoding="utf-8")
+    assert m.main(["cham", "--csv", str(p), "--results", str(tmp_path / "kq"), "--so-lan", "50", "--kappa", str(k),
+                   "--out-json", str(tmp_path / "c.json"), "--out-md", str(tmp_path / "c.md")]) == 0
+    kq = json.loads((tmp_path / "c.json").read_text(encoding="utf-8"))
+    md = (tmp_path / "c.md").read_text(encoding="utf-8")
+    assert kq["so_bo"] is False and md.startswith("Độ nhất quán của nhãn hiện tượng: kappa 0,733 trên 60 dòng gán lại.")
+    assert "không quá 8 ngày" in md and "không đủ 14 ngày" in md and "cận trên" in md
+    assert kq["do_nhat_quan"]["gan_som"] is True and "uid_lech" not in kq["do_nhat_quan"]
+    pb = kq["phan_bo"]["tat_ca"]
+    assert sum(v["n"] for v in pb.values()) == 24 and pb["negation"]["nhan_goc"] == {"negative": 6, "neutral": 0, "positive": 0}
+    assert pb["negation"]["kiem_nhan"] == {"dong_y": 4, "nhan_khac": 1, "khong_ro": 1}
+    assert kq["ket_qua_gop"]["tat_ca"]["phobert"]["co_phu_dinh"]["n"] == 12
+    assert set(kq["so_voi_mo_hinh_moc"]["tat_ca"]) == set(m.MO_HINH) - {"phobert"} and kq["mo_hinh_moc"] == "phobert"
+    assert md.count("| Mô hình |") == 12

@@ -10,8 +10,13 @@ tìm thấy. Không sửa gì trong bản nháp.
 
 Mã thoát 0 khi mọi con số đều khớp, 1 khi có chỗ lệch.
 
-Phạm vi: Bảng 4.1, 4.2, 4.5 đến 4.9 và các con số trong lời văn suy ra từ chúng. Các con số lấy
-từ bài báo khác, và các con số về tập chẩn đoán, không thuộc phạm vi của công cụ này.
+Phạm vi: Bảng 4.1, 4.2, 4.5 đến 4.16 và các con số trong lời văn suy ra từ chúng. Các con số lấy
+từ bài báo khác không thuộc phạm vi của công cụ này.
+
+Phần tập chẩn đoán (mục 4.1.2 và 4.6, Bảng 4.10 đến 4.16) cần ba file chỉ có trên máy học viên:
+data/diagnostic/candidates.csv, data/diagnostic/kappa.json và results/diagnostic_eval.json. Thiếu một
+trong ba thì phần này được bỏ qua và công cụ in rõ là đã bỏ qua. Thành phần tập và giá trị điểm của
+accuracy, macro-F1 được tính lại từ predictions.jsonl; khoảng tin cậy và p lấy từ diagnostic_eval.json.
 """
 
 from __future__ import annotations
@@ -209,6 +214,206 @@ def do_ti_le_cat(goc: Path, do_dai: int = 128) -> List[Tuple[str, str]]:
     ]
 
 
+def so_lieu_chan_doan(goc: Path):
+    """Số liệu của mục 4.1.2 và 4.6. Trả về None nếu máy không có các file của tập chẩn đoán.
+
+    Thành phần tập và giá trị điểm của accuracy, macro-F1 được TÍNH LẠI từ candidates.csv và
+    predictions.jsonl, rồi so với results/diagnostic_eval.json; khoảng tin cậy và p lấy từ file đó.
+    """
+    import chu_thich_chan_doan as ct
+    import finalize_diagnostic as fd
+
+    csv_path, kappa_path, eval_path = goc / ct.CSV_MAC_DINH, goc / fd.KAPPA_MAC_DINH, goc / "results/diagnostic_eval.json"
+    thieu = [str(p) for p in (csv_path, kappa_path, eval_path) if not p.exists()]
+    if thieu:
+        print("BỎ QUA phần tập chẩn đoán, thiếu: " + ", ".join(thieu))
+        return None
+    rows = ct.doc_csv(csv_path)
+    dung = [r for r in rows if r["phenomenon"] in fd.NHOM_CHAM]
+    kp = json.loads(kappa_path.read_text(encoding="utf-8"))
+    ev = json.loads(eval_path.read_text(encoding="utf-8"))
+    if ev["so_bo"]:
+        raise SystemExit("results/diagnostic_eval.json còn ghi là số sơ bộ: chạy lại finalize_diagnostic.py cham")
+
+    def dem(ds, nhom):
+        return [r for r in ds if r["phenomenon"] in nhom]
+
+    def tp1(x: float) -> str:
+        return tp(x * 100, 1)
+
+    def dau(x: float) -> str:
+        return cb.so(x, 1)
+
+    def kc(x: dict) -> str:
+        return f"{tp1(x['gia_tri'])} ({tp1(x['ci95_duoi'])} đến {tp1(x['ci95_tren'])})"
+
+    # --- Tính lại giá trị điểm từ predictions.jsonl, so với file kết quả ---
+    du_doan = {e: [dict(zip(u, zip(g.tolist(), d.tolist()))) for u, g, d in
+                   (cb.doc_du_doan(goc / "results" / e / f"seed{s}" / "predictions.jsonl") for s in cb.SEEDS)] for e in MO_HINH}
+
+    def diem(e: str, ds) -> Tuple[float, float]:
+        acc, f1 = [], []
+        for tra in du_doan[e]:
+            cap = [tra[r["uid"]] for r in ds]
+            acc.append(sum(g == d for g, d in cap) / len(cap))
+            f = []
+            for lop in range(3):
+                tp_ = sum(g == lop and d == lop for g, d in cap)
+                mau = sum(g == lop for g, _ in cap) + sum(d == lop for _, d in cap)
+                f.append(2 * tp_ / mau if mau else 0.0)
+            f1.append(sum(f) / 3)
+        return st.mean(acc), st.mean(f1)
+
+    tap = {"tat_ca": dung, "chi_dong_y": [r for r in dung if r["nhan_kiem_tra"] == "dong_y"]}
+    for ten, ds in tap.items():
+        for e in MO_HINH:
+            for nhom, thanh_phan, khoa in ([(g, (g,), "ket_qua") for g in fd.NHOM_CHAM] + [(g, tp_, "ket_qua_gop") for g, tp_ in fd.NHOM_GOP.items()]):
+                a, f = diem(e, dem(ds, thanh_phan))
+                x = ev[khoa][ten][e][nhom]
+                if abs(a - x["accuracy"]["gia_tri"]) > 1e-9 or abs(f - x["macro_f1"]["gia_tri"]) > 1e-9 or x["n"] != len(dem(ds, thanh_phan)):
+                    raise SystemExit(f"diagnostic_eval.json lệch với số tính lại: {ten} {e} {nhom}")
+
+    ten_nhom = {"regular": "Thường", "negation": "Phủ định", "contrast": "Chuyển ý", "both": "Cả hai"}
+    ten_lop = ("negative", "neutral", "positive")
+    kq, gop, moc = ev["ket_qua"], ev["ket_qua_gop"], ev["so_voi_mo_hinh_moc"]
+    bang: Dict[str, List[str]] = defaultdict(list)
+
+    def kdy(ds) -> int:
+        return sum(r["nhan_kiem_tra"] != "dong_y" for r in ds)
+
+    for g in fd.NHOM_CHAM:
+        ds = dem(dung, (g,))
+        bang["4.10"].append(f"| {ten_nhom[g]} | {len(ds)} | " + " | ".join(str(sum(r['nhan_goc'] == k for r in ds)) for k in ten_lop)
+                            + f" | {kdy(ds)} ({tp(kdy(ds) / len(ds) * 100, 1)} %) |")
+    bang["4.10"].append(f"| Tổng | {len(dung)} | " + " | ".join(str(sum(r['nhan_goc'] == k for r in dung)) for k in ten_lop)
+                        + f" | {kdy(dung)} ({tp(kdy(dung) / len(dung) * 100, 1)} %) |")
+    for e in MO_HINH:
+        r = kq["tat_ca"][e]
+        bang["4.11"].append(f"| {TEN[e]} | " + " | ".join(kc(r[g]["accuracy"]) for g in fd.NHOM_CHAM) + " |")
+        bang["4.12"].append(f"| {TEN[e]} | " + " | ".join(kc(r[g]["macro_f1"]) for g in fd.NHOM_CHAM) + " |")
+        bang["4.13"].append(f"| {TEN[e]} | " + " | ".join(f"{dau(r[g][dd]['hieu_voi_moc'])} ({cb.p_chu(r[g][dd]['p'])})"
+                                                           for dd in ("accuracy", "macro_f1") for g in fd.NHOM_CHAM[1:]) + " |")
+        rg = gop["tat_ca"][e]
+        bang["4.14"].append(f"| {TEN[e]} | {kc(rg['regular']['accuracy'])} | " + " | ".join(
+            f"{kc(rg[g]['accuracy'])} | {dau(rg[g]['accuracy']['hieu_voi_moc'])} ({cb.p_chu(rg[g]['accuracy']['p'])})" for g in ("co_phu_dinh", "co_chuyen_y")) + " |")
+        rd = kq["chi_dong_y"][e]
+        bang["4.16"].append(f"| {TEN[e]} | {tp1(rd['regular']['accuracy']['gia_tri'])} | " + " | ".join(
+            f"{tp1(rd[g]['accuracy']['gia_tri'])} ({dau(rd[g]['accuracy']['hieu_voi_moc'])}; p {cb.p_chu(rd[g]['accuracy']['p'])})" for g in fd.NHOM_CHAM[1:]) + " |")
+        if e != ev["mo_hinh_moc"]:
+            bang["4.15"].append(f"| {TEN[e]} | " + " | ".join(
+                f"{dau(x['hieu'])} ({dau(x['ci95_duoi'])} đến {dau(x['ci95_tren'])}); p {cb.p_chu(x['p'])}"
+                for x in (moc["tat_ca"][e][g]["accuracy"] for g in fd.NHOM_CHAM)) + " |")
+    kiem = [(f"Bảng {b}, dòng {i + 1}", d) for b, ds in bang.items() for i, d in enumerate(ds)]
+
+    # --- Lời văn mục 4.1.2 ---
+    n = {g: len(dem(dung, (g,))) for g in fd.NHOM_CHAM}
+    kho_pd = [r for r in rows if r["nhom_ung_vien"] == "phu_dinh"]
+    kho_dc = [r for r in rows if r["nhom_ung_vien"] == "doi_chung"]
+    co_pd = len(dem(kho_pd, fd.DAU_HIEU["phu_dinh"]))
+    dc_co = len(dem(kho_dc, ("negation", "contrast", "both")))
+    ph, cx = kp["phenomenon"], kp["nhan_cam_xuc"]
+    lech_ch_pd = ph["bang"].get("both->negation", 0) + ph["bang"].get("negation->both", 0)
+    kd = cx["khong_dong_y_nhan_goc"]
+    ti_le_kdy = {g: tp(kdy(dem(dung, (g,))) / n[g] * 100, 1) for g in fd.NHOM_CHAM}
+    khong_ro = sum(r["nhan_kiem_tra"] == "khong_ro" for r in dung)
+    gn = ph["giu_nguyen"]
+    kiem += [
+        ("4.1.2, cỡ tập", f"Còn lại {len(dung)} mẫu thuộc {len({ma_cau(r['uid']) for r in dung})} bình luận"),
+        ("4.1.2, bốn nhóm", f"{n['regular']} mẫu thuộc nhóm thường, {n['negation']} mẫu thuộc nhóm phủ định, {n['contrast']} mẫu thuộc nhóm chuyển ý và {n['both']} mẫu thuộc nhóm cả hai"),
+        ("4.1.2, kho phủ định", f"Trong {len(kho_pd)} mẫu của kho có từ phủ định, chỉ {co_pd} mẫu, tức {tp(co_pd / len(kho_pd) * 100, 1)} %"),
+        ("4.1.2, kho đối chứng", f"{dc_co} trong {len(kho_dc)} mẫu của kho đối chứng"),
+        ("4.1.2, cỡ mẫu gán lại theo nhóm", f"bốn nhóm có {gn['negation']['lan_1']}, {gn['contrast']['lan_1']}, {gn['both']['lan_1']} và {gn['regular']['lan_1']} mẫu"),
+        ("4.1.2, kappa", f"là {tp(ph['kappa'], 3)}, với {round(ph['ti_le_trung'] * kp['so_dong'])} trên {kp['so_dong']} mẫu trùng nhau, tức {tp(ph['ti_le_trung'] * 100, 1)} %"),
+        ("4.1.2, khoảng cách", f"cách nhau không quá {kp['khoang_cach_toi_da_ngay']} ngày"),
+        ("4.1.2, cận trên", f"nên {tp(ph['kappa'], 3)} là cận trên của độ nhất quán thật"),
+        ("4.1.2, lệch dồn", f"{lech_ch_pd} trong {len(kp['uid_lech'])} mẫu lệch là lệch giữa nhóm cả hai và nhóm phủ định"),
+        ("4.1.2, nhóm cả hai giữ nguyên", f"nhóm cả hai chỉ giữ nguyên nhãn ở {gn['both']['giu']} trên {gn['both']['lan_1']} mẫu"),
+        ("4.1.2, kappa từng dấu hiệu", f"cho kappa {tp(kp['dau_hieu']['phu_dinh']['kappa'], 3)}, còn việc xét mẫu có chuyển ý hay không cho kappa {tp(kp['dau_hieu']['chuyen_y']['kappa'], 3)}"),
+        ("4.1.2, không đồng ý nhãn gốc", f"{kdy(dung)} trên {len(dung)} mẫu, tức {tp(kdy(dung) / len(dung) * 100, 1)} %"),
+        ("4.1.2, mẫu không quyết được", f"gồm {khong_ro} mẫu người chú thích không quyết được"),
+        ("4.1.2, không đồng ý theo nhóm", f"{ti_le_kdy['regular']} % ở nhóm thường, {ti_le_kdy['negation']} % ở nhóm phủ định, {ti_le_kdy['contrast']} % ở nhóm chuyển ý và {ti_le_kdy['both']} % ở nhóm cả hai"),
+        ("4.1.2, kappa nhãn cảm xúc", f"kappa giữa hai lần gán là {tp(cx['kappa'], 3)}"),
+        ("4.1.2, không đồng ý hai lần", f"lần đầu người chú thích không đồng ý với nhãn gốc ở {kd['lan_1']} mẫu, lần hai ở {kd['lan_2']} mẫu, và chỉ {kd['ca_hai']} mẫu ở cả hai lần"),
+        ("4.1.2, tập con đồng ý", f"{len(tap['chi_dong_y'])} mẫu mà người chú thích đồng ý với nhãn gốc"),
+    ]
+
+    # --- Lời văn mục 4.6 và 4.7 ---
+    hoc = [e for e in MO_HINH if e != "lexicon"]
+    do_thi = ("asgcn", "asgcn_linked", "senticgcn")
+    co_hien_tuong = fd.NHOM_CHAM[1:]
+
+    def o(e, g, dd="accuracy", nguon=kq, ten="tat_ca"):
+        return nguon[ten][e][g][dd]
+
+    def tri(x: float) -> str:
+        """Trị tuyệt đối của một hiệu số, một chữ số thập phân."""
+        return tp(abs(x) * 100, 1)
+
+    def khoang(ds) -> str:
+        return f"{tri(min(abs(x) for x in ds))} đến {tri(max(abs(x) for x in ds))}"
+
+    def neu(dung_khong: bool, cau: str, mo_ta: str) -> Tuple[str, str]:
+        """Câu định tính: chỉ đòi có trong chương khi số liệu còn đúng như vậy."""
+        return (mo_ta, cau if dung_khong else f"SỐ LIỆU KHÔNG CÒN ĐỠ CÂU: {cau}")
+
+    pb, sg = moc["tat_ca"], moc["chi_dong_y"]
+    lexicon_tt = sum(tra[r["uid"]][1] == 1 for tra in du_doan["lexicon"] for r in dung)
+    tt = {g: sum(r["nhan_goc"] == "neutral" for r in dem(dung, (g,))) / n[g] for g in fd.NHOM_CHAM}
+    p_pd = [o(e, "negation")["p"] for e in hoc]
+    f1_pd = {e: o(e, "negation", "macro_f1") for e in MO_HINH}
+    gop_pd = {e: o(e, "co_phu_dinh", nguon=gop) for e in MO_HINH}
+    gop_cy = {e: o(e, "co_chuyen_y", nguon=gop) for e in MO_HINH}
+    st_ = pb["senticgcn"]
+    rong = (o("phobert", "both")["ci95_tren"] - o("phobert", "both")["ci95_duoi"]) * 100
+    kiem += [
+        ("4.6, số bình luận", f"trên {ev['so_cau']['tat_ca']} bình luận của tập"),
+        ("4.6, tỉ lệ trung tính", f"chiếm {tp(tt['negation'] * 100, 1)} % ở nhóm phủ định so với {tp(tt['regular'] * 100, 1)} % ở nhóm thường"),
+        ("4.6, nhóm cả hai", f"nhóm cả hai thấp hơn nhóm thường từ {khoang([o(e, 'both')['hieu_voi_moc'] for e in MO_HINH])} điểm accuracy, "
+                             f"với p không vượt quá {cb.p_chu(max(o(e, 'both')['p'] for e in MO_HINH))}"),
+        neu(max(o(e, "both")["gia_tri"] for e in MO_HINH) < 0.75, "Không mô hình nào đạt 75 % accuracy trên nhóm này", "4.6, trần ở nhóm cả hai"),
+        ("4.6, nhóm chuyển ý", f"Nhóm chuyển ý thấp hơn từ {khoang([o(e, 'contrast')['hieu_voi_moc'] for e in MO_HINH])} điểm, "
+                               f"với p không vượt quá {cb.p_chu(max(o(e, 'contrast')['p'] for e in MO_HINH))}"),
+        neu(all(o(e, g, "macro_f1")["p"] < 0.05 and o(e, g, "macro_f1")["hieu_voi_moc"] < 0 for e in MO_HINH for g in ("contrast", "both")),
+            "Hai kết quả này giữ nguyên khi đo bằng macro-F1", "4.6, macro-F1 ở hai nhóm khó"),
+        ("4.6, nhóm phủ định, accuracy", f"với p từ {cb.p_chu(min(p_pd))} đến {cb.p_chu(max(p_pd))}"),
+        ("4.6, nhóm phủ định, macro-F1", f"BiLSTM thấp hơn {tri(f1_pd['bilstm']['hieu_voi_moc'])} điểm, ASGCN {tri(f1_pd['asgcn']['hieu_voi_moc'])} điểm và ASGCN nối gốc "
+                                         f"{tri(f1_pd['asgcn_linked']['hieu_voi_moc'])} điểm (p lần lượt bằng {cb.p_chu(f1_pd['bilstm']['p'])}, {cb.p_chu(f1_pd['asgcn']['p'])} và {cb.p_chu(f1_pd['asgcn_linked']['p'])})"),
+        ("4.6, PhoBERT và Sentic-GCN ở nhóm phủ định", f"PhoBERT và Sentic-GCN thì không (p bằng {cb.p_chu(f1_pd['phobert']['p'])} và {cb.p_chu(f1_pd['senticgcn']['p'])})"),
+        ("4.6, mô hình từ điển ở nhóm phủ định", f"cao hơn nhóm thường {tri(o('lexicon', 'negation')['hieu_voi_moc'])} điểm"),
+        neu(lexicon_tt == 0 and o("lexicon", "negation")["hieu_voi_moc"] > 0, "không đoán lớp trung tính ở mẫu nào của tập chẩn đoán", "4.6, mô hình từ điển không đoán trung tính"),
+        ("4.6, trần của mô hình từ điển", f"là {tp((1 - tt['regular']) * 100, 1)} % ở nhóm thường và {tp((1 - tt['negation']) * 100, 1)} % ở nhóm phủ định"),
+        neu(all(gop_pd[e]["p"] < 0.05 and gop_pd[e]["hieu_voi_moc"] < 0 for e in hoc), "mẫu có phủ định thấp hơn nhóm thường ở cả năm mô hình học", "4.6, có phủ định, năm mô hình học"),
+        ("4.6, có phủ định, PhoBERT", f"PhoBERT thấp hơn nhóm thường {tri(gop_pd['phobert']['hieu_voi_moc'])} điểm (p bằng {cb.p_chu(gop_pd['phobert']['p'])}), "
+                                      f"các mô hình còn lại từ {khoang([gop_pd[e]['hieu_voi_moc'] for e in hoc if e != 'phobert'])} điểm"),
+        ("4.6, có chuyển ý", f"Mẫu có chuyển ý thấp hơn từ {khoang([gop_cy[e]['hieu_voi_moc'] for e in hoc])} điểm ở năm mô hình học, trong đó PhoBERT thấp hơn {tri(gop_cy['phobert']['hieu_voi_moc'])} điểm"),
+        neu(all(gop_cy[e]["p"] < 0.05 for e in hoc), "mẫu có chuyển ý khó hơn mẫu thường, và mẫu có phủ định nói chung cũng khó hơn", "4.6, kết luận theo dấu hiệu"),
+        neu(all(pb[e][g]["accuracy"]["p"] >= 0.05 for e in do_thi for g in fd.NHOM_CHAM if pb[e][g]["accuracy"]["hieu"] > 0),
+            "Không mô hình đồ thị nào cao hơn PhoBERT có ý nghĩa ở bất kỳ nhóm nào", "4.6, mô hình đồ thị so với PhoBERT"),
+        ("4.6, Sentic-GCN so với PhoBERT", f"Sentic-GCN cao hơn PhoBERT {tri(st_['negation']['accuracy']['hieu'])} điểm ở nhóm phủ định, {tri(st_['contrast']['accuracy']['hieu'])} điểm ở nhóm chuyển ý "
+                                           f"và {tri(st_['both']['accuracy']['hieu'])} điểm ở nhóm cả hai"),
+        ("4.6, p của Sentic-GCN so với PhoBERT", "(p bằng " + ", ".join(cb.p_chu(st_[g]["accuracy"]["p"]) for g in co_hien_tuong[:2]) + f" và {cb.p_chu(st_['both']['accuracy']['p'])})"),
+        ("4.6, Sentic-GCN trên tập con đồng ý", "ba hiệu số này còn " + ", ".join(dau(sg["senticgcn"][g]["accuracy"]["hieu"]) for g in co_hien_tuong[:2])
+                                                + f" và {dau(sg['senticgcn']['both']['accuracy']['hieu'])} điểm"),
+        ("4.6, ASGCN so với PhoBERT", f"ASGCN thấp hơn PhoBERT {tri(pb['asgcn']['regular']['accuracy']['hieu'])} điểm ở nhóm thường (p bằng {cb.p_chu(pb['asgcn']['regular']['accuracy']['p'])}) "
+                                      f"và {tri(pb['asgcn']['negation']['accuracy']['hieu'])} điểm ở nhóm phủ định (p bằng {cb.p_chu(pb['asgcn']['negation']['accuracy']['p'])})"),
+        ("4.6, BiLSTM so với PhoBERT ở nhóm cả hai", f"BiLSTM chỉ thấp hơn PhoBERT {tri(pb['bilstm']['both']['accuracy']['hieu'])} điểm (p bằng {cb.p_chu(pb['bilstm']['both']['accuracy']['p'])}), tức với {n['both']} mẫu của nhóm này"),
+        ("4.6, số phép so ở Bảng 4.15", f"Bảng 4.15 gồm {len(pb) * len(fd.NHOM_CHAM)} phép so"),
+        ("4.6, không đồng ý ở hai nhóm khó", f"{ti_le_kdy['contrast']} % số mẫu của nhóm chuyển ý và {ti_le_kdy['both']} % của nhóm cả hai"),
+        neu(all(o(e, g, ten="chi_dong_y")["gia_tri"] > o(e, g)["gia_tri"] for e in MO_HINH for g in fd.NHOM_CHAM), "Trên tập con này mọi con số đều tăng", "4.6, tập con đồng ý tăng"),
+        ("4.6, PhoBERT trên tập con đồng ý", "PhoBERT đạt " + ", ".join(f"{tp1(o('phobert', g, ten='chi_dong_y')['gia_tri'])} %" for g in fd.NHOM_CHAM[:3])
+                                             + f" và {tp1(o('phobert', 'both', ten='chi_dong_y')['gia_tri'])} % ở bốn nhóm"),
+        ("4.6, khoảng cách còn lại trên tập con", f"ở PhoBERT còn {tri(o('phobert', 'contrast', ten='chi_dong_y')['hieu_voi_moc'])} điểm ở nhóm chuyển ý (p bằng {cb.p_chu(o('phobert', 'contrast', ten='chi_dong_y')['p'])}) "
+                                                  f"và {tri(o('phobert', 'both', ten='chi_dong_y')['hieu_voi_moc'])} điểm ở nhóm cả hai (p bằng {cb.p_chu(o('phobert', 'both', ten='chi_dong_y')['p'])})"),
+        neu(all(o(e, "both", ten="chi_dong_y")["hieu_voi_moc"] < 0 and o(e, "both", ten="chi_dong_y")["p"] < 0.05 for e in hoc),
+            f"Nhóm cả hai vẫn thấp hơn nhóm thường có ý nghĩa ở cả năm mô hình học, với p không vượt quá {cb.p_chu(max(o(e, 'both', ten='chi_dong_y')['p'] for e in hoc))}",
+            "4.6, nhóm cả hai trên tập con"),
+        ("4.6, độ rộng khoảng tin cậy ở nhóm cả hai", f"chỉ có {n['both']} mẫu, và khoảng tin cậy của accuracy ở nhóm này rộng khoảng {round(rong)} điểm"),
+        ("4.7, nhóm cả hai", f"thấp hơn nhóm thường từ {khoang([o(e, 'both')['hieu_voi_moc'] for e in MO_HINH])} điểm accuracy ở cả sáu mô hình"),
+        ("4.7, kappa", f"hệ số kappa {tp(ph['kappa'], 3)} đo khi hai lần gán cách nhau không quá {kp['khoang_cach_toi_da_ngay']} ngày"),
+    ]
+    return kiem, {k: "\n".join(v) for k, v in bang.items()}
+
+
 def chuan(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
@@ -225,6 +430,10 @@ def main(argv=None) -> int:
     kiem, tho = so_lieu_du_lieu(a.goc)
     k2, bang = so_lieu_ket_qua(a.goc, tho)
     kiem += k2
+    cd = so_lieu_chan_doan(a.goc)
+    if cd is not None:
+        kiem += cd[0]
+        bang.update(cd[1])
     if a.do_cat:
         kiem += do_ti_le_cat(a.goc)
     if a.in_bang:

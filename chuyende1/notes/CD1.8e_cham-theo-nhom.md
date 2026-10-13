@@ -91,3 +91,9 @@ dấu của mô hình từ điển.]`
 
 Không có việc mới. Hai việc cũ còn nguyên: sao lưu `data/diagnostic/`, và từ 27/10 gán lại
 `data/diagnostic/gan_lai_60.xlsx`. Sau khi kappa đạt, báo để chạy `chot` rồi `cham` lại.
+
+## 8. BỔ SUNG 13/10 (trưa)
+
+Các số ở mục 4 không còn là sơ bộ: tập đã chốt và kết quả đã vào mục 4.6 của báo cáo, kèm bảng theo
+dấu hiệu và bảng so với PhoBERT trong từng nhóm. Điểm lạ về mô hình từ điển ở cuối mục 4 đã có lời
+giải. Xem `CD1.8f_chot-tap-va-ket-qua-chan-doan.md`.

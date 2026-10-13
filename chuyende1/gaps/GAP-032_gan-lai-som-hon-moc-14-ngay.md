@@ -3,7 +3,7 @@
 **Ngày phát hiện:** 13/10/2026 · **Phát hiện bởi:** lệnh `finalize_diagnostic.py kappa` (từ chối chạy)
 **Loại:** phương pháp · quy trình
 **Mức độ:** trung bình (chặn được trước khi chốt tập; chưa con số nào vào báo cáo)
-**Trạng thái:** 🟡 Chờ học viên chọn cách đo lại (ba phương án ở mục 5)
+**Trạng thái:** ⚪ Sống chung: học viên chọn phương án 1 ngày 13/10/2026, báo cáo ghi rõ khoảng cách thật (mục 7)
 
 ---
 
@@ -77,3 +77,21 @@ Ba phương án đo lại, chờ học viên chọn:
 Thứ chưa được phép mở thì đừng sinh ra trước. Mẫu gán lại nên được rút vào đúng ngày gán, khi đó
 chốt chặn nằm ở bước tạo file chứ không ở bước tính. Lời nhắc việc có điều kiện ngày tháng phải đứng
 riêng một dòng.
+
+## 7. Quyết định ngày 13/10/2026
+
+Học viên chọn phương án 1: dùng luôn số đo sớm và ghi đúng khoảng cách thật.
+
+Đã làm theo đó:
+
+- `finalize_diagnostic.py kappa` có cờ `--gan-som`, bắt buộc khai ngày gán lại và khoảng cách tối đa.
+  `data/diagnostic/kappa.json` ghi `gan_som: true`, 13/10/2026, 8 ngày. File
+  `kappa_gan_lai_som_20261013.json` lập trước đó nay trùng nội dung với file này.
+- Tập đã chốt (799 dòng) và sáu mô hình đã được chấm lại; bảng kết quả mang câu cảnh báo ở đầu.
+- Mục 4.1.2 của báo cáo nêu ba điều: hai lần gán cách nhau không quá 8 ngày và ít nhất 28 mẫu dưới
+  3 ngày; 0,733 là cận trên; chỗ lệch dồn vào ranh giới nhóm cả hai với nhóm phủ định.
+- Vì ranh giới đó kém ổn định, mục 4.6 có thêm Bảng 4.14 chia theo dấu hiệu, và báo cáo không kết
+  luận rằng phủ định đứng một mình là dễ.
+
+Còn mở, không chặn việc gì: 12 dòng lệch chưa được xem lại và chốt nhãn; chưa có người chú thích
+thứ hai. Cả hai đã nằm trong danh sách giới hạn của mục 4.6 và cần vào mục hạn chế ở Chương 6.

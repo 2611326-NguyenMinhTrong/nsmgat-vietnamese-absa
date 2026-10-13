@@ -5,6 +5,11 @@ thích gán lại một mẫu sau ít nhất hai tuần, không xem nhãn cũ. C
 NHẤT QUÁN CỦA MỘT NGƯỜI (intra-annotator), không được gọi là độ đồng thuận giữa hai người.
 Nếu sau này có người thứ hai thì đưa đúng file .xlsx này cho họ gán; lệnh `kappa` không đổi.
 
+Lần gán lại thật của Chuyên đề 1 diễn ra ngày 13/10/2026, KHÔNG đủ hai tuần (GAP-032). Học viên chọn
+dùng luôn số đo đó và ghi đúng khoảng cách thật. Vì vậy `kappa` có cờ `--gan-som`: file kết quả mang
+`gan_som: true` cùng khoảng cách tối đa giữa hai lần gán, và `cham` in điều đó ngay đầu bảng. Kappa đo
+như vậy là CẬN TRÊN của độ nhất quán, vì người gán có thể còn nhớ nhãn cũ.
+
     python scripts/finalize_diagnostic.py rut-mau     # rút 60 dòng, ghi file .xlsx TRỐNG nhãn để gán lại
     python scripts/finalize_diagnostic.py kappa       # sau khi gán lại xong: tính kappa, in các dòng lệch
     python scripts/finalize_diagnostic.py cham        # chấm các mô hình theo nhóm hiện tượng
@@ -24,6 +29,13 @@ ngưỡng thì kết quả được đánh dấu SƠ BỘ và không được đ
 Nhãn dùng để chấm là NHÃN GỐC của bộ dữ liệu, để so được với bảng kết quả chính. Lệnh chấm
 thêm một lần trên riêng các dòng người chú thích đồng ý với nhãn gốc, để biết kết luận có
 phụ thuộc vào các dòng nhãn gốc đáng ngờ hay không.
+
+Ngoài bốn nhóm, `cham` còn in hai thứ:
+- Bảng theo DẤU HIỆU: có phủ định (negation hoặc both), có chuyển ý (contrast hoặc both). Hai lần gán
+  lệch nhau chủ yếu ở ranh giới giữa `both` và `negation`; gộp theo dấu hiệu thì ranh giới đó không
+  còn ảnh hưởng tới nhóm có phủ định.
+- Bảng so từng mô hình với PhoBERT TRONG TỪNG NHÓM, bootstrap ghép cặp theo câu. Đây là phép so trả
+  lời câu "mô hình đồ thị có hơn PhoBERT trên câu phủ định, chuyển ý không".
 """
 
 from __future__ import annotations
@@ -35,7 +47,7 @@ import random
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -53,8 +65,14 @@ DINH_DANG_NGAY = "%d/%m/%Y"
 KAPPA_MAC_DINH = Path("data/diagnostic/kappa.json")
 MO_HINH = ("lexicon", "bilstm", "phobert", "asgcn", "asgcn_linked", "senticgcn")
 NHOM_CHAM = ("regular", "negation", "contrast", "both")  # nhóm đầu là mốc so
-TEN_NHOM = {"regular": "Thường", "negation": "Phủ định", "contrast": "Chuyển ý", "both": "Cả hai"}
+TEN_NHOM = {"regular": "Thường", "negation": "Phủ định", "contrast": "Chuyển ý", "both": "Cả hai",
+            "co_phu_dinh": "Có phủ định", "co_chuyen_y": "Có chuyển ý"}
 MA_NHAN = {"negative": 0, "neutral": 1, "positive": 2}
+# Hai dấu hiệu nhị phân nằm dưới nhãn hiện tượng bốn giá trị.
+DAU_HIEU = {"phu_dinh": ("negation", "both"), "chuyen_y": ("contrast", "both")}
+# Nhóm gộp theo dấu hiệu; nhóm đầu là mốc so. Dòng `both` góp vào cả hai nhóm sau.
+NHOM_GOP = {"regular": ("regular",), "co_phu_dinh": DAU_HIEU["phu_dinh"], "co_chuyen_y": DAU_HIEU["chuyen_y"]}
+MOC_MO_HINH = "phobert"
 
 Dong = Dict[str, str]
 
@@ -92,6 +110,36 @@ def kappa_cohen(a: Sequence[str], b: Sequence[str]) -> Tuple[float, float, float
 def nhan_cam_xuc(r: Dong) -> str:
     """Nhãn cảm xúc mà người chú thích cho là đúng: `dong_y` nghĩa là nhãn gốc."""
     return r["nhan_goc"] if r["nhan_kiem_tra"] == "dong_y" else r["nhan_kiem_tra"]
+
+
+def do_trung(lan1: Dict[str, Dong], lan2: Dict[str, Dong], uid: Sequence[str]) -> dict:
+    """Độ trùng của hai lần gán trên các dòng `uid`.
+
+    Ngoài kappa trên nhãn hiện tượng, tách riêng hai dấu hiệu nhị phân để biết lệch dồn vào dấu hiệu
+    nào: một dòng `both` thành `negation` là lệch về chuyển ý, không lệch về phủ định.
+    """
+    h1, h2 = [lan1[u]["phenomenon"] for u in uid], [lan2[u]["phenomenon"] for u in uid]
+    k, p_o, p_e = kappa_cohen(h1, h2)
+    nhan = [x for x in ct.HIEN_TUONG if x in set(h1) | set(h2)]
+    bang = Counter(zip(h1, h2))
+    dau_hieu = {}
+    for ten, co in DAU_HIEU.items():
+        kd, pd, _ = kappa_cohen([str(x in co) for x in h1], [str(x in co) for x in h2])
+        dau_hieu[ten] = {"kappa": kd, "ti_le_trung": pd}
+    c1, c2 = [nhan_cam_xuc(lan1[u]) for u in uid], [nhan_cam_xuc(lan2[u]) for u in uid]
+    kc, pc, _ = kappa_cohen(c1, c2)
+    kd1 = [lan1[u]["nhan_kiem_tra"] != "dong_y" for u in uid]
+    kd2 = [lan2[u]["nhan_kiem_tra"] != "dong_y" for u in uid]
+    return {
+        "so_dong": len(uid),
+        "phenomenon": {"kappa": k, "ti_le_trung": p_o, "ti_le_trung_ngau_nhien": p_e,
+                       "bang": {f"{x}->{y}": bang[(x, y)] for x in nhan for y in nhan if bang[(x, y)]},
+                       "giu_nguyen": {x: {"lan_1": sum(v for (a, _), v in bang.items() if a == x), "giu": bang[(x, x)]} for x in nhan}},
+        "dau_hieu": dau_hieu,
+        "nhan_cam_xuc": {"kappa": kc, "ti_le_trung": pc, "so_dong_lech": sum(a != b for a, b in zip(c1, c2)),
+                         "khong_dong_y_nhan_goc": {"lan_1": sum(kd1), "lan_2": sum(kd2), "ca_hai": sum(a and b for a, b in zip(kd1, kd2))}},
+        "uid_lech": [u for u, x, y in zip(uid, h1, h2) if x != y],
+    }
 
 
 def doc_xlsx(xlsx: Path) -> List[Dong]:
@@ -136,12 +184,22 @@ def cmd_rut_mau(csv_path: Path, xlsx: Path, moi_nhom: int, seed: int, ghi_de: bo
     return 0
 
 
-def cmd_kappa(csv_path: Path, xlsx: Path, bo_qua_ngay: bool, out_json: Path) -> int:
+def cmd_kappa(csv_path: Path, xlsx: Path, bo_qua_ngay: bool, out_json: Path, gan_som: bool = False,
+              ngay_gan_lai: str = "", khoang_cach: int = -1) -> int:
     so = json.loads(file_so(xlsx).read_text(encoding="utf-8"))
     som_nhat = dt.datetime.strptime(so["som_nhat_duoc_gan_lai"], DINH_DANG_NGAY).date()
-    if dt.date.today() < som_nhat and not bo_qua_ngay:
+    if gan_som:
+        if bo_qua_ngay or not ngay_gan_lai or khoang_cach < 0:
+            print("DỪNG: --gan-som dùng khi CHÍNH người chú thích gán lại trước mốc, nên không đi cùng --bo-qua-ngay, và phải kèm "
+                  "--ngay-gan-lai dd/mm/yyyy cùng --khoang-cach-toi-da <số ngày> để file kết quả ghi khoảng cách thật.")
+            return 1
+        if dt.datetime.strptime(ngay_gan_lai, DINH_DANG_NGAY).date() >= som_nhat:
+            print(f"DỪNG: ngày gán lại {ngay_gan_lai} đã từ mốc {so['som_nhat_duoc_gan_lai']} trở đi, không cần --gan-som.")
+            return 1
+    elif dt.date.today() < som_nhat and not bo_qua_ngay:
         print(f"DỪNG: mẫu rút ngày {so['ngay_rut']}, sớm nhất {so['som_nhat_duoc_gan_lai']} mới được gán lại "
-              f"(cách {SO_NGAY_CHO} ngày để quên nhãn cũ). Nếu người gán là NGƯỜI THỨ HAI thì thêm --bo-qua-ngay.")
+              f"(cách {SO_NGAY_CHO} ngày để quên nhãn cũ). Nếu người gán là NGƯỜI THỨ HAI thì thêm --bo-qua-ngay. "
+              f"Nếu chính người chú thích ĐÃ gán lại trước mốc và chấp nhận ghi rõ điều đó trong báo cáo thì dùng --gan-som.")
         return 2
     lan2 = {r["uid"]: r for r in doc_xlsx(xlsx)}
     lan1 = {r["uid"]: r for r in ct.doc_csv(csv_path)}
@@ -154,40 +212,50 @@ def cmd_kappa(csv_path: Path, xlsx: Path, bo_qua_ngay: bool, out_json: Path) -> 
         print(f"DỪNG: còn {len(thieu)} dòng chưa gán đủ hai ô, {len(loi)} lỗi giá trị.\n  " + "\n  ".join((loi + thieu)[:15]))
         return 1
     uid = so["uid"]
-    h1, h2 = [lan1[u]["phenomenon"] for u in uid], [lan2[u]["phenomenon"] for u in uid]
-    k, p_o, p_e = kappa_cohen(h1, h2)
-    c1, c2 = [nhan_cam_xuc(lan1[u]) for u in uid], [nhan_cam_xuc(lan2[u]) for u in uid]
-    kc, pc, _ = kappa_cohen(c1, c2)
-    print(f"Hiện tượng (`phenomenon`), {len(uid)} dòng: kappa = {k:.3f} | trùng {p_o * 100:.1f} % | "
-          f"trùng do ngẫu nhiên kỳ vọng {p_e * 100:.1f} %")
+    t = do_trung(lan1, lan2, uid)
+    ph, cx = t["phenomenon"], t["nhan_cam_xuc"]
+    k = ph["kappa"]
+    if gan_som:
+        print(f"LƯU Ý: gán lại ngày {ngay_gan_lai}, cách lần gán đầu không quá {khoang_cach} ngày (quy ước {SO_NGAY_CHO} ngày). "
+              f"Kappa dưới đây là cận trên của độ nhất quán; báo cáo phải ghi khoảng cách thật.\n")
+    print(f"Hiện tượng (`phenomenon`), {len(uid)} dòng: kappa = {k:.3f} | trùng {ph['ti_le_trung'] * 100:.1f} % | "
+          f"trùng do ngẫu nhiên kỳ vọng {ph['ti_le_trung_ngau_nhien'] * 100:.1f} %")
     print(f"Ngưỡng {NGUONG_KAPPA:.2f}: {'ĐẠT' if k >= NGUONG_KAPPA else 'CHƯA ĐẠT'}")
-    nhan = [x for x in ct.HIEN_TUONG if x in set(h1) | set(h2)]
+    nhan = list(ph["giu_nguyen"])
     print("\nLần 1 (hàng) so với lần 2 (cột):")
     print(f"{'':<10}" + "".join(f"{x:>10}" for x in nhan))
-    bang = Counter(zip(h1, h2))
     for x in nhan:
-        print(f"{x:<10}" + "".join(f"{bang[(x, y)]:>10}" for y in nhan))
-    print(f"\nNhãn cảm xúc sau kiểm tra: kappa = {kc:.3f} | trùng {pc * 100:.1f} %")
-    lech = [u for u, x, y in zip(uid, h1, h2) if x != y]
-    if lech:
-        print(f"\n{len(lech)} dòng lệch về hiện tượng (lần 1 -> lần 2):")
-        for u in lech:
+        print(f"{x:<10}" + "".join(f"{ph['bang'].get(f'{x}->{y}', 0):>10}" for y in nhan))
+    print("\nTheo từng dấu hiệu:")
+    for ten, co in DAU_HIEU.items():
+        d = t["dau_hieu"][ten]
+        print(f"  {ten} ({' hoặc '.join(co)}): kappa = {d['kappa']:.3f} | trùng {d['ti_le_trung'] * 100:.1f} %")
+    print("Số dòng giữ nguyên nhóm: " + ", ".join(f"{x} {v['giu']}/{v['lan_1']}" for x, v in ph["giu_nguyen"].items()))
+    kd = cx["khong_dong_y_nhan_goc"]
+    print(f"\nNhãn cảm xúc sau kiểm tra: kappa = {cx['kappa']:.3f} | trùng {cx['ti_le_trung'] * 100:.1f} % | lệch {cx['so_dong_lech']} dòng")
+    print(f"Không đồng ý với nhãn gốc: lần 1 {kd['lan_1']} dòng, lần 2 {kd['lan_2']} dòng, cả hai lần {kd['ca_hai']} dòng")
+    if t["uid_lech"]:
+        print(f"\n{len(t['uid_lech'])} dòng lệch về hiện tượng (lần 1 -> lần 2):")
+        for u in t["uid_lech"]:
             print(f"  {u.replace('visfd-test-', '')}: {lan1[u]['phenomenon']} -> {lan2[u]['phenomenon']} | {lan1[u]['text'][:110]}")
-    out_json.write_text(json.dumps({
-        "loai": "nhat_quan_mot_nguoi" if not bo_qua_ngay else "can_ghi_ro_ai_gan_lan_hai",
-        "ngay_rut": so["ngay_rut"], "ngay_tinh": dt.date.today().strftime(DINH_DANG_NGAY), "so_dong": len(uid),
-        "phan_tang": True, "moi_nhom": so["moi_nhom"],
-        "phenomenon": {"kappa": k, "ti_le_trung": p_o, "ti_le_trung_ngau_nhien": p_e,
-                       "bang": {f"{x}->{y}": bang[(x, y)] for x in nhan for y in nhan if bang[(x, y)]}},
-        "nhan_cam_xuc": {"kappa": kc, "ti_le_trung": pc}, "uid_lech": lech}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    kq = {"loai": "nhat_quan_mot_nguoi" if not bo_qua_ngay else "can_ghi_ro_ai_gan_lan_hai",
+          "gan_som": gan_som, "so_ngay_quy_uoc": SO_NGAY_CHO,
+          "ngay_rut": so["ngay_rut"], "ngay_tinh": dt.date.today().strftime(DINH_DANG_NGAY),
+          "phan_tang": True, "moi_nhom": so["moi_nhom"], **t}
+    if gan_som:
+        kq.update(ngay_gan_lai=ngay_gan_lai, khoang_cach_toi_da_ngay=khoang_cach)
+    out_json.write_text(json.dumps(kq, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"\nĐã ghi {out_json}")
     return 0 if k >= NGUONG_KAPPA else 3
 
 
+def doc_kappa(kappa_json: Path) -> Optional[dict]:
+    return json.loads(kappa_json.read_text(encoding="utf-8")) if kappa_json.exists() else None
+
+
 def kappa_da_dat(kappa_json: Path) -> bool:
-    if not kappa_json.exists():
-        return False
-    return json.loads(kappa_json.read_text(encoding="utf-8"))["phenomenon"]["kappa"] >= NGUONG_KAPPA
+    k = doc_kappa(kappa_json)
+    return k is not None and k["phenomenon"]["kappa"] >= NGUONG_KAPPA
 
 
 def dem_theo_nhom(rows: Sequence[Dong], goc: Path, mo_hinh: Sequence[str]):
@@ -249,6 +317,62 @@ def cham_mot_mo_hinh(o, so_lan: int, rng, khoi: int = 500, ten_nhom: Sequence[st
     return ra
 
 
+def gop_nhom(o):
+    """(4 nhóm, ...) -> (3 nhóm theo dấu hiệu, ...), thứ tự như NHOM_GOP. Dòng `both` góp vào cả hai nhóm sau."""
+    import numpy as np
+
+    return np.stack([sum(o[NHOM_CHAM.index(g)] for g in thanh_phan) for thanh_phan in NHOM_GOP.values()])
+
+
+def so_voi_mo_hinh_moc(o: Dict[str, "object"], moc: str, so_lan: int, rng, khoi: int = 500,
+                       ten_nhom: Sequence[str] = NHOM_CHAM) -> Dict[str, Dict[str, dict]]:
+    """Trong TỪNG nhóm: hiệu (mô hình trừ mô hình mốc) của trung bình ba seed, bootstrap ghép cặp theo câu.
+
+    Hai mô hình được chấm trên cùng tập câu ở mỗi lần rút, nên hiệu số đã tính phần phụ thuộc giữa chúng.
+    o: {mô hình: mảng (nhóm, seed, câu, 9)}.
+    """
+    import numpy as np
+
+    ten = [e for e in o if e != moc]
+    xep = np.stack([o[moc]] + [o[e] for e in ten])  # (mô hình, nhóm, seed, câu, 9); mốc ở vị trí 0
+    so_cau = xep.shape[3]
+    quan_sat = dict(zip(("macro_f1", "accuracy"), (x.mean(axis=-1) for x in cb.do_do(xep.sum(axis=3)))))  # (mô hình, nhóm)
+    mau = {"macro_f1": [], "accuracy": []}
+    con = so_lan
+    while con > 0:
+        n = min(khoi, con)
+        w = rng.multinomial(so_cau, np.full(so_cau, 1.0 / so_cau), size=n).astype(np.float64)
+        with np.errstate(invalid="ignore", divide="ignore"):  # lần rút không có dòng nào của một nhóm cho nan
+            f, a = cb.do_do(np.einsum("nc,mgsck->nmgsk", w, xep))
+        mau["macro_f1"].append(f.mean(axis=-1))
+        mau["accuracy"].append(a.mean(axis=-1))
+        con -= n
+    ra: Dict[str, Dict[str, dict]] = {}
+    for i, exp in enumerate(ten, 1):
+        ra[exp] = {}
+        for g, nhom in enumerate(ten_nhom):
+            ra[exp][nhom] = {}
+            for k in ("macro_f1", "accuracy"):
+                m = np.concatenate(mau[k])  # (số lần, mô hình, nhóm)
+                d = m[:, i, g] - m[:, 0, g]
+                d = d[~np.isnan(d)]
+                p = 2 * min((np.sum(d <= 0) + 1) / (len(d) + 1), (np.sum(d >= 0) + 1) / (len(d) + 1))
+                ra[exp][nhom][k] = {"hieu": float(quan_sat[k][i, g] - quan_sat[k][0, g]), "ci95_duoi": float(np.percentile(d, 2.5)),
+                                    "ci95_tren": float(np.percentile(d, 97.5)), "p": float(min(1.0, p))}
+    return ra
+
+
+def phan_bo(rows: Sequence[Dong]) -> Dict[str, dict]:
+    """Mỗi nhóm: số dòng, số dòng theo nhãn gốc, và ý kiến của người chú thích về nhãn gốc."""
+    ra = {}
+    for g in NHOM_CHAM:
+        ds = [r for r in rows if r["phenomenon"] == g]
+        kt = Counter(r["nhan_kiem_tra"] if r["nhan_kiem_tra"] in ("dong_y", "khong_ro") else "nhan_khac" for r in ds)
+        ra[g] = {"n": len(ds), "nhan_goc": {k: sum(r["nhan_goc"] == k for r in ds) for k in MA_NHAN},
+                 "kiem_nhan": {k: kt[k] for k in ("dong_y", "nhan_khac", "khong_ro")}}
+    return ra
+
+
 def _pt(x: float) -> str:
     return f"{x * 100:.1f}".replace(".", ",")
 
@@ -271,6 +395,18 @@ def bang_cham(kq: Dict[str, dict], do_do: str, tieu_de: str, nhom: Sequence[str]
     return "\n".join(dong) + "\n"
 
 
+def bang_so_moc(kq: Dict[str, Dict[str, dict]], do_do: str, tieu_de: str, nhom: Sequence[str] = NHOM_CHAM) -> str:
+    """Một bảng: hàng là mô hình, cột là nhóm; mỗi ô là hiệu so với mô hình mốc trong chính nhóm đó."""
+    dong = [tieu_de, "", "| Mô hình | " + " | ".join(TEN_NHOM.get(g, g) for g in nhom) + " |", "|---|" + "---|" * len(nhom)]
+    for exp, r in kq.items():
+        o = []
+        for g in nhom:
+            x = r[g][do_do]
+            o.append(f"{cb.so(x['hieu'], 1)} [{cb.so(x['ci95_duoi'], 1)}; {cb.so(x['ci95_tren'], 1)}], p {cb.p_chu(x['p'])}")
+        dong.append(f"| {cb.TEN_HIEN_THI.get(exp, exp)} | " + " | ".join(o) + " |")
+    return "\n".join(dong) + "\n"
+
+
 def cmd_cham(csv_path: Path, goc: Path, so_lan: int, seed: int, kappa_json: Path, out_json: Path, out_md: Path, chi_in: bool) -> int:
     import numpy as np
 
@@ -281,27 +417,56 @@ def cmd_cham(csv_path: Path, goc: Path, so_lan: int, seed: int, kappa_json: Path
         return 1
     dung = [r for r in rows if r["phenomenon"] in NHOM_CHAM]
     tap = {"tat_ca": dung, "chi_dong_y": [r for r in dung if r["nhan_kiem_tra"] == "dong_y"]}
+    kappa = doc_kappa(kappa_json)
     so_bo = not kappa_da_dat(kappa_json)
     rng = np.random.default_rng(seed)
-    kq, so_cau = {}, {}
+    kq, so_cau, dem = {}, {}, {}
     for ten, ds in tap.items():
         cau, o = dem_theo_nhom(ds, goc, MO_HINH)
-        so_cau[ten] = len(cau)
+        so_cau[ten], dem[ten] = len(cau), o
         kq[ten] = {exp: cham_mot_mo_hinh(o[exp], so_lan, rng) for exp in MO_HINH}
-    dau = ("**SỐ SƠ BỘ, CHƯA DÙNG CHO BÁO CÁO: chưa có kappa đạt ngưỡng.**\n\n" if so_bo else "")
+    # Hai phép tính thêm chạy SAU vòng trên, để dãy số ngẫu nhiên của bảng bốn nhóm không đổi so với trước.
+    kq_gop = {ten: {exp: cham_mot_mo_hinh(gop_nhom(dem[ten][exp]), so_lan, rng, ten_nhom=tuple(NHOM_GOP)) for exp in MO_HINH} for ten in tap}
+    kq_moc = {ten: so_voi_mo_hinh_moc(dem[ten], MOC_MO_HINH, so_lan, rng) for ten in tap}
+    if so_bo:
+        dau = "**SỐ SƠ BỘ, CHƯA DÙNG CHO BÁO CÁO: chưa có kappa đạt ngưỡng.**\n\n"
+    else:
+        dau = (f"Độ nhất quán của nhãn hiện tượng: kappa {kappa['phenomenon']['kappa']:.3f}".replace(".", ",")
+               + f" trên {kappa.get('so_dong', '?')} dòng gán lại.")
+        if kappa.get("gan_som"):
+            dau += (f" **Lần gán lại ngày {kappa['ngay_gan_lai']} cách lần gán đầu không quá {kappa['khoang_cach_toi_da_ngay']} ngày, "
+                    f"không đủ {kappa['so_ngay_quy_uoc']} ngày như quy ước; kappa này là cận trên.**")
+        dau += "\n\n"
     chu = ("Mỗi ô: giá trị trung bình ba seed (%), khoảng tin cậy 95 % trong ngoặc vuông; với nhóm khác nhóm thường "
            "có thêm hiệu so với nhóm thường (điểm phần trăm) và p hai phía. Bootstrap {lan} lần theo câu ({cau} câu). "
            "Nhãn chấm là nhãn gốc của bộ dữ liệu.")
+    chu_moc = ("Mỗi ô: hiệu số so với {moc} trong chính nhóm đó (điểm phần trăm, mô hình trừ {moc}), khoảng tin cậy 95 % và p hai phía. "
+               "Bootstrap ghép cặp {lan} lần theo câu ({cau} câu). Không hiệu chỉnh cho việc so nhiều lần.")
     nghin = lambda x: f"{x:,}".replace(",", ".")  # noqa: E731
+    mo_ta_tap = (("tat_ca", "toàn bộ dòng"), ("chi_dong_y", "chỉ các dòng người chú thích đồng ý với nhãn gốc"))
+    do_do = (("accuracy", "Accuracy"), ("macro_f1", "Macro-F1"))
     khoi = []
-    for ten, mo_ta in (("tat_ca", "toàn bộ dòng"), ("chi_dong_y", "chỉ các dòng người chú thích đồng ý với nhãn gốc")):
-        for dd, ten_dd in (("accuracy", "Accuracy"), ("macro_f1", "Macro-F1")):
+    for ten, mo_ta in mo_ta_tap:
+        for dd, ten_dd in do_do:
             khoi.append(bang_cham(kq[ten], dd, f"{ten_dd} theo nhóm hiện tượng, {mo_ta}. " + chu.format(lan=nghin(so_lan), cau=nghin(so_cau[ten]))))
+    for ten, mo_ta in mo_ta_tap:
+        for dd, ten_dd in do_do:
+            khoi.append(bang_cham(kq_gop[ten], dd, f"{ten_dd} theo dấu hiệu, {mo_ta}. Dòng thuộc nhóm cả hai được tính vào cả hai cột sau. "
+                                  + chu.format(lan=nghin(so_lan), cau=nghin(so_cau[ten])), nhom=tuple(NHOM_GOP)))
+    ten_moc = cb.TEN_HIEN_THI.get(MOC_MO_HINH, MOC_MO_HINH)
+    for ten, mo_ta in mo_ta_tap:
+        for dd, ten_dd in do_do:
+            khoi.append(bang_so_moc(kq_moc[ten], dd, f"{ten_dd}: từng mô hình so với {ten_moc} trong từng nhóm, {mo_ta}. "
+                                    + chu_moc.format(moc=ten_moc, lan=nghin(so_lan), cau=nghin(so_cau[ten]))))
     bang = dau + "\n".join(khoi)
     print(bang)
     if not chi_in:
+        nhat_quan = None if kappa is None else {k: v for k, v in kappa.items() if k != "uid_lech"}
         out_json.write_text(json.dumps({"so_bo": so_bo, "so_lan": so_lan, "seed": seed, "seeds_mo_hinh": list(cb.SEEDS), "don_vi_lay_mau": "cau",
-                                        "nhan_cham": "nhan_goc", "nhom_moc": NHOM_CHAM[0], "so_cau": so_cau, "ket_qua": kq},
+                                        "nhan_cham": "nhan_goc", "nhom_moc": NHOM_CHAM[0], "so_cau": so_cau, "do_nhat_quan": nhat_quan,
+                                        "phan_bo": {ten: phan_bo(ds) for ten, ds in tap.items()}, "ket_qua": kq,
+                                        "nhom_gop": {k: list(v) for k, v in NHOM_GOP.items()}, "ket_qua_gop": kq_gop,
+                                        "mo_hinh_moc": MOC_MO_HINH, "so_voi_mo_hinh_moc": kq_moc},
                                        ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         out_md.write_text(bang, encoding="utf-8")
         print(f"Đã ghi {out_json} và {out_md}")
@@ -349,6 +514,11 @@ def main(argv=None) -> int:
     p.add_argument("--xlsx", type=Path, default=XLSX_MAC_DINH)
     p.add_argument("--out", type=Path, default=Path("data/diagnostic/kappa.json"))
     p.add_argument("--bo-qua-ngay", action="store_true", help="bỏ kiểm tra khoảng cách 14 ngày (khi người gán là người thứ hai)")
+    p.add_argument("--gan-som", action="store_true",
+                   help="chính người chú thích đã gán lại TRƯỚC mốc 14 ngày: vẫn tính, file kết quả ghi rõ là gán sớm")
+    p.add_argument("--ngay-gan-lai", default="", help="ngày gán lại thật, dd/mm/yyyy (bắt buộc với --gan-som)")
+    p.add_argument("--khoang-cach-toi-da", type=int, default=-1,
+                   help="số ngày nhiều nhất giữa lần gán đầu và lần gán lại (bắt buộc với --gan-som)")
     p = sub.add_parser("cham", help="chấm các mô hình theo nhóm hiện tượng từ predictions.jsonl đã có")
     p.add_argument("--csv", type=Path, default=ct.CSV_MAC_DINH)
     p.add_argument("--results", type=Path, default=Path("results"))
@@ -371,7 +541,7 @@ def main(argv=None) -> int:
         return cmd_cham(a.csv, a.results, a.so_lan, a.seed, a.kappa, a.out_json, a.out_md, a.chi_in)
     if a.lenh == "chot":
         return cmd_chot(a.csv, a.test, a.out, a.kappa, a.ghi_de)
-    return cmd_kappa(a.csv, a.xlsx, a.bo_qua_ngay, a.out)
+    return cmd_kappa(a.csv, a.xlsx, a.bo_qua_ngay, a.out, a.gan_som, a.ngay_gan_lai, a.khoang_cach_toi_da)
 
 
 if __name__ == "__main__":
