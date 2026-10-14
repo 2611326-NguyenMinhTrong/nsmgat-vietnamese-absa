@@ -15,6 +15,18 @@ rồi làm ba việc trong một lần chạy:
 Chương nào chưa có file nháp thì giữ nguyên trong Word. Luôn ghép tất cả cùng
 lúc, vì thêm một trích dẫn ở Chương 1 làm đổi số ở mọi chương sau.
 
+Nếu thư mục nháp có PhuLuc.md thì mục PHỤ LỤC được thay bằng nội dung đó. Nếu có
+TrangDau.md thì các trang trước Chương 1 cũng được ghép:
+  - mỗi mục "# TIÊU ĐỀ" trong file thay phần thân của tiêu đề cấp 1 cùng tên trong Word
+    (LỜI CẢM ƠN, LỜI CAM ĐOAN, TÓM TẮT, DANH SÁCH CÁC CHỮ VIẾT TẮT);
+  - DANH SÁCH CÁC BẢNG và DANH SÁCH CÁC HÌNH được dựng tự động: mỗi tên bảng, tên hình
+    mang một trường TC, và danh sách là một trường TOC đọc các trường đó, nên số
+    trang do Word tính khi cập nhật trường (Ctrl+A rồi F9);
+  - mỗi mục trước Chương 1 bắt đầu ở một trang mới; mục không thuộc quy định của trường
+    (MUC_BO_DI) và các dòng chỉ gồm một chỗ đánh dấu [TODO ...] ở các trang đầu bị bỏ.
+Ở trang bìa, dòng có chữ không bị đụng tới; chỉ dòng [TODO ...] bị bỏ và các dòng trống
+được thu lại cho bìa nằm gọn một trang (thu_gon_trang_bia).
+
     python scripts/nhap_chuong_vao_docx.py --chi-xem     # chỉ in thống kê, không ghi
     python scripts/nhap_chuong_vao_docx.py               # ghi; dừng nếu có chương đã có nội dung
     python scripts/nhap_chuong_vao_docx.py --ghi-de      # ghi cả khi chương đã có nội dung
@@ -37,6 +49,7 @@ Cú pháp Markdown nhận (đủ cho bản nháp chương, cố ý hẹp):
   | a | b |        bảng (cần dòng phân cách ---)
   ... (N.M)        dòng kết thúc bằng số công thức thì canh giữa
   [@khoá]          trích dẫn; khoá phải có trong tai_lieu.json
+  >> ...           dòng canh giữa (khối chữ ký); ">>" đứng một mình là một dòng trống
   [TODO: ...] [CẦN KIỂM: ...] [CẦN TÌM: ...] [CHÈN ...]   in nghiêng màu đỏ
   ## Tài liệu được trích ...   từ dòng này trở đi KHÔNG đưa vào chương
 """
@@ -54,12 +67,14 @@ from typing import Dict, List, Optional, Tuple
 
 from docx import Document
 from docx.document import Document as DocumentType
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import Cm, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Cm, Pt, RGBColor
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from ute_docx import CAPTION_SIZE, FONT, LINE_SPACING, SIZE, TABLE_TEXT_SIZE, ap_lai_dinh_dang  # noqa: E402
+from ute_docx import CAPTION_SIZE, FONT, LINE_SPACING, SIZE, TABLE_TEXT_SIZE, add_field, ap_lai_dinh_dang  # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -71,6 +86,14 @@ TIEU_DE_TAI_LIEU = "TÀI LIỆU THAM KHẢO"
 TEN_FILE_PHU_LUC = "PhuLuc.md"
 TIEU_DE_PHU_LUC = "PHỤ LỤC"
 SO_PHU_LUC = 99  # khoa cua phu luc trong bang than: lon hon moi so chuong de trich dan duoc danh so sau cung
+TEN_FILE_TRANG_DAU = "TrangDau.md"
+DAU_CHUONG_DAU = "Chương 1."  # mọi tiêu đề cấp 1 đứng trước tiêu đề này thuộc các trang đầu
+# Danh sách dựng tự động: tiêu đề cấp 1 trong Word -> (chữ đầu cột, mã của trường TC)
+DANH_SACH_TU_DONG = {"DANH SÁCH CÁC BẢNG": ("BẢNG", "B"), "DANH SÁCH CÁC HÌNH": ("HÌNH", "H")}
+MA_TC = {"Bảng": "B", "Hình": "H"}
+MUC_BO_DI = ("DANH SÁCH CÔNG THỨC",)  # khung cũ có mục này; quy định của trường (Phần I mục 6.8) không đòi
+RONG_PHAN_CHU_CM = 15.5  # khổ A4 trừ lề trái 3,5 cm và lề phải 2 cm
+SO_DONG_TRONG_BIA = 3  # số dòng trống liền nhau tối đa trên trang bìa
 SO_CHUONG = range(1, 7)
 DO = RGBColor(0xB0, 0x00, 0x00)
 DAU_KHUNG_RONG = "(Ngân sách:"
@@ -82,7 +105,7 @@ MAU_CONG_THUC = re.compile(r"\(\d+\.\d+\)$")
 MAU_HINH = re.compile(r"^!\[(\d*(?:[.,]\d+)?)\]\(([^)]+)\)$")
 RONG_HINH_CM = 15.0  # khổ A4 trừ lề trái 3,5 cm và lề phải 2 cm còn 15,5 cm
 
-# Một khối: (loại, nội dung). Loại: h2 | h3 | ten | bang | cong_thuc | hinh | doan
+# Một khối: (loại, nội dung). Loại: h2 | h3 | ten | bang | cong_thuc | hinh | doan | giua | dau_ds | truong_ds
 Khoi = Tuple[str, object]
 
 
@@ -134,6 +157,9 @@ def doc_markdown(van_ban: str) -> List[Khoi]:
         d = dong[i].strip()
         if not d or d.startswith("# "):
             i += 1
+        elif d.startswith(">>"):
+            khoi.append(("giua", d[2:].strip()))
+            i += 1
         elif d.startswith("### "):
             khoi.append(("h3", d[4:].strip()))
             i += 1
@@ -167,6 +193,23 @@ def doc_markdown(van_ban: str) -> List[Khoi]:
     return khoi
 
 
+def doc_trang_dau(van_ban: str) -> Dict[str, List[Khoi]]:
+    """Tách file các trang đầu thành {tiêu đề cấp 1: các khối của mục đó}, theo các dòng '# TIÊU ĐỀ'."""
+    muc: Dict[str, List[str]] = {}
+    ten = None
+    for d in van_ban.replace("\r\n", "\n").split("\n"):
+        if d.startswith("# "):
+            ten = d[2:].strip()
+            if ten in muc:
+                raise ValueError(f"{TEN_FILE_TRANG_DAU} có hai mục cùng tên '{ten}'")
+            muc[ten] = []
+        elif ten is not None:
+            muc[ten].append(d)
+        elif d.strip():
+            raise ValueError(f"{TEN_FILE_TRANG_DAU}: dòng '{d[:40]}' đứng trước mọi tiêu đề '# ...'")
+    return {ten: doc_markdown("\n".join(dong)) for ten, dong in muc.items()}
+
+
 # --- Ghi vào Word ----------------------------------------------------------------
 
 
@@ -188,6 +231,26 @@ def _doan_co_danh_dau(para, chu: str) -> None:
             _chay(para, manh, nghieng=la_dau, do=la_dau)
 
 
+def _them_truong_tc(para, chu: str, ma: str) -> None:
+    """Trường TC ở cuối một tên bảng hoặc tên hình: khai một mục cho danh sách mang mã `ma`.
+
+    Trường TOC \\f <mã> ở trang danh sách gom các trường này lại, số trang do Word tính. Trường TC không
+    có phần kết quả nên không hiện gì trên trang. KHÔNG đánh dấu chữ ẩn (w:vanish) cho trường này: đã thử
+    ngày 13/10/2026 trên Word, trường TC mang w:vanish không được trường TOC gom và danh sách ra rỗng.
+    """
+    run = para.add_run()
+    chu = chu.replace('"', "”")
+    for tag, attrs, text in (("w:fldChar", {"w:fldCharType": "begin"}, None),
+                             ("w:instrText", {"xml:space": "preserve"}, f' TC "{chu}" \\f {ma} \\l 1 '),
+                             ("w:fldChar", {"w:fldCharType": "end"}, None)):
+        node = OxmlElement(tag)
+        for key, value in attrs.items():
+            node.set(qn(key), value)
+        if text is not None:
+            node.text = text
+        run._r.append(node)
+
+
 def _them_khoi(doc: DocumentType, khoi: Khoi):
     """Thêm một khối vào CUỐI tài liệu, trả về phần tử XML để dời tới đúng chỗ."""
     loai, nd = khoi
@@ -197,6 +260,25 @@ def _them_khoi(doc: DocumentType, khoi: Khoi):
         para = doc.add_paragraph(style="Caption")
         para.alignment = WD_ALIGN_PARAGRAPH.CENTER
         _chay(para, nd, co=CAPTION_SIZE, dam=True)
+        _them_truong_tc(para, nd, MA_TC[nd.split(" ", 1)[0]])
+        return para._p
+    if loai == "giua":
+        para = doc.add_paragraph()
+        para.paragraph_format.line_spacing = LINE_SPACING
+        para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        if nd:
+            _chay(para, nd)
+        return para._p
+    if loai == "dau_ds":  # dòng đầu của danh sách bảng, hình: "BẢNG ... TRANG" theo Phụ lục 8 và 9 của quy định
+        para = doc.add_paragraph()
+        para.paragraph_format.line_spacing = LINE_SPACING
+        para.paragraph_format.tab_stops.add_tab_stop(Cm(RONG_PHAN_CHU_CM), WD_TAB_ALIGNMENT.RIGHT)
+        _chay(para, f"{nd}\tTRANG", dam=True)
+        return para._p
+    if loai == "truong_ds":
+        para = doc.add_paragraph()
+        para.paragraph_format.line_spacing = LINE_SPACING
+        add_field(_chay(para, ""), f"TOC \\f {nd} \\h \\z")
         return para._p
     if loai == "bang":
         bang = doc.add_table(rows=len(nd), cols=len(nd[0]))
@@ -267,6 +349,93 @@ def thay_than_muc(doc: DocumentType, dau_tieu_de: str, khoi: List[Khoi]) -> int:
     return len(khoi)
 
 
+def _h1_trang_dau(doc: DocumentType) -> list:
+    """Các đoạn tiêu đề cấp 1 đứng trước Chương 1, theo thứ tự trong tài liệu."""
+    ra = []
+    for p in doc.paragraphs:
+        if p.style.name == "Heading 1":
+            if p.text.strip().startswith(DAU_CHUONG_DAU):
+                return ra
+            ra.append(p)
+    raise ValueError(f"Không thấy tiêu đề cấp 1 bắt đầu bằng '{DAU_CHUONG_DAU}'")
+
+
+def muc_con_la_khung(doc: DocumentType, dau_tieu_de: str) -> bool:
+    """Một mục ở trang đầu còn là khung khi thân của nó không có bảng và mọi dòng có chữ đều là chỗ đánh dấu."""
+    than = _than_muc(*tim_muc_cap_mot(doc, dau_tieu_de))
+    if any(e.tag.endswith("}tbl") for e in than):
+        return False
+    # Lấy chữ từ các nút w:t. Không dùng itertext(): với lớp phần tử của python-docx nó trả chữ của một đoạn nhiều lần.
+    chu = ["".join(t.text or "" for t in e.iter(qn("w:t"))).strip() for e in than]
+    return all(MAU_DANH_DAU.fullmatch(c) for c in chu if c)
+
+
+def bo_muc(doc: DocumentType, dau_tieu_de: str) -> bool:
+    """Bỏ một mục cấp 1 cùng phần thân của nó. Đoạn mang ngắt section được giữ lại. Trả về False nếu không có mục đó."""
+    if not any(p.style.name == "Heading 1" and p.text.strip().startswith(dau_tieu_de) for p in doc.paragraphs):
+        return False
+    dau, cuoi = tim_muc_cap_mot(doc, dau_tieu_de)
+    for el in _than_muc(dau, cuoi):
+        if not (el.tag.endswith("}p") and el.xpath(".//w:sectPr")):
+            el.getparent().remove(el)
+    dau._p.getparent().remove(dau._p)
+    return True
+
+
+def bo_dong_danh_dau_trang_dau(doc: DocumentType) -> int:
+    """Xoá các đoạn chỉ gồm một chỗ đánh dấu [TODO ...] nằm trước Chương 1 (kể cả ở trang bìa). Trả về số đoạn đã xoá."""
+    so = 0
+    for p in list(doc.paragraphs):
+        if p.style.name == "Heading 1" and p.text.strip().startswith(DAU_CHUONG_DAU):
+            break
+        if MAU_DANH_DAU.fullmatch(p.text.strip()) and not p._p.xpath(".//w:sectPr"):
+            p._p.getparent().remove(p._p)
+            so += 1
+    return so
+
+
+def thu_gon_trang_bia(doc: DocumentType) -> int:
+    """Thu các dòng trống của trang bìa cho bìa nằm gọn trong một trang. Trả về số dòng trống đã bỏ.
+
+    Khung bìa có 18 dòng trống giãn dòng 1,5 nên tràn sang trang thứ hai (GAP-038). Ở đây mỗi cụm dòng
+    trống liền nhau còn tối đa SO_DONG_TRONG_BIA dòng, và dòng trống dùng giãn dòng đơn, không cách đoạn.
+    Dòng có chữ không bị đụng tới. Bìa là mọi đoạn đứng trước tiêu đề cấp 1 đầu tiên.
+    """
+    da_bo, lien_tiep = 0, 0
+    for p in list(doc.paragraphs):
+        if p.style.name == "Heading 1":
+            break
+        if p.text.strip() or p._p.xpath(".//w:sectPr") or p._p.xpath(".//w:drawing"):
+            lien_tiep = 0
+            continue
+        lien_tiep += 1
+        if lien_tiep > SO_DONG_TRONG_BIA:
+            p._p.getparent().remove(p._p)
+            da_bo += 1
+        else:
+            p.paragraph_format.line_spacing = 1.0
+            p.paragraph_format.space_after = Pt(0)
+    return da_bo
+
+
+def ghep_trang_dau(doc: DocumentType, muc: Dict[str, List[Khoi]]) -> Dict[str, int]:
+    """Ghép các trang trước Chương 1. Trả về vài con số để in."""
+    thu_gon_trang_bia(doc)
+    da_bo = [ten for ten in MUC_BO_DI if bo_muc(doc, ten)]
+    for ten, khoi in muc.items():
+        thay_than_muc(doc, ten, khoi)
+    co_ds = []
+    for ten, (dau_cot, ma) in DANH_SACH_TU_DONG.items():
+        if any(p.text.strip().startswith(ten) for p in _h1_trang_dau(doc)):
+            thay_than_muc(doc, ten, [("dau_ds", dau_cot), ("truong_ds", ma)])
+            co_ds.append(ten)
+    so_dong = bo_dong_danh_dau_trang_dau(doc)
+    h1 = _h1_trang_dau(doc)
+    for p in h1[1:]:  # mục đầu tiên đã ở đầu một section mới
+        p.paragraph_format.page_break_before = True
+    return {"muc_bo": len(da_bo), "danh_sach": len(co_ds), "dong_danh_dau_bo": so_dong, "so_muc": len(h1)}
+
+
 def sao_luu(duong_dan: Path) -> Path:
     ban = duong_dan.with_name(f"{duong_dan.stem}.{datetime.now():%Y%m%d-%H%M%S}.docx.bak")
     shutil.copy2(duong_dan, ban)
@@ -298,6 +467,8 @@ def main(argv=None) -> int:
     than = {so: cat_than(t) for so, t in than.items()}
     than, thu_tu = danh_so_trich_dan(than, tai_lieu)
     than_phu_luc = than.pop(SO_PHU_LUC, None)
+    tep_trang_dau = a.nhap / TEN_FILE_TRANG_DAU
+    trang_dau = doc_trang_dau(tep_trang_dau.read_text(encoding="utf-8")) if tep_trang_dau.exists() else None
 
     doc = Document(str(a.docx))
     da_co = []
@@ -321,15 +492,24 @@ def main(argv=None) -> int:
     if than_phu_luc is not None:
         khoi_pl = doc_markdown(than_phu_luc)
         print(f"Phụ lục ({TEN_FILE_PHU_LUC}): {len(khoi_pl)} khối, {sum(1 for loai, _ in khoi_pl if loai == 'bang')} bảng")
+    trang_dau_da_co: List[str] = []
+    if trang_dau is not None:
+        co_dau = [ten for ten, khoi in trang_dau.items() if any(MAU_DANH_DAU.search(str(nd)) for _, nd in khoi)]
+        trang_dau_da_co = [ten for ten in trang_dau if not muc_con_la_khung(doc, ten)]
+        print(f"Trang đầu ({TEN_FILE_TRANG_DAU}): {len(trang_dau)} mục {list(trang_dau)} | mục còn chỗ đánh dấu: {co_dau} | "
+              f"trong Word đã có nội dung: {trang_dau_da_co}")
+    so_ten = {loai: sum(1 for ds in list(khoi_chuong.values()) + [khoi_pl or []] for k, nd in ds if k == "ten" and nd.startswith(loai))
+              for loai in MA_TC}
+    print(f"Tên bảng: {so_ten['Bảng']} | tên hình: {so_ten['Hình']}")
     khoi_tl: List[Khoi] = [("tai_lieu", f"[{n}] {tai_lieu[k]}") for n, k in enumerate(thu_tu, 1)]
     so_ck = sum(1 for _, nd in khoi_tl if MAU_DANH_DAU.search(nd))
     print(f"Tài liệu được trích: {len(thu_tu)} | trong đó còn đánh dấu chưa đối chiếu: {so_ck}")
 
     if a.chi_xem:
         return 0
-    if da_co and not a.ghi_de:
-        print(f"DỪNG: chương {da_co} đã có nội dung trong Word. Dùng --ghi-de nếu chắc chắn muốn thay "
-              "(chỗ sửa tay trong Word ở các chương này sẽ mất, chỉ còn trong bản sao lưu).")
+    if (da_co or trang_dau_da_co) and not a.ghi_de:
+        print(f"DỪNG: chương {da_co} và mục trang đầu {trang_dau_da_co} đã có nội dung trong Word. Dùng --ghi-de nếu chắc chắn "
+              "muốn thay (chỗ sửa tay trong Word ở các phần này sẽ mất, chỉ còn trong bản sao lưu).")
         return 2
     ban = sao_luu(a.docx)
     for so, khoi in khoi_chuong.items():
@@ -337,11 +517,15 @@ def main(argv=None) -> int:
     thay_than_muc(doc, TIEU_DE_TAI_LIEU, khoi_tl)
     if khoi_pl is not None:
         thay_than_muc(doc, TIEU_DE_PHU_LUC, khoi_pl)
+    if trang_dau is not None:
+        kq = ghep_trang_dau(doc, trang_dau)
+        print(f"Trang đầu: {kq['so_muc']} mục trước Chương 1, mỗi mục một trang mới; dựng {kq['danh_sach']} danh sách tự động; "
+              f"bỏ {kq['muc_bo']} mục ngoài quy định và {kq['dong_danh_dau_bo']} dòng chỉ có chỗ đánh dấu")
     if a.sua_dinh_dang:
         ap_lai_dinh_dang(doc)
     doc.save(str(a.docx))
     print(f"Đã ghi {a.docx}\nBản sao lưu: {ban}")
-    print("Mở Word, bấm Ctrl+A rồi F9 để cập nhật mục lục.")
+    print("Mở Word, bấm Ctrl+A rồi F9 để cập nhật mục lục, danh sách bảng và danh sách hình.")
     return 0
 
 

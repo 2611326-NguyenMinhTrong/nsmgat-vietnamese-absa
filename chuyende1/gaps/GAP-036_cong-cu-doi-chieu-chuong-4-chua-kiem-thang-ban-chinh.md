@@ -3,7 +3,7 @@
 **Ngày phát hiện:** 13/10/2026 · **Phát hiện bởi:** Claude Code, ngay sau khi học viên chọn bản rút gọn làm bản chính
 **Loại:** công cụ kiểm · tài liệu
 **Mức độ:** nhẹ lúc này (chưa con số nào lệch), thành trung bình khi mục 4.3 và 4.5 có số
-**Trạng thái:** 🔴 Mở: chờ học viên đồng ý cho chỉnh công cụ
+**Trạng thái:** ✅ Đã sửa ngày 13/10/2026 (mục 7)
 
 ---
 
@@ -62,3 +62,25 @@ Chưa sửa. Việc cần làm khi học viên đồng ý, trước khi đưa s�
 
 Đổi bản chính thì phải đổi luôn đích của mọi công cụ kiểm, và chạy lại từng công cụ trên bản mới. Một
 kết quả "khớp" chỉ nói về đúng cái file đã được đưa vào.
+
+## 7. Đã sửa ngày 13/10/2026
+
+Học viên đồng ý. `scripts/doi_chieu_chuong4.py` nay:
+
+- Mặc định kiểm bản chính, đọc cả `Chuong4_ThucNghiem.md`, `PhuLuc.md` và mục TÓM TẮT của `TrangDau.md`;
+  `--ban day_du` kiểm bản lưu.
+- Gọi mỗi bảng bằng số của bản đầy đủ và đổi sang số của bản chính qua `SO_BANG_RUT_GON`. Mỗi hàng phải nằm
+  trong đúng bảng mang số đó, và tên bảng phải chứa một cụm từ khoá. Trước đây một hàng chỉ cần có mặt ở đâu
+  đó trong chương.
+- Có hai cách viết cho 2 câu mà hai bản viết khác nhau; 5 câu chỉ có ở bản đầy đủ thì bản chính bỏ qua.
+- Thêm 6 chỗ kiểm số tham số ở bảng thang mô hình, áp cho cả hai bản.
+- Thêm 46 chỗ kiểm chỉ áp cho bản chính: 25 câu của mục 4.4 và 4.7 trước đây chưa có chỗ kiểm, 3 con số của
+  mục 4.3 (độ phủ của từ điển, tỉ lệ đồ thị bị chia cắt, số cạnh thêm), 4 câu của mục 4.1.2, 5 câu so sánh của
+  mục 4.6 và 4.7 về tập chẩn đoán, và 9 cụm của phần tóm tắt. Con số nào của phần tóm tắt không có trong các
+  chương hay phụ lục thì bị báo là số lạ.
+
+Kết quả: bản chính 215 chỗ, khớp 215; bản đầy đủ 174 chỗ, khớp 174 (153 chỗ cũ, 15 chỗ tên bảng, 6 chỗ số
+tham số). Trong lúc thêm chỗ kiểm, công cụ tìm ra một câu sai ở mục 4.7, ghi ở GAP-037.
+
+Còn ngoài phạm vi của công cụ: các con số về từ khoá phủ định ở cuối mục 4.1.2 và các con số dẫn từ bài báo
+khác (phần sau do `doi_chieu_ban_goc.py` kiểm).

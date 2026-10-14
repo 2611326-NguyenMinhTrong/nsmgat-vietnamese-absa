@@ -268,3 +268,162 @@ def test_co_sua_dinh_dang_doi_kho_giay_khong_co_thi_giu(tmp_path):
     doc = Document(str(p))
     assert abs(doc.sections[0].page_width.cm - 21.0) < 0.01
     assert doc.styles["Heading 1"].element.rPr.find(qn("w:rFonts")).get(qn("w:asciiTheme")) is None
+
+
+# --- Các trang trước Chương 1 (CD1.12f) ------------------------------------------
+
+TRANG_DAU = """# TÓM TẮT
+
+Đoạn tóm tắt có số 86,64 %.
+
+# LỜI CAM ĐOAN
+
+Tôi cam đoan.
+
+>>
+>> Tp. Hồ Chí Minh, ngày … tháng … năm 2026
+>> NGƯỜI VIẾT
+"""
+
+
+def _cuon_co_trang_dau(tmp_path: Path) -> Path:
+    doc = Document()
+    doc.add_paragraph("Tp. Hồ Chí Minh, tháng ...... năm 2026")
+    doc.add_paragraph("[TODO: điền tháng]")
+    for ten, than in (("LỜI CAM ĐOAN", ["Câu cũ.", "[TODO: theo mẫu]"]), ("TÓM TẮT", ["[TODO: viết sau cùng]"]),
+                      ("MỤC LỤC", ["mục lục cũ", "[TODO: bấm F9]"]), ("DANH SÁCH CÁC BẢNG", ["[TODO: liệt kê]"]),
+                      ("DANH SÁCH CÁC HÌNH", ["[TODO: tương tự]"]), ("DANH SÁCH CÔNG THỨC", ["[TODO: không bắt buộc]"])):
+        doc.add_paragraph(ten, style="Heading 1")
+        for d in than:
+            doc.add_paragraph(d)
+    doc.add_paragraph("")
+    doc.add_paragraph("Chương 1. MỘT", style="Heading 1")
+    doc.add_paragraph("(Ngân sách: khoảng 5 trang)")
+    doc.add_paragraph("")
+    for ten in ("Chương 3. BA", "Chương 4. BỐN"):
+        doc.add_paragraph(ten, style="Heading 1")
+        doc.add_paragraph("(Ngân sách: khoảng 7 trang)")
+        doc.add_paragraph("")
+    doc.add_paragraph("TÀI LIỆU THAM KHẢO", style="Heading 1")
+    doc.add_paragraph("[TODO: danh mục]")
+    p = tmp_path / "cuon_td.docx"
+    doc.save(str(p))
+    return p
+
+
+def _chay_trang_dau(tmp_path, p, *them, trang_dau=TRANG_DAU):
+    d = _nhap(tmp_path)
+    (d / m.TEN_FILE_TRANG_DAU).write_text(trang_dau, encoding="utf-8")
+    return m.main(["--nhap", str(d), "--docx", str(p), *them])
+
+
+def _truong(el):
+    from docx.oxml.ns import qn
+
+    return ["".join(x.text or "" for x in el.iter(qn("w:instrText")))]
+
+
+def test_dong_canh_giua_va_tach_muc_trang_dau():
+    muc = m.doc_trang_dau(TRANG_DAU)
+    assert list(muc) == ["TÓM TẮT", "LỜI CAM ĐOAN"]
+    assert muc["LỜI CAM ĐOAN"] == [("doan", "Tôi cam đoan."), ("giua", ""), ("giua", "Tp. Hồ Chí Minh, ngày … tháng … năm 2026"),
+                                    ("giua", "NGƯỜI VIẾT")]
+    with pytest.raises(ValueError):
+        m.doc_trang_dau("# A\n\nx\n\n# A\n\ny\n")
+    with pytest.raises(ValueError):
+        m.doc_trang_dau("chữ đứng trước tiêu đề\n\n# A\n")
+
+
+def test_muc_trang_dau_da_co_noi_dung_thi_dung_tru_khi_ghi_de(tmp_path, capsys):
+    p = _cuon_co_trang_dau(tmp_path)
+    doc = Document(str(p))
+    assert m.muc_con_la_khung(doc, "TÓM TẮT") and not m.muc_con_la_khung(doc, "LỜI CAM ĐOAN")
+    assert _chay_trang_dau(tmp_path, p) == 2
+    assert "LỜI CAM ĐOAN" in capsys.readouterr().out
+    assert ("Normal", "Câu cũ.") in _chu(p)
+    assert _chay_trang_dau(tmp_path, p, "--ghi-de") == 0
+
+
+def test_ghep_trang_dau_thay_muc_dung_danh_sach_va_bo_cho_danh_dau(tmp_path):
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+    p = _cuon_co_trang_dau(tmp_path)
+    assert _chay_trang_dau(tmp_path, p, "--ghi-de") == 0
+    doc = Document(str(p))
+    chu = [(x.style.name, x.text) for x in doc.paragraphs]
+    dau = chu[:chu.index(("Heading 1", "Chương 1. MỘT"))]
+    # nội dung của hai mục có trong TrangDau.md đã vào, câu cũ và mọi dòng [TODO ...] ở trang đầu đã mất
+    assert ("Normal", "Đoạn tóm tắt có số 86,64 %.") in dau and ("Normal", "Tôi cam đoan.") in dau
+    assert ("Normal", "Câu cũ.") not in dau and not [t for _, t in dau if "[TODO" in t]
+    assert ("Normal", "Tp. Hồ Chí Minh, tháng ...... năm 2026") in dau  # trang bìa chỉ mất dòng đánh dấu
+    assert ("Normal", "mục lục cũ") in dau  # mục không có trong TrangDau.md thì giữ, chỉ bỏ dòng đánh dấu
+    # mục ngoài quy định bị bỏ; các mục còn lại theo đúng thứ tự cũ
+    assert [t for s, t in dau if s == "Heading 1"] == ["LỜI CAM ĐOAN", "TÓM TẮT", "MỤC LỤC", "DANH SÁCH CÁC BẢNG", "DANH SÁCH CÁC HÌNH"]
+    # khối chữ ký canh giữa
+    ky = next(x for x in doc.paragraphs if x.text == "NGƯỜI VIẾT")
+    assert ky.alignment == WD_ALIGN_PARAGRAPH.CENTER
+    # mỗi mục trước Chương 1 ở một trang mới, trừ mục đầu
+    h1 = [x for x in doc.paragraphs if x.style.name == "Heading 1"]
+    truoc = h1[:[x.text for x in h1].index("Chương 1. MỘT")]
+    assert [bool(x.paragraph_format.page_break_before) for x in truoc] == [False, True, True, True, True]
+    assert not h1[len(truoc)].paragraph_format.page_break_before
+    # hai danh sách: một dòng đầu cột rồi một trường TOC đọc các trường TC theo mã
+    for ten, dau_cot, ma in (("DANH SÁCH CÁC BẢNG", "BẢNG", "B"), ("DANH SÁCH CÁC HÌNH", "HÌNH", "H")):
+        than = m._than_muc(*m.tim_muc_cap_mot(doc, ten))
+        chu_than = ["".join(t.text or "" for t in e.iter("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t")) for e in than]
+        assert chu_than[0] == f"{dau_cot}TRANG"  # dấu tab nằm ở nút w:tab, không ở w:t
+        assert _truong(than[1]) == [rf"TOC \f {ma} \h \z"]
+
+
+def test_ten_bang_mang_truong_tc_khong_an(tmp_path):
+    p = _cuon_co_trang_dau(tmp_path)
+    assert _chay_trang_dau(tmp_path, p, "--ghi-de") == 0
+    doc = Document(str(p))
+    ten = next(x for x in doc.paragraphs if x.text == "Bảng 4.1: Tên bảng")  # chữ hiện ra không đổi
+    assert _truong(ten._p) == [r' TC "Bảng 4.1: Tên bảng" \f B \l 1 ']
+    # trường TC mang w:vanish thì Word không gom vào danh sách (đã thử trên Word ngày 13/10/2026)
+    assert not ten._p.xpath(".//w:vanish")
+
+
+def test_khong_co_file_trang_dau_thi_trang_dau_giu_nguyen(tmp_path):
+    p = _cuon_co_trang_dau(tmp_path)
+    assert m.main(["--nhap", str(_nhap(tmp_path)), "--docx", str(p)]) == 0
+    chu = _chu(p)
+    assert ("Normal", "[TODO: viết sau cùng]") in chu and ("Heading 1", "DANH SÁCH CÔNG THỨC") in chu
+    assert not [x for x in Document(str(p)).paragraphs if x.paragraph_format.page_break_before]
+
+
+def test_bo_muc_giu_doan_mang_ngat_section(tmp_path):
+    from docx.enum.section import WD_SECTION
+
+    doc = Document()
+    doc.add_paragraph("A", style="Heading 1")
+    doc.add_paragraph("thân A")
+    doc.add_paragraph("B", style="Heading 1")
+    doc.add_paragraph("thân B")
+    doc.add_section(WD_SECTION.NEW_PAGE)  # ngắt section nằm trong đoạn cuối của mục B
+    doc.add_paragraph("Chương 1. MỘT", style="Heading 1")
+    assert m.bo_muc(doc, "B") and not m.bo_muc(doc, "KHÔNG CÓ")
+    assert [x.text for x in doc.paragraphs if x.style.name == "Heading 1"] == ["A", "Chương 1. MỘT"]
+    assert len(doc.sections) == 2 and "thân B" not in [x.text for x in doc.paragraphs]
+
+
+def test_trang_bia_duoc_thu_gon_dong_trong_dong_co_chu_giu_nguyen():
+    doc = Document()
+    doc.add_paragraph("TÊN TRƯỜNG")
+    for _ in range(5):
+        doc.add_paragraph("")
+    doc.add_paragraph("CHUYÊN ĐỀ")
+    for _ in range(2):
+        doc.add_paragraph("")
+    doc.add_paragraph("Tp. Hồ Chí Minh")
+    doc.add_paragraph("LỜI CẢM ƠN", style="Heading 1")
+    for _ in range(6):
+        doc.add_paragraph("")  # dòng trống ngoài trang bìa không bị đụng tới
+    assert m.thu_gon_trang_bia(doc) == 5 - m.SO_DONG_TRONG_BIA
+    chu = [x.text for x in doc.paragraphs]
+    assert chu[:chu.index("LỜI CẢM ƠN")] == ["TÊN TRƯỜNG", "", "", "", "CHUYÊN ĐỀ", "", "", "Tp. Hồ Chí Minh"]
+    assert len(chu) - chu.index("LỜI CẢM ƠN") - 1 == 6
+    trong_bia = [x for x in doc.paragraphs[:chu.index("LỜI CẢM ƠN")] if not x.text]
+    assert all(x.paragraph_format.line_spacing == 1.0 and x.paragraph_format.space_after == 0 for x in trong_bia)
+    assert m.thu_gon_trang_bia(doc) == 0  # chạy lại không bỏ thêm gì
