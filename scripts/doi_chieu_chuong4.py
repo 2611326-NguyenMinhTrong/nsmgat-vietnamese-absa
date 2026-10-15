@@ -74,7 +74,7 @@ SO_BANG_RUT_GON = {"4.1": "4.1", "4.2": "C.1", "4.4": "4.2", "4.5": "4.3", "4.6"
 # Tên bảng phải chứa cụm này: bắt trường hợp hai bảng cùng dạng hàng bị đổi chỗ cho nhau.
 TU_KHOA_BANG = {
     "4.1": "Quy mô và phân bố nhãn", "4.2": "Phân bố mẫu theo khía cạnh và nhãn", "4.4": "Thang mô hình",
-    "4.5": "Kết quả trên tập kiểm tra", "4.6": "Kiểm định bootstrap ghép cặp", "4.7": "Macro-F1 từng hạt giống",
+    "4.5": "Kết quả trên tập kiểm tra", "4.6": "Kiểm định bootstrap ghép cặp", "4.7": "Macro-F1 từng",
     "4.8": "Hành vi trên lớp trung tính", "4.9": "Số tham số và thời gian huấn luyện",
     "4.10": "Thành phần của tập chẩn đoán", "4.11": "Accuracy trên bốn nhóm", "4.12": "Macro-F1 trên bốn nhóm",
     "4.13": "Hiệu số so với nhóm thường", "4.14": "Accuracy theo từng dấu hiệu",
@@ -236,7 +236,7 @@ def so_lieu_ket_qua(goc: Path, tho: dict, ban: str = "rut_gon") -> Tuple[List[Tu
         ("Lời văn, PhoBERT hơn BiLSTM", f"{tp(hieu(acc, 'phobert', 'bilstm'))} điểm accuracy và {tp(hieu(f1, 'phobert', 'bilstm'))} điểm macro-F1"),
         ("Lời văn, F1 trung tính tăng", f"F1 lớp trung tính tăng {tp(tt['phobert'] - tt['bilstm'])} điểm"),
         ("Lời văn, ASGCN kém PhoBERT", f"thấp hơn PhoBERT {tp(-hieu(acc, 'asgcn', 'phobert'))} điểm accuracy và {tp(-hieu(f1, 'asgcn', 'phobert'))} điểm macro-F1"),
-        ("Lời văn, ASGCN từng seed", f"nhỉnh hơn PhoBERT {tp(f1s['asgcn'][0] - f1s['phobert'][0])} điểm, ở hai hạt giống còn lại nó thấp hơn "
+        ("Lời văn, ASGCN từng seed", f"nhỉnh hơn PhoBERT {tp(f1s['asgcn'][0] - f1s['phobert'][0])} điểm, ở hai {theo_ban(ban, day_du='hạt giống', rut_gon='seed')} còn lại nó thấp hơn "
                                      f"{tp(f1s['phobert'][1] - f1s['asgcn'][1])} và {tp(f1s['phobert'][2] - f1s['asgcn'][2])} điểm"),
         ("Lời văn, nối gốc hơn ASGCN", f"cao hơn ASGCN {tp(hieu(f1, 'asgcn_linked', 'asgcn'))} điểm"),
         ("Lời văn, nối gốc lấy lại", f"khoảng {tp(hieu(f1, 'asgcn_linked', 'asgcn') / -hieu(f1, 'asgcn', 'phobert') * 100, 0)} %"),
@@ -290,11 +290,11 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
         ("4.4, độ lệch chuẩn BiLSTM và PhoBERT", f"Độ lệch chuẩn của macro-F1 giảm từ {tp(f1['bilstm'][1])} xuống {tp(f1['phobert'][1])}"),
         ("4.4, F1 trung tính so với hai lớp còn lại", f"nhưng vẫn thấp hơn hai lớp còn lại hơn {math.floor(min(lop['phobert'][0], lop['phobert'][2]) - lop['phobert'][1])} điểm"),
         ("4.4, độ lệch chuẩn ASGCN", f"độ lệch chuẩn của macro-F1 tăng lên {tp(f1['asgcn'][1])}"),
-        neu(doi_dau(tung_seed("asgcn", "phobert")), "Vì dấu của hiệu số đổi theo hạt giống", "4.4, ASGCN đổi dấu theo hạt giống"),
+        neu(doi_dau(tung_seed("asgcn", "phobert")), "Vì dấu của hiệu số đổi theo seed", "4.4, ASGCN đổi dấu theo seed"),
         ("4.4, nối gốc", f"Biến thể nối gốc đạt macro-F1 {tp(f1['asgcn_linked'][0])} %, cao hơn ASGCN {tp(hs(f1, 'asgcn_linked', 'asgcn'))} điểm"),
         ("4.4, độ lệch chuẩn nối gốc", f"độ lệch chuẩn giảm từ {tp(f1['asgcn'][1])} xuống {tp(f1['asgcn_linked'][1])}"),
         neu(tung_seed("asgcn_linked", "asgcn")[0] < 0 and all(x > 0 for x in tung_seed("asgcn_linked", "asgcn")[1:]),
-            "Hiệu số này cũng đổi dấu ở hạt giống 42", "4.4, nối gốc đổi dấu ở hạt giống 42"),
+            "Hiệu số này cũng đổi dấu ở seed 42", "4.4, nối gốc đổi dấu ở seed 42"),
         neu(ng_pb["macro_f1"]["p"] >= 0.05 and ng_pb["accuracy"]["p"] >= 0.05,
             f"biến thể nối gốc không khác biệt có ý nghĩa ở cả hai độ đo (p bằng {cb.p_chu(ng_pb['macro_f1']['p'])} và {cb.p_chu(ng_pb['accuracy']['p'])})",
             "4.4, nối gốc so với PhoBERT"),
@@ -310,7 +310,7 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
             "4.4, recall và precision của Sentic-GCN"),
         neu(max(acc, key=lambda e: acc[e][0]) == "phobert" and max(f1, key=lambda e: f1[e][0]) == "phobert" and nho_nhat_f1 == "phobert",
             "Trên cả accuracy lẫn macro-F1, PhoBERT tinh chỉnh là mô hình đứng đầu; trong năm mô hình học, nó cũng có độ lệch chuẩn của macro-F1 "
-            f"nhỏ nhất giữa các hạt giống ({tp(f1['phobert'][1])})", "4.7, mô hình đứng đầu"),
+            f"nhỏ nhất giữa các seed ({tp(f1['phobert'][1])})", "4.7, mô hình đứng đầu"),
         neu(sorted(hoc, key=lambda e: -f1[e][0])[:3] == ["phobert", "senticgcn", "asgcn_linked"],
             f"Sentic-GCN và ASGCN nối gốc đứng sát sau về macro-F1, cách PhoBERT lần lượt {tp(-hs(f1, 'senticgcn', 'phobert'))} và {tp(-hs(f1, 'asgcn_linked', 'phobert'))} điểm",
             "4.7, hai mô hình đứng sau"),
@@ -325,7 +325,7 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
             "4.7, hai bước có hiệu số lớn"),
         neu(max(abs(hs(f1, "asgcn", "phobert")), abs(hs(f1, "senticgcn", "asgcn"))) < 1.3
             and doi_dau(tung_seed("asgcn", "phobert")) and doi_dau(tung_seed("senticgcn", "asgcn")),
-            "cho hiệu số nhỏ hơn 1,3 điểm và đổi dấu theo hạt giống", "4.7, hai bước thêm cấu trúc"),
+            "cho hiệu số nhỏ hơn 1,3 điểm và đổi dấu theo seed", "4.7, hai bước thêm cấu trúc"),
         ("4.7, lớp trung tính so với hai lớp còn lại", f"F1 cao nhất đạt được là {tp(tt[tot])} %, thấp hơn lớp tiêu cực {round(lop[tot][0] - lop[tot][1])} điểm và lớp tích cực {round(lop[tot][2] - lop[tot][1])} điểm"),
         neu([e for e in dung_phobert if rec_tt[e] > rec_tt["phobert"]] == ["senticgcn"] and pre_tt["senticgcn"] < pre_tt["phobert"],
             "Mô hình duy nhất nâng được recall của lớp này làm điều đó bằng cách giảm precision", "4.7, recall đổi lấy precision"),
@@ -334,7 +334,7 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
         ("Tóm tắt, số bình luận", f"trên tập UIT-ViSFD gồm {nghin(sum(BINH_LUAN_GOC.values()))} bình luận"),
         neu(max(f1, key=lambda e: f1[e][0]) == "phobert", f"PhoBERT tinh chỉnh đứng đầu với macro-F1 {tp(f1['phobert'][0])} %", "Tóm tắt, PhoBERT đứng đầu"),
         ("Tóm tắt, hai mô hình đồ thị", f"ASGCN đạt {tp(f1['asgcn'][0])} % và Sentic-GCN đạt {tp(f1['senticgcn'][0])} %"),
-        neu(doi_dau(tung_seed("asgcn", "phobert")), "hiệu số của ASGCN so với PhoBERT đổi dấu theo hạt giống", "Tóm tắt, ASGCN đổi dấu theo hạt giống"),
+        neu(doi_dau(tung_seed("asgcn", "phobert")), "hiệu số của ASGCN so với PhoBERT đổi dấu theo seed", "Tóm tắt, ASGCN đổi dấu theo seed"),
         neu(sg_pb["macro_f1"]["p"] >= 0.05, f"hiệu số của Sentic-GCN so với PhoBERT không có ý nghĩa thống kê (p bằng {cb.p_chu(sg_pb['macro_f1']['p'])})",
             "Tóm tắt, Sentic-GCN so với PhoBERT"),
         neu(kho_nhat, f"Lớp trung tính là lớp khó nhất ở mọi mô hình, với F1 cao nhất là {tp(tt[tot])} %", "Tóm tắt, lớp trung tính"),
@@ -407,7 +407,7 @@ def so_lieu_chi_phi(goc: Path, so_mau_test: int) -> List[Tuple[str, Optional[str
         so_mau = sorted({r["so_mau"] for r in mh.values()})
         seed = sorted({r["seed"] for r in mh.values()})
         if len(lap) > 1 or len(so_mau) > 1 or len(seed) > 1:
-            return [("4.5, cách đo", f"[các mô hình trong {tep} đo khác điều kiện: số lần lặp {lap}, số mẫu {so_mau}, hạt giống {seed}]")]
+            return [("4.5, cách đo", f"[các mô hình trong {tep} đo khác điều kiện: số lần lặp {lap}, số mẫu {so_mau}, seed {seed}]")]
         lap, so_mau, seed = lap[0], so_mau[0], seed[0]
     else:
         print(f"CHÚ Ý: chưa có {tep}; cách đo ở mục 4.5 được so với giá trị mặc định của scripts/profile_cost.py")
@@ -417,7 +417,7 @@ def so_lieu_chi_phi(goc: Path, so_mau_test: int) -> List[Tuple[str, Optional[str
         ("4.5, số mẫu và kích thước lô", f"toàn bộ {nghin(so_mau)} mẫu của tập kiểm tra ở {CHU_SO[len(co_lo)]} kích thước lô, {lo}, "
                                          "không dùng độ chính xác hỗn hợp"),
         ("4.5, số lần lặp", f"mỗi cấu hình lặp {CHU_SO[lap]} lần và lấy trung vị"),
-        ("4.5, hạt giống đối chiếu", f"dự đoán của hạt giống {seed} đã dùng cho Bảng {SO_BANG_RUT_GON['4.5']}"),
+        ("4.5, seed đối chiếu", f"dự đoán của seed {seed} đã dùng cho Bảng {SO_BANG_RUT_GON['4.5']}"),
     ]
     if tep.is_file():
         thieu = [e for e in MO_HINH if e not in mh]
