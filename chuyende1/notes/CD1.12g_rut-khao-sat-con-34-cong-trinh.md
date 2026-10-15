@@ -11,7 +11,7 @@ không, nếu có thì loại bớt vì không muốn ghi quá nhiều vào báo
 | `scripts/survey_tools.py` | Sửa | `table-gon` bỏ các công trình trong file trên (cờ `--khong-trinh-bay`), từ chối khoá không phải công trình đã đọc, in số công trình theo nhóm |
 | `tests/test_survey_tools.py` | Sửa | Thêm 3 test |
 | `chuyende1/survey/survey_protocol.md` | Sửa | Dòng N₅: 34 công trình, trỏ về file trên |
-| `chuyende1/report/nhap_rut_gon/Chuong3_KhaoSat.md` | Sửa, không lên GitHub | Mục 3.1 thêm một câu nói đã bỏ 14 công trình và vì sao; sửa Bảng 3.1 và mọi con số đếm; bỏ các câu chỉ liệt kê tên |
+| `chuyende1/report/nhap_rut_gon/Chuong3_KhaoSat.md` | Sửa, không lên GitHub | Sửa Bảng 3.1 và mọi con số đếm; bỏ các câu chỉ liệt kê tên; sau khi học viên quyết (mục 8), viết như một khảo sát 34 công trình |
 | `chuyende1/report/nhap_rut_gon/Chuong1_TongQuan.md`, `TrangDau.md` | Sửa, không lên GitHub | 48 thành 34; phần tóm tắt: 13 công trình tiếng Việt thành 12 |
 | `chuyende1/report/nhap_rut_gon/PhuLuc.md` | Sửa, không lên GitHub | Bảng A.1 sinh lại còn 34 dòng; Bảng A.2 bỏ 11 dòng |
 | `chuyende1/report/nhap_rut_gon/sao_luu/20261016-khao-sat/` | Tạo, không lên GitHub | Bản trước khi sửa của bốn file trên |
@@ -62,8 +62,7 @@ chỗ của chúng là dòng ở Bảng A.1, A.2 và mục ở danh sách tài l
 
 - Không xoá dòng khỏi ma trận: ma trận là hồ sơ của khảo sát (đã đọc 48 công trình), còn việc trình bày gì là
   quyết định của báo cáo. Đưa một công trình trở lại chỉ cần xoá một dòng trong `khong_trinh_bay.csv`.
-- Mục 3.1 nói thẳng đã bỏ 14 công trình và theo tiêu chí nào, thay vì lặng lẽ đổi 48 thành 34: mục đó đã nêu 21
-  công trình xuất phát cộng 27 công trình mở rộng, tức 48.
+- Lần sửa đầu, mục 3.1 nói thẳng đã bỏ 14 công trình và theo tiêu chí nào. Học viên quyết khác, xem mục 8.
 - Các công trình đứng ranh giới được giữ:
   - Hatzivassiloglou và McKeown: gốc của hướng từ điển cảm xúc, mà bậc 1 và trọng số cạnh của Sentic-GCN dùng.
   - Garcez và Lamb: tài liệu định nghĩa hướng nơ-ron và ký hiệu, hướng của cả luận văn.
@@ -102,3 +101,29 @@ Word                                                          67 trang; Chương
 1. Xem danh sách 14 công trình ở mục 2 (hoặc file `chuyende1/survey/khong_trinh_bay.csv`): có công trình nào muốn giữ lại không?
 2. Có muốn bỏ thêm các công trình ranh giới ở mục 4 không? Bỏ hết sáu công trình đầu thì còn 28 công trình.
 3. Có push commit này không?
+
+## 8. GHI CHÚ SAU KHI TRAO ĐỔI
+
+Ngày 16/10/2026 học viên quyết: bỏ hẳn 14 công trình, và viết báo cáo như thể khảo sát chỉ gồm 34 công trình, không
+ghi trong báo cáo là đã bỏ bao nhiêu công trình.
+
+Đã sửa theo đó, chỉ dùng câu đúng với 34 công trình được trình bày:
+
+- Mục 3.1: "tập xuất phát gồm 21 công trình ... mở rộng thêm 27 công trình" thành 15 và 19. Hai số này đếm từ ma
+  trận: dòng hạt giống là dòng không có dấu "Tim moi <ngày>" trong `ghi_chu`, trừ `ThinVNSentimentOverview` (giao
+  thức ghi bài này có truy vấn ngày 22/09). Cách đếm đó cho lại đúng con số của giao thức: 22 dòng hạt giống (21 công
+  trình, vì `ATAE-LSTM` và `BiLSTM-attention` là một bài) và 27 công trình tìm thêm. Sáu công trình xuất phát bị bỏ
+  (IAN, MemNet, RAM, InstructABSA, XLM-R, BARTpho), tám công trình tìm thêm bị bỏ. Lần đếm đầu lệch một đơn vị vì ghi
+  chú của `Sentic-GCN` có chữ "tim moi cho co chu 'code'", không phải dấu tìm mới; đã sửa trước khi viết số vào báo cáo.
+- Câu nói đã bỏ 14 công trình được xoá; "Kết quả là 34 công trình" thay vào, như cách viết ban đầu.
+- "được trình bày" đổi lại thành "đã khảo sát" hoặc "đã đọc" ở Bảng 3.1, mục 3.8, mục 3.10, Bảng A.1; phần tóm tắt
+  ghi "đọc toàn văn 34 công trình".
+- Câu "trong 30 truy vấn được ghi lại, 28 truy vấn là tra đích danh và 2 dùng từ khoá mở" giữ nguyên: nó tả nhật ký
+  tìm kiếm, vẫn đúng.
+
+Hồ sơ đầy đủ vẫn ở trong kho: ma trận giữ 48 công trình, `khong_trinh_bay.csv` ghi 14 công trình và lý do, dòng N₅ của
+giao thức ghi lại việc này. Nếu hội đồng hỏi về các công trình đã đọc mà không đưa vào, câu trả lời nằm ở hai file đó.
+
+Kiểm chứng sau lần sửa này: đối chiếu bằng mã 28 chỗ (Chương 1, 3, Phụ lục A, phần tóm tắt, cả 7 hàng Bảng 3.1 và số
+hàng Bảng A.1) với số đếm từ ma trận, 0 lệch; file Word không còn cụm "48 công trình", "14 công trình", "không được
+trình bày"; `doi_chieu_chuong4.py` 224 trên 224; `doi_chieu_ban_goc.py kiem` Chương 3 cần xem tay 0; Word 67 trang.
