@@ -215,3 +215,16 @@ def test_lenh_kiem_khong_can_torch_va_tra_ma_thoat(tmp_path, capsys):
     tep.write_text(json.dumps(kq, ensure_ascii=False), encoding="utf-8")
     assert m.main(["--goc", str(tmp_path), "--kiem"]) == 1
     assert "không đo trên GPU: phobert" in capsys.readouterr().out
+
+
+def test_kiem_ket_qua_bilstm_doi_theo_lo_chi_bi_nhac_tru_khi_lech_qua_nhieu():
+    # GAP-035: BiLSTM đổi vài dự đoán theo kích thước lô; 25 dự đoán khác ở lô 32 (0,4 %) không được chặn
+    lo = lambda khac32: {"1": {"ms_moi_mau": 1.0, "so_du_doan_khac": 59}, "32": {"ms_moi_mau": 1.0, "so_du_doan_khac": khac32}}  # noqa: E731
+    loi, chu_y = m.kiem_ket_qua(_ket_qua_gia(bilstm={"theo_co_lo": lo(25)}), 6722)
+    assert loi == [] and any("bilstm, lô 32: 25 dự đoán khác" in d for d in chu_y)
+    # một bộ trọng số sai lệch hàng trăm mẫu thì vẫn bị chặn
+    loi, _ = m.kiem_ket_qua(_ket_qua_gia(bilstm={"theo_co_lo": lo(400)}), 6722)
+    assert any("bilstm, lô 32: 400 dự đoán khác" in d for d in loi)
+    # mô hình khác vẫn dùng ngưỡng cũ ở lô 32
+    loi, _ = m.kiem_ket_qua(_ket_qua_gia(senticgcn={"theo_co_lo": lo(25)}), 6722)
+    assert any("senticgcn, lô 32: 25 dự đoán khác" in d for d in loi)

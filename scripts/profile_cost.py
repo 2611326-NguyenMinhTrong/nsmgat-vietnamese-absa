@@ -60,6 +60,10 @@ RA_MAC_DINH = Path("results/cost_profile.json")
 # Số dự đoán khác file đã công bố mà quá mức này thì bộ trọng số đang đo có thể không phải bộ đã cho số của báo cáo.
 # Ở lô 1, BiLSTM trên CPU đã khác tới 59 trong 6.722 mẫu vì lý do khác (GAP-035), nên lô 1 chỉ bị nhắc, không bị chặn.
 NGUONG_KHAC = 10
+# Mô hình có dự đoán đổi theo kích thước lô vì lý do đã biết. Với chúng, lệch dưới NGUONG_TI_LE_DOI_THEO_LO số mẫu chỉ bị
+# nhắc; BiLSTM trên CPU khác 10 dự đoán ở lô 32 và 59 ở lô 1 (dưới 1 %), còn một bộ trọng số sai lệch hàng trăm mẫu.
+DOI_THEO_LO = {"bilstm": "GAP-035"}
+NGUONG_TI_LE_DOI_THEO_LO = 0.02
 
 
 def moi_truong(device) -> Dict[str, Any]:
@@ -236,7 +240,8 @@ def kiem_ket_qua(kq: Dict[str, Any], so_mau_test: Optional[int] = None) -> Tuple
 
     Lỗi: thiếu mô hình, không đo trên GPU, các mô hình đo trên GPU khác nhau, không đo cả tập kiểm tra,
     thiếu một kích thước lô mặc định hay lô đó báo lỗi, hoặc bộ trọng số đã huấn luyện mà ở lô lớn nhất
-    cho hơn NGUONG_KHAC dự đoán khác file đã công bố.
+    cho hơn NGUONG_KHAC dự đoán khác file đã công bố (với mô hình trong DOI_THEO_LO: hơn
+    NGUONG_TI_LE_DOI_THEO_LO số mẫu, ở bất kỳ lô nào).
     Chú ý: mô hình đo với trọng số lúc khởi tạo, đo qua nhiều lần chạy, lặp ít hơn mặc định, lô 1 khác nhiều.
     """
     loi: List[str] = []
@@ -277,12 +282,16 @@ def kiem_ket_qua(kq: Dict[str, Any], so_mau_test: Optional[int] = None) -> Tuple
             khac = m.get("so_du_doan_khac")
             if "loi" in m:
                 continue
+            if e in DOI_THEO_LO:
+                chan = khac is not None and khac > NGUONG_TI_LE_DOI_THEO_LO * (r.get("so_mau") or 0)
+            else:
+                chan = khac is not None and khac > NGUONG_KHAC and c == lo_lon
             if khac is None:
                 chu_y.append(f"{e}, lô {c}: không có predictions.jsonl để đối chiếu dự đoán")
-            elif khac > NGUONG_KHAC and c == lo_lon:
+            elif chan:
                 loi.append(f"{e}, lô {c}: {khac} dự đoán khác file đã công bố; có thể không phải bộ trọng số đã cho số của báo cáo")
             elif khac > NGUONG_KHAC:
-                chu_y.append(f"{e}, lô {c}: {khac} dự đoán khác file đã công bố (xem GAP-035)")
+                chu_y.append(f"{e}, lô {c}: {khac} dự đoán khác file đã công bố (xem {DOI_THEO_LO.get(e, 'GAP-035')})")
     return loi, chu_y
 
 
