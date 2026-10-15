@@ -115,7 +115,7 @@ Phễu đi xuống dần: N₁ ≥ N₂ ≥ N₃ ≥ N₄ ≥ N₅.
 | N₂ — sau khi loại trùng | **25** | 05/10/2026 | 11 bài đợt 2 + 13 bài đợt 3 + 1 bài ngày 05/10, không trùng nhau. Ngày 22/09 là 24 |
 | N₃ — sau sàng tiêu đề + tóm tắt | **25** | 05/10/2026 | Cả 25 đều đúng phạm vi mục 4 sau khi đọc tiêu đề và tóm tắt |
 | N₄ — sau đọc toàn văn (vào ma trận) | **49** | 05/10/2026 | `survey_tools.py stats` → dòng N4. Ngày 22/09 là 45; ngày 05/10 thêm `Sentic-GCN`, `VLSP-2018`, `ThinVNSentimentOverview`, `ThinGenerativeACSA2023` |
-| N₅ — phân tích sâu trong Chương 3 | **49** | 05/10/2026 | `survey_tools.py stats` → dòng N5. 49 dòng là **48 công trình**, vì `ATAE-LSTM` và `BiLSTM-attention` là cùng một bài báo |
+| N₅ — phân tích sâu trong Chương 3 | ~~49~~ **34** | 16/10/2026 | Ngày 05/10 là 49 dòng, tức **48 công trình** (`ATAE-LSTM` và `BiLSTM-attention` là cùng một bài báo), lấy từ `survey_tools.py stats` → dòng N5. Ngày 16/10 bản chính bỏ 14 công trình chỉ cần nhắc tên, không đóng góp số liệu hay lập luận cho bốn câu hỏi khảo sát; danh sách và lý do ở `khong_trinh_bay.csv`, các dòng đó vẫn ở ma trận. `survey_tools.py table-gon` in số 34 |
 
 **Chỉ tiêu:** N₁ ≥ 70 · N₄ ≥ 45 · N₅ ≈ 25.
 

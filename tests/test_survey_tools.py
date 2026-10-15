@@ -347,3 +347,38 @@ def test_bang_gon_moi_bai_bao_mot_dong_va_mang_khoa_trich_dan():
     assert all(d.count("|") == 9 and "[@" in d for d in bang[2:])
     khoa = [d.split("[@")[1].split("]")[0] for d in bang[2:]]
     assert len(set(khoa)) == len(khoa) and "ATAE-LSTM" in khoa and "BiLSTM-attention" not in khoa
+
+
+def test_bang_gon_bo_cong_trinh_khong_trinh_bay(tmp_path):
+    """Công trình ghi trong khong_trinh_bay.csv không vào bảng của báo cáo; ma trận không đổi."""
+    import survey_tools as st
+
+    rows = st.load_rows()
+    tat_ca = st.cong_trinh_da_doc(rows)
+    bo_tep = tmp_path / "khong_trinh_bay.csv"
+    bo_tep.write_text("ref_key,ly_do\nMemNet,chi neu ten\nSemEval2015,chi neu ten\n", encoding="utf-8")
+    bo = st.doc_khong_trinh_bay(bo_tep)
+    assert bo == {"MemNet": "chi neu ten", "SemEval2015": "chi neu ten"}
+    con = st.cong_trinh_trinh_bay(rows, bo)
+    assert len(con) == len(tat_ca) - 2 and not {"MemNet", "SemEval2015"} & {r["ref_key"] for r in con}
+    bang = st.build_compact_table(rows, bo)
+    assert "[@MemNet]" not in bang and "[@ATAE-LSTM]" in bang
+    assert st.doc_khong_trinh_bay(tmp_path / "khong_co.csv") == {}  # không có file thì giữ mọi công trình
+
+
+def test_bang_gon_tu_choi_khoa_khong_phai_cong_trinh_da_doc(tmp_path, capsys):
+    import survey_tools as st
+
+    bo_tep = tmp_path / "khong_trinh_bay.csv"
+    bo_tep.write_text("ref_key,ly_do\nKhongCoKhoaNay,go nham\n", encoding="utf-8")
+    assert st.main(["table-gon", "-o", str(tmp_path / "bang.md"), "--khong-trinh-bay", str(bo_tep)]) == 1
+    assert "KhongCoKhoaNay" in capsys.readouterr().err
+    assert not (tmp_path / "bang.md").exists()
+
+
+def test_danh_sach_khong_trinh_bay_that_chi_gom_cong_trinh_da_doc():
+    import survey_tools as st
+
+    bo = st.doc_khong_trinh_bay(st.DEFAULT_KHONG_TRINH_BAY)
+    con = st.cong_trinh_trinh_bay(st.load_rows(), bo)  # ValueError nếu có khoá lạ
+    assert all(bo.values()) and len(con) + len(bo) == len(st.cong_trinh_da_doc(st.load_rows()))

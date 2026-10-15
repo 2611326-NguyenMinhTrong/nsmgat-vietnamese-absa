@@ -36,6 +36,9 @@ if hasattr(sys.stdout, "reconfigure"):
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CSV = REPO_ROOT / "chuyende1" / "survey" / "survey_matrix.csv"
 DEFAULT_TABLE_OUT = REPO_ROOT / "chuyende1" / "tables" / "bang_3_9_khao_sat.md"
+# Cong trinh da doc toan van nhung KHONG trinh bay trong bao cao (buoc N5 cua giao thuc: chi can nhac ten,
+# khong dao sau). Ma tran van giu nguyen cac dong do; file nay ghi ref_key va ly do.
+DEFAULT_KHONG_TRINH_BAY = REPO_ROOT / "chuyende1" / "survey" / "khong_trinh_bay.csv"
 
 UNKNOWN = "[CẦN TÌM]"
 
@@ -377,12 +380,29 @@ def cong_trinh_da_doc(rows: list[dict[str, str]]) -> list[dict[str, str]]:
     return ra
 
 
-def build_compact_table(rows: list[dict[str, str]]) -> str:
+def doc_khong_trinh_bay(path: Path | None) -> dict[str, str]:
+    """{ref_key: lý do} của các công trình không trình bày trong báo cáo. Không có file thì rỗng."""
+    if path is None or not path.exists():
+        return {}
+    with path.open(encoding="utf-8-sig", newline="") as fh:
+        return {r["ref_key"].strip(): r["ly_do"].strip() for r in csv.DictReader(fh) if r.get("ref_key", "").strip()}
+
+
+def cong_trinh_trinh_bay(rows: list[dict[str, str]], bo: dict[str, str] | None = None) -> list[dict[str, str]]:
+    """Các công trình đã đọc toàn văn mà báo cáo trình bày. Khoá trong `bo` phải là công trình đã đọc."""
+    da_doc = cong_trinh_da_doc(rows)
+    la = sorted(set(bo or {}) - {r["ref_key"] for r in da_doc})
+    if la:
+        raise ValueError(f"Khoá không phải công trình đã đọc toàn văn: {', '.join(la)}")
+    return [r for r in da_doc if r["ref_key"] not in (bo or {})]
+
+
+def build_compact_table(rows: list[dict[str, str]], bo: dict[str, str] | None = None) -> str:
     def co_khong(gia_tri: str) -> str:
         return "Có" if gia_tri.startswith(("co", "mot_phan")) else "Không"
 
     thu_tu = list(NHOM_BAO_CAO)
-    ds = sorted(cong_trinh_da_doc(rows), key=lambda r: (thu_tu.index(r["ho_phuong_phap"]), r["nam"], r["ref_key"]))
+    ds = sorted(cong_trinh_trinh_bay(rows, bo), key=lambda r: (thu_tu.index(r["ho_phuong_phap"]), r["nam"], r["ref_key"]))
     dong = ["| Công trình | Năm | Nhóm | Ngôn ngữ | Dùng đồ thị | Tri thức ngoài | Phủ định, chuyển ý | Có giải thích |", "|---|---|---|---|---|---|---|---|"]
     for r in ds:
         k = r["ref_key"]
@@ -392,20 +412,34 @@ def build_compact_table(rows: list[dict[str, str]]) -> str:
     return "\n".join(dong) + "\n"
 
 
-def cmd_table_gon(rows, out_path: Path) -> int:
-    ds = cong_trinh_da_doc(rows)
+def cmd_table_gon(rows, out_path: Path, bo_path: Path | None = DEFAULT_KHONG_TRINH_BAY) -> int:
+    bo = doc_khong_trinh_bay(bo_path)
+    try:
+        ds = cong_trinh_trinh_bay(rows, bo)
+    except ValueError as err:
+        print(f"{bo_path}: {err}", file=sys.stderr)
+        return 1
     if not ds:
         print("Chưa có công trình nào ở mức da_doc_toan_van.", file=sys.stderr)
         return 1
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(build_compact_table(rows), encoding="utf-8")
+    out_path.write_text(build_compact_table(rows, bo), encoding="utf-8")
 
-    def dem(cot: str) -> int:
-        return sum(r[cot].startswith(("co", "mot_phan")) for r in ds)
+    def co(r: dict[str, str], cot: str) -> bool:
+        return r[cot].startswith(("co", "mot_phan"))
+
+    def dem(cot: str, tap=None) -> int:
+        return sum(co(r, cot) for r in (ds if tap is None else tap))
 
     print(f"OK -> {out_path}  ({len(ds)} công trình | từ 2020: {sum(int(r['nam']) >= 2020 for r in ds)} | tiếng Việt: "
           f"{sum(r['ngon_ngu'] == 'vi' for r in ds)} | dùng đồ thị: {dem('co_dung_do_thi')} | phủ định, chuyển ý: {dem('xu_ly_phu_dinh_chuyen_y')} | "
           f"có giải thích: {dem('co_giai_thich')})")
+    if bo:
+        print(f"Không trình bày {len(bo)} công trình đã đọc (theo {bo_path.name}): {', '.join(bo)}")
+    print("Theo nhóm (số công trình | tri thức ngoài | có giải thích):")
+    for nhom, ten in NHOM_BAO_CAO.items():
+        tap = [r for r in ds if r["ho_phuong_phap"] == nhom]
+        print(f"  {ten:20} {len(tap):3} | {dem('co_tri_thuc_ngoai', tap):3} | {dem('co_giai_thich', tap):3}")
     return 0
 
 
@@ -919,6 +953,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ghi-de", action="store_true",
                         help="tu-excel: nhập ngược DÙ file .csv đã đổi sau khi xuất "
                              "(mọi thay đổi trong .csv sẽ mất)")
+    parser.add_argument("--khong-trinh-bay", type=Path, default=DEFAULT_KHONG_TRINH_BAY,
+                        help="table-gon: file ref_key,ly_do của các công trình đã đọc nhưng không trình bày trong báo cáo "
+                             "(mặc định chuyende1/survey/khong_trinh_bay.csv; file không có thì giữ mọi công trình)")
     args = parser.parse_args(argv)
 
     if not args.csv.exists():
@@ -944,7 +981,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "stats":
         return cmd_stats(rows)
     if args.command == "table-gon":
-        return cmd_table_gon(rows, args.out or DEFAULT_TABLE_OUT.with_name("bang_3_4_tong_hop.md"))
+        return cmd_table_gon(rows, args.out or DEFAULT_TABLE_OUT.with_name("bang_3_4_tong_hop.md"), args.khong_trinh_bay)
     return cmd_table(rows, args.out or DEFAULT_TABLE_OUT)
 
 

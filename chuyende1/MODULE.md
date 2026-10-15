@@ -72,7 +72,7 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `scripts/md_to_docx_ute.py` | [REQ-004] Markdown → Word cho tài liệu ngắn (phiếu, ghi chú) |
 | `scripts/build_cd1_report.py` | [CD1.1/REQ-006] Dựng `reference.docx` và khung cuốn chuyên đề. **An toàn khi chạy lại** — tự phát hiện và chặn nếu file đã bị sửa tay; xem `sync_all()` |
 | `tests/test_ute_docx.py` | [CD1.1] Kiểm định dạng thay cho việc in ra đo bằng thước |
-| `scripts/survey_tools.py` | [CD1.2] `validate` / `stats` / `table` / `table-gon` cho ma trận khảo sát. `table-gon` sinh Bảng 3.4 đưa vào báo cáo, mỗi bài báo đã đọc một dòng, cột đầu mang khoá trích dẫn. **Cưỡng chế quy tắc số 7**: dòng `chua_kiem` không thể lọt vào Bảng 3.9 |
+| `scripts/survey_tools.py` | [CD1.2] `validate` / `stats` / `table` / `table-gon` cho ma trận khảo sát. `table-gon` sinh Bảng 3.4 đưa vào báo cáo, mỗi bài báo đã đọc một dòng, cột đầu mang khoá trích dẫn. **Cưỡng chế quy tắc số 7**: dòng `chua_kiem` không thể lọt vào Bảng 3.9 [CD1.12g] `table-gon` bỏ các công trình ghi trong `chuyende1/survey/khong_trinh_bay.csv` (đã đọc nhưng không trình bày trong báo cáo, kèm lý do) và in các con số đếm của Chương 3 |
 | `tests/test_survey_tools.py` | [CD1.2] Kiểm chốt chặn chống bịa trích dẫn |
 | `src/nsmgat/models/bilstm.py` + `configs/bilstm.yaml` | [CD1.4b] Baseline BiLSTM + attention theo khía cạnh. Kế thừa `BaseModel`, không đổi interface |
 | `scripts/try_lexicon.py` | [CD1.4a] Công cụ thử tay `LexiconModel` — gõ câu bất kỳ, xem điểm từng token và dự đoán. Gọi đúng code thật của mô hình, không viết lại logic |
