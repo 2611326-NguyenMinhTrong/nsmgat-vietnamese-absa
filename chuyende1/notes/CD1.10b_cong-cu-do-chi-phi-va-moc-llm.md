@@ -52,6 +52,8 @@ python scripts/eval_llm.py xem
 ## 4. KẾT QUẢ CỦA LẦN CHẠY THỬ
 
 Không con số nào dưới đây là số để đưa vào Bảng 4.9: máy không có GPU.
+*(Đính chính 16/10/2026: máy có card GTX 1650 4 GB nhưng PyTorch trong `.venv` là bản chỉ chạy CPU, nên PyTorch không thấy
+GPU. Kết luận đo trên Colab không đổi. Xem GAP-039.)*
 
 - Mô hình từ điển và BiLSTM, với `best.pt` thật, trên cả tập kiểm tra: phép đo chạy xong. Mô hình từ
   điển cho 0 dự đoán khác ở cả hai kích thước lô.

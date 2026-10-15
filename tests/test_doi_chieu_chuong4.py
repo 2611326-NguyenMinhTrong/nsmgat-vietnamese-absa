@@ -1,5 +1,6 @@
 """[CD1.12f] Kiểm phần tìm kiếm của scripts/doi_chieu_chuong4.py trên văn bản tí hon, không cần dữ liệu thật."""
 
+import json
 import sys
 from pathlib import Path
 
@@ -119,3 +120,41 @@ def test_cau_dinh_tinh_va_cach_viet_p():
     assert m.neu(True, "câu", "mô tả") == ("mô tả", "câu")
     assert m.neu(False, "câu", "mô tả")[1].startswith("SỐ LIỆU KHÔNG CÒN ĐỠ CÂU")
     assert m.p_loi(0.0004) == "p nhỏ hơn 0,001" and m.p_loi(0.2049) == "p bằng 0,205"
+
+
+def test_cach_do_chi_phi_lay_tu_file_khi_co(tmp_path, capsys):
+    # chưa có file: so với giá trị mặc định của công cụ đo
+    cum = dict(m.so_lieu_chi_phi(tmp_path, 6722))
+    assert "chưa có" in capsys.readouterr().out
+    assert cum["4.5, số mẫu và kích thước lô"].startswith("toàn bộ 6.722 mẫu của tập kiểm tra ở hai kích thước lô, 1 và 32,")
+    assert cum["4.5, số lần lặp"] == "mỗi cấu hình lặp ba lần và lấy trung vị"
+    # có file: lấy đúng điều kiện đã đo
+    tep = tmp_path / "results" / "cost_profile.json"
+    tep.parent.mkdir()
+    r = {"so_lan_lap": 5, "so_mau": 6722, "seed": 42, "theo_co_lo": {"1": {}, "8": {}, "64": {}}}
+    tep.write_text(json.dumps({"mo_hinh": {"phobert": r, "asgcn": r}}), encoding="utf-8")
+    cum = dict(m.so_lieu_chi_phi(tmp_path, 6722))
+    assert "ba kích thước lô, 1 và 8 và 64" in cum["4.5, số mẫu và kích thước lô"]
+    assert cum["4.5, số lần lặp"] == "mỗi cấu hình lặp năm lần và lấy trung vị"
+    # hai mô hình đo khác điều kiện: đòi một cụm không thể có, để chắc chắn bị báo lệch
+    tep.write_text(json.dumps({"mo_hinh": {"phobert": r, "asgcn": {**r, "so_lan_lap": 3}}}), encoding="utf-8")
+    assert m.so_lieu_chi_phi(tmp_path, 6722)[0][1].startswith("[các mô hình")
+
+
+def test_mo_ta_moc_llm_dem_lai_tap_con(tmp_path):
+    goc = Path(__file__).resolve().parents[1]
+    (tmp_path / "configs").mkdir()
+    cfg = (goc / "configs" / "llm.yaml").read_text(encoding="utf-8")
+    (tmp_path / "configs" / "llm.yaml").write_text(cfg, encoding="utf-8")
+    assert m.so_lieu_llm(tmp_path) == []  # chưa có danh sách mẫu: bỏ qua
+    (tmp_path / "data" / "processed").mkdir(parents=True)
+    hang = [{"uid": f"visfd-test-{i // 2:05d}-{'GENERAL' if i % 2 else 'PRICE'}", "label": i % 3} for i in range(9)]
+    (tmp_path / "data" / "processed" / "visfd_test.jsonl").write_text("\n".join(json.dumps(h) for h in hang) + "\n", encoding="utf-8")
+    (tmp_path / "results").mkdir()
+    (tmp_path / "results" / "llm_subset_uids.json").write_text(json.dumps({"uid": [h["uid"] for h in hang[:7]]}), encoding="utf-8")
+    cum = dict(m.so_lieu_llm(tmp_path))
+    # 7 mẫu đầu: nhãn 0,1,2,0,1,2,0 thuộc 4 bình luận (00000 đến 00003)
+    assert cum["4.3, tập con"] == "một tập con 7 mẫu rút phân tầng theo nhãn từ tập kiểm tra (3 tiêu cực, 2 trung tính, 2 tích cực, thuộc 4 bình luận)"
+    assert cum["4.3, nhiệt độ"] == "với nhiệt độ bằng 0."
+    assert cum["4.3, tên mô hình ngôn ngữ lớn"] == "tên gọi trên giao diện lập trình là gpt-4o,"
+    assert "thêm hai ví dụ cho mỗi lớp" in cum["4.3, few-shot"] and "chạy ba lần với ba bộ ví dụ" in cum["4.3, few-shot"]

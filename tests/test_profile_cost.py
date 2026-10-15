@@ -154,3 +154,64 @@ def test_bang_thi_nghiem_khop_file_cau_hinh_that():
 def test_tren_gpu_co_so_do_bo_nho():
     kq = m.do_thoi_gian(_MoHinhGia().cuda(), _lo(8, 4), torch.device("cuda"), lap=1, khoi_dong=1)
     assert kq["dinh"] is not None
+
+
+def _ket_qua_gia(**doi) -> dict:
+    """File cost_profile.json đủ sáu mô hình, đo trên một GPU, một lần chạy; `doi` sửa từng mô hình."""
+    mt = {"thoi_diem": "2026-10-20T10:00:00", "thiet_bi": "cuda", "ten_gpu": "Tesla T4"}
+    ra = {"mo_hinh": {}}
+    for e in m.THI_NGHIEM:
+        r = {"exp": e, "trong_so": "best.pt", "so_mau": 6722, "ca_tap_kiem_tra": True, "so_lan_lap": 3,
+             "moi_truong": dict(mt), "theo_co_lo": {str(c): {"ms_moi_mau": 1.0, "so_du_doan_khac": 0} for c in m.CO_LO_MAC_DINH}}
+        for k, v in doi.get(e, {}).items():
+            r[k] = v
+        ra["mo_hinh"][e] = r
+    return ra
+
+
+def test_kiem_ket_qua_day_du_thi_khong_co_loi():
+    assert m.kiem_ket_qua(_ket_qua_gia(), 6722) == ([], [])
+
+
+def test_kiem_ket_qua_bat_loi_chan():
+    kq = _ket_qua_gia(phobert={"moi_truong": {"thoi_diem": "2026-10-20T10:00:00", "ten_gpu": "Tesla P100"}},
+                      bilstm={"ca_tap_kiem_tra": False, "so_mau": 64},
+                      asgcn={"theo_co_lo": {"1": {"ms_moi_mau": 1.0, "so_du_doan_khac": 0}, "32": {"loi": "CUDA out of memory"}}},
+                      senticgcn={"theo_co_lo": {"1": {"ms_moi_mau": 1.0, "so_du_doan_khac": 0},
+                                                "32": {"ms_moi_mau": 1.0, "so_du_doan_khac": m.NGUONG_KHAC + 1}}})
+    del kq["mo_hinh"]["lexicon"]
+    loi, _ = m.kiem_ket_qua(kq, 6722)
+    van = "\n".join(loi)
+    assert "thiếu mô hình: lexicon" in van
+    assert "GPU khác nhau" in van and "Tesla P100 (phobert)" in van
+    assert "bilstm: chỉ đo 64 mẫu" in van
+    assert "asgcn: lô 32 báo lỗi" in van
+    assert f"senticgcn, lô 32: {m.NGUONG_KHAC + 1} dự đoán khác" in van
+
+
+def test_kiem_ket_qua_chi_nhac_nhung_cho_phai_ghi_trong_bao_cao():
+    kq = _ket_qua_gia(phobert={"trong_so": "khoi_tao"},
+                      bilstm={"theo_co_lo": {"1": {"ms_moi_mau": 1.0, "so_du_doan_khac": 59},
+                                             "32": {"ms_moi_mau": 1.0, "so_du_doan_khac": 0}}},
+                      lexicon={"moi_truong": {"thoi_diem": "2026-10-21T09:00:00", "ten_gpu": "Tesla T4"}})
+    loi, chu_y = m.kiem_ket_qua(kq, 6722)
+    assert loi == []
+    van = "\n".join(chu_y)
+    assert "phobert: đo với trọng số lúc khởi tạo" in van
+    assert "bilstm, lô 1: 59 dự đoán khác" in van  # lô 1 chỉ bị nhắc (GAP-035)
+    assert "trong 2 lần chạy" in van
+
+
+def test_lenh_kiem_khong_can_torch_va_tra_ma_thoat(tmp_path, capsys):
+    assert m.main(["--goc", str(tmp_path), "--kiem"]) == 1
+    assert "Chưa có" in capsys.readouterr().out
+    tep = tmp_path / "results" / "cost_profile.json"
+    tep.parent.mkdir(parents=True)
+    tep.write_text(json.dumps(_ket_qua_gia(), ensure_ascii=False), encoding="utf-8")
+    assert m.main(["--goc", str(tmp_path), "--kiem"]) == 0
+    assert "dùng được cho báo cáo" in capsys.readouterr().out
+    kq = _ket_qua_gia()
+    kq["mo_hinh"]["phobert"]["moi_truong"]["ten_gpu"] = None
+    tep.write_text(json.dumps(kq, ensure_ascii=False), encoding="utf-8")
+    assert m.main(["--goc", str(tmp_path), "--kiem"]) == 1
+    assert "không đo trên GPU: phobert" in capsys.readouterr().out

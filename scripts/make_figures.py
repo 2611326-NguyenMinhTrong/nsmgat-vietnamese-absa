@@ -4,6 +4,7 @@ Mọi hình đều vẽ từ số đã đo, không có con số nào gõ tay tro
 
     Hình 2.1  trọng số tự chú ý của PhoBERT trên một đoạn bình luận  <- chạy PhoBERT-base v2 chưa tinh chỉnh
     Hình 4.1  phân bố nhãn theo khía cạnh trên tập kiểm tra      <- data/processed/visfd_test.jsonl
+    Hình 4.2  đánh đổi giữa macro-F1 và thời gian suy luận        <- results/cost_profile.json, results/<exp>/seed<N>/metrics.json
     Hình 5.1  ma trận nhầm lẫn của sáu mô hình                    <- results/error_analysis.json
     Hình 5.2  accuracy theo độ dài câu                            <- results/error_analysis.json
     Hình 5.3  accuracy theo loại câu                              <- results/error_analysis.json
@@ -14,6 +15,11 @@ Mọi hình đều vẽ từ số đã đo, không có con số nào gõ tay tro
 
 Chạy scripts/error_analysis.py trước nếu results/error_analysis.json chưa có hoặc đã cũ.
 Hình 2.1 cần tải trọng số PhoBERT-base v2 (khoảng 540 MB, một lần); không tải được thì hình này bị bỏ qua.
+Hình 4.2 cần results/cost_profile.json do scripts/profile_cost.py đo trên GPU; chưa có file thì hình này bị bỏ qua.
+
+Màu của sáu mô hình dùng chung cho mọi hình. Mỗi mô hình còn có hình dạng điểm riêng, vì cặp màu gần nhau nhất
+(xanh lá và hồng) chỉ cách nhau vừa đủ với người mù màu đỏ lục; mô hình từ điển mang màu xám đậm vì nó là mốc
+không học.
 """
 
 from __future__ import annotations
@@ -43,7 +49,7 @@ THU_MUC_MAC_DINH = Path("chuyende1/figures")
 NHAN = ("Tiêu cực", "Trung tính", "Tích cực")
 MAU_NHAN = ("#b2182b", "#bdbdbd", "#2166ac")
 NET_NHAN = ("//", "", "..")  # nét gạch để ba lớp vẫn phân biệt được khi in đen trắng
-MAU_MO_HINH = {"lexicon": "#999999", "bilstm": "#e69f00", "phobert": "#0072b2", "asgcn": "#d55e00", "asgcn_linked": "#cc79a7", "senticgcn": "#009e73"}
+MAU_MO_HINH = {"lexicon": "#52514e","bilstm": "#e69f00", "phobert": "#0072b2", "asgcn": "#d55e00", "asgcn_linked": "#cc79a7", "senticgcn": "#009e73"}
 DAU_MO_HINH = {"lexicon": "x", "bilstm": "s", "phobert": "o", "asgcn": "^", "asgcn_linked": "v", "senticgcn": "D"}
 TEN_DO_DAI = {"den_20": "Đến 20 từ", "21_40": "21 đến 40 từ", "41_80": "41 đến 80 từ", "tren_80": "Trên 80 từ"}
 TEN_LOAI_CAU = {"da_cung": "Nhiều khía cạnh,\ncùng nhãn", "mot": "Một khía cạnh", "da_trai": "Nhiều khía cạnh,\ntrái nhãn"}
@@ -108,6 +114,67 @@ def hinh_4_1(test_path: Path, out: Path) -> None:
     ax.set_xlim(0, trai.max() * 1.1)
     ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: nghin(v)))
     ax.legend(frameon=False, loc="lower right")
+    fig.savefig(out)
+    plt.close(fig)
+
+
+def ten_tham_so(n: int) -> str:
+    return f"{n} tham số" if n < 1_000_000 else f"{n / 1e6:.1f} triệu tham số".replace(".", ",")
+
+
+def so_truc(v: float, _=None) -> str:
+    return f"{v:g}".replace(".", ",")
+
+
+MO_HINH_PHOBERT = ("phobert", "asgcn", "asgcn_linked", "senticgcn")
+
+
+def hinh_4_2(chi_phi: dict, ket_qua: Path, out: Path, co_lo: str = "1") -> None:
+    """Macro-F1 (trung bình và độ lệch chuẩn ba hạt giống) theo thời gian suy luận một mẫu ở lô `co_lo`.
+
+    Khung (a) có đủ sáu mô hình trên trục thời gian logarit. Khung (b) phóng to bốn mô hình dùng PhoBERT trên
+    trục tuyến tính, vì ở khung (a) chúng nằm chồng lên nhau.
+    Số tham số nằm trong chú giải chứ không ở diện tích điểm: ba mô hình đồ thị và PhoBERT chỉ khác nhau
+    0,87 % số tham số, nên diện tích điểm không cho người đọc phân biệt được gì.
+    """
+    from matplotlib.lines import Line2D
+
+    diem = {}
+    for e in MAU_MO_HINH:  # thứ tự cố định, màu đi theo mô hình
+        r = chi_phi["mo_hinh"].get(e)
+        m = (r or {}).get("theo_co_lo", {}).get(co_lo, {})
+        if "ms_moi_mau" not in m:
+            print(f"  Hình 4.2: bỏ {e}, không có số đo ở lô {co_lo}")
+            continue
+        f1 = [json.loads((ket_qua / e / f"seed{s}" / "metrics.json").read_text(encoding="utf-8"))["test"]["macro_f1"] * 100
+              for s in cb.SEEDS]
+        diem[e] = (m["ms_moi_mau"], float(np.mean(f1)), float(np.std(f1, ddof=1)), r["so_tham_so"])
+
+    def kieu(e: str) -> dict:
+        x = DAU_MO_HINH[e] == "x"
+        return {"marker": DAU_MO_HINH[e], "color": MAU_MO_HINH[e], "markersize": 8,
+                "markeredgecolor": MAU_MO_HINH[e] if x else "white", "markeredgewidth": 2 if x else 1}
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.6, 4.0), gridspec_kw={"width_ratios": [1.15, 1]})
+    ax1.set_xscale("log")  # đặt thang trước định dạng số, nếu không thang logarit ghi đè định dạng
+    for ax, cac in ((ax1, list(diem)), (ax2, [e for e in MO_HINH_PHOBERT if e in diem])):
+        for e in cac:
+            x, y, lech, _ = diem[e]
+            ax.errorbar(x, y, yerr=lech, linestyle="none", capsize=3, elinewidth=1, **kieu(e))
+        ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(so_truc))
+        ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(so_truc))
+        ax.grid(color="#e5e5e5", linewidth=0.6)
+        ax.set_axisbelow(True)
+        ax.set_xlabel(f"Mili giây cho một mẫu, lô {co_lo}")
+    ax1.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+    ax1.set_title("(a) Sáu mô hình, trục thời gian logarit", fontsize=10)
+    ax2.set_title("(b) Bốn mô hình dùng PhoBERT, phóng to", fontsize=10)
+    ax2.margins(x=0.25, y=0.15)
+    ax1.set_ylabel("Macro-F1 trên tập kiểm tra (%)")
+    tay = [Line2D([], [], linestyle="none", **kieu(e)) for e in diem]
+    fig.legend(tay, [f"{cb.TEN_HIEN_THI.get(e, e)} ({ten_tham_so(diem[e][3])})" for e in diem], frameon=False, fontsize=9,
+               ncol=2, loc="upper center", bbox_to_anchor=(0.5, 0.0))
+    fig.tight_layout()
     fig.savefig(out)
     plt.close(fig)
 
@@ -183,6 +250,7 @@ def hinh_5_4(kq: dict, out: Path) -> None:
 HINH = {
     "2.1": ("hinh_2_1_tu_chu_y_phobert.png", "phobert"),
     "4.1": ("hinh_4_1_phan_bo_nhan_theo_khia_canh.png", "du_lieu"),
+    "4.2": ("hinh_4_2_danh_doi_chi_phi.png", "chi_phi"),
     "5.1": ("hinh_5_1_ma_tran_nham_lan.png", hinh_5_1),
     "5.2": ("hinh_5_2_accuracy_theo_do_dai.png", hinh_5_2),
     "5.3": ("hinh_5_3_accuracy_theo_loai_cau.png", hinh_5_3),
@@ -194,6 +262,8 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Vẽ các hình của báo cáo từ dữ liệu và file kết quả.")
     ap.add_argument("--test", type=Path, default=Path("data/processed/visfd_test.jsonl"))
     ap.add_argument("--loi", type=Path, default=Path("results/error_analysis.json"), help="kết quả của scripts/error_analysis.py")
+    ap.add_argument("--chi-phi", type=Path, default=Path("results/cost_profile.json"), help="kết quả của scripts/profile_cost.py, cho Hình 4.2")
+    ap.add_argument("--ket-qua", type=Path, default=Path("results"), help="thư mục chứa <exp>/seed<N>/metrics.json, cho Hình 4.2")
     ap.add_argument("--out", type=Path, default=THU_MUC_MAC_DINH, help=f"thư mục ghi hình (mặc định {THU_MUC_MAC_DINH})")
     ap.add_argument("--chi", nargs="+", choices=sorted(HINH), help="chỉ vẽ các hình này (mặc định: tất cả)")
     a = ap.parse_args(argv)
@@ -210,6 +280,11 @@ def main(argv=None) -> int:
                 continue
         elif ham == "du_lieu":
             hinh_4_1(a.test, a.out / ten)
+        elif ham == "chi_phi":
+            if not a.chi_phi.is_file():
+                print(f"BỎ QUA Hình {so}: chưa có {a.chi_phi} (đo bằng scripts/profile_cost.py trên GPU)")
+                continue
+            hinh_4_2(json.loads(a.chi_phi.read_text(encoding="utf-8")), a.ket_qua, a.out / ten)
         else:
             ham(kq, a.out / ten)
         print(f"Hình {so}: {a.out / ten}")

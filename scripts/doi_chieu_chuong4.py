@@ -28,7 +28,9 @@ CÁCH TÌM
 
 Phạm vi: các bảng số liệu của Chương 4 (mười bốn bảng, kể cả bảng đã chuyển sang Phụ lục C) và các con
 số trong lời văn suy ra từ chúng; số tham số ở bảng thang mô hình; độ phủ của từ điển và tỉ lệ đồ thị bị
-chia cắt ở mục 4.3. Các con số lấy từ bài báo khác không thuộc phạm vi của công cụ này, và các con số về
+chia cắt ở mục 4.3; ở bản chính, mô tả mốc GPT-4o ở mục 4.3 (từ configs/llm.yaml và danh sách mẫu của tập con)
+và cách đo chi phí suy luận ở mục 4.5 (từ results/cost_profile.json, chưa có file thì từ giá trị mặc định của
+scripts/profile_cost.py). Các con số lấy từ bài báo khác không thuộc phạm vi của công cụ này, và các con số về
 từ khoá phủ định ở cuối mục 4.1.2 chưa có chỗ kiểm.
 
 Phần tập chẩn đoán (mục 4.1.2 và 4.6) cần ba file chỉ có trên máy học viên:
@@ -357,6 +359,66 @@ def so_lieu_thong_ke(goc: Path) -> List[Tuple[str, Optional[str]]]:
     else:
         print(f"BỎ QUA số liệu đồ thị ở mục 4.3, thiếu: {tep_dt}")
     return kiem
+
+
+CHU_SO = {1: "một", 2: "hai", 3: "ba", 4: "bốn", 5: "năm", 6: "sáu"}
+
+
+def so_lieu_llm(goc: Path) -> List[Tuple[str, Optional[str]]]:
+    """Mô tả mốc GPT-4o ở mục 4.3: tên mô hình, nhiệt độ, cách hỏi và thành phần tập con.
+
+    Đọc configs/llm.yaml và danh sách mẫu của tập con; thành phần tập con đếm lại trên tập kiểm tra.
+    """
+    import eval_llm as el
+    import yaml
+
+    cfg = yaml.safe_load((goc / el.CAU_HINH).read_text(encoding="utf-8"))
+    tep = goc / cfg["tap_con"]["tep_uid"]
+    if not tep.is_file():
+        print(f"BỎ QUA mô tả mốc GPT-4o ở mục 4.3, thiếu: {tep}")
+        return []
+    uid = json.loads(tep.read_text(encoding="utf-8"))["uid"]
+    test = {r["uid"]: r for r in doc_jsonl(goc / cfg["du_lieu"]["test"])}
+    nhan = Counter(int(test[u]["label"]) for u in uid)
+    v = cfg["vi_du"]
+    # Hai cụm đầu có dấu câu đứng sau: "bằng 0" là chuỗi con của "bằng 0,7", "gpt-4o" là chuỗi con của "gpt-4o-mini".
+    return [
+        ("4.3, tên mô hình ngôn ngữ lớn", f"tên gọi trên giao diện lập trình là {cfg['mo_hinh']},"),
+        ("4.3, nhiệt độ", f"với nhiệt độ bằng {cfg['tham_so']['temperature']:g}".replace(".", ",") + "."),
+        ("4.3, zero-shot", "zero-shot, chỉ có lời dặn, chạy một lần"),
+        ("4.3, few-shot", f"thêm {CHU_SO[v['moi_lop']]} ví dụ cho mỗi lớp là các bình luận dài {v['tu_toi_thieu']} đến {v['tu_toi_da']} từ "
+                          f"rút từ tập huấn luyện, chạy {CHU_SO[len(el.SEED_VI_DU)]} lần với {CHU_SO[len(el.SEED_VI_DU)]} bộ ví dụ khác nhau"),
+        ("4.3, tập con", f"một tập con {nghin(len(uid))} mẫu rút phân tầng theo nhãn từ tập kiểm tra ({nghin(nhan[0])} tiêu cực, "
+                         f"{nghin(nhan[1])} trung tính, {nghin(nhan[2])} tích cực, thuộc {nghin(len({ma_cau(u) for u in uid}))} bình luận)"),
+        ("4.3, chấm lại trên tập con", f"sáu mô hình còn lại được chấm lại trên đúng {nghin(len(uid))} mẫu đó"),
+    ]
+
+
+def so_lieu_chi_phi(goc: Path, so_mau_test: int) -> List[Tuple[str, Optional[str]]]:
+    """Cách đo chi phí suy luận ở mục 4.5. Có results/cost_profile.json thì so với file đó; chưa có thì so với giá trị mặc
+    định của scripts/profile_cost.py, tức là cách đo sẽ được dùng."""
+    import profile_cost as pc
+
+    tep = goc / pc.RA_MAC_DINH
+    if tep.is_file():
+        mh = json.loads(tep.read_text(encoding="utf-8"))["mo_hinh"]
+        co_lo = sorted({int(c) for r in mh.values() for c in r["theo_co_lo"]})
+        lap = sorted({r["so_lan_lap"] for r in mh.values()})
+        so_mau = sorted({r["so_mau"] for r in mh.values()})
+        seed = sorted({r["seed"] for r in mh.values()})
+        if len(lap) > 1 or len(so_mau) > 1 or len(seed) > 1:
+            return [("4.5, cách đo", f"[các mô hình trong {tep} đo khác điều kiện: số lần lặp {lap}, số mẫu {so_mau}, hạt giống {seed}]")]
+        lap, so_mau, seed = lap[0], so_mau[0], seed[0]
+    else:
+        print(f"CHÚ Ý: chưa có {tep}; cách đo ở mục 4.5 được so với giá trị mặc định của scripts/profile_cost.py")
+        co_lo, lap, so_mau, seed = list(pc.CO_LO_MAC_DINH), pc.LAP_MAC_DINH, so_mau_test, 42
+    lo = " và ".join(map(str, co_lo))
+    return [
+        ("4.5, số mẫu và kích thước lô", f"toàn bộ {nghin(so_mau)} mẫu của tập kiểm tra ở {CHU_SO[len(co_lo)]} kích thước lô, {lo}, "
+                                         "không dùng độ chính xác hỗn hợp"),
+        ("4.5, số lần lặp", f"mỗi cấu hình lặp {CHU_SO[lap]} lần và lấy trung vị"),
+        ("4.5, hạt giống đối chiếu", f"dự đoán của hạt giống {seed} đã dùng cho Bảng {SO_BANG_RUT_GON['4.5']}"),
+    ]
 
 
 def do_ti_le_cat(goc: Path, do_dai: int = 128) -> List[Tuple[str, str]]:
@@ -746,7 +808,9 @@ def main(argv=None) -> int:
     kiem += kiem_thang_mo_hinh(cac_bang, a.ban, tho["tham_so"])
     if a.ban == "rut_gon":
         kiem += so_lieu_thong_ke(a.goc)
-    cd = so_lieu_chan_doan(a.goc, a.ban)
+        kiem += so_lieu_llm(a.goc)
+        kiem += so_lieu_chi_phi(a.goc, tho["so_mau_test"])
+    cd =so_lieu_chan_doan(a.goc, a.ban)
     if cd is not None:
         kiem += cd[0]
         bang.update(cd[1])

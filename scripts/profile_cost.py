@@ -6,6 +6,7 @@ checkpoints/<exp>/seed<N>/best.pt, cho chạy qua tập kiểm tra và đo thờ
     python scripts/profile_cost.py                              # sáu mô hình, seed 42, ghi results/cost_profile.json
     python scripts/profile_cost.py --exp phobert asgcn          # chỉ vài mô hình; mục cũ của mô hình khác được giữ
     python scripts/profile_cost.py --so-mau 64 --lap 1 --chi-in # thử nhanh ở máy, không ghi file
+    python scripts/profile_cost.py --kiem                       # không đo; kiểm results/cost_profile.json trước khi đưa vào báo cáo
 
 ĐIỀU KIỆN ĐO, GIỐNG NHAU CHO MỌI MÔ HÌNH
 ----------------------------------------
@@ -38,7 +39,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 for _luong in (sys.stdout, sys.stderr):  # thong bao loi cung phai in duoc tieng Viet tren console Windows
     if hasattr(_luong, "reconfigure"):
@@ -54,7 +55,11 @@ THI_NGHIEM = {
     "senticgcn": ("configs/senticgcn.yaml", "senticgcn"),
 }
 CO_LO_MAC_DINH = (1, 32)
+LAP_MAC_DINH = 3
 RA_MAC_DINH = Path("results/cost_profile.json")
+# Số dự đoán khác file đã công bố mà quá mức này thì bộ trọng số đang đo có thể không phải bộ đã cho số của báo cáo.
+# Ở lô 1, BiLSTM trên CPU đã khác tới 59 trong 6.722 mẫu vì lý do khác (GAP-035), nên lô 1 chỉ bị nhắc, không bị chặn.
+NGUONG_KHAC = 10
 
 
 def moi_truong(device) -> Dict[str, Any]:
@@ -226,19 +231,97 @@ def in_bang(ket_qua: Dict[str, Dict[str, Any]], co_lo: Sequence[int]) -> None:
         print(dong)
 
 
+def kiem_ket_qua(kq: Dict[str, Any], so_mau_test: Optional[int] = None) -> Tuple[List[str], List[str]]:
+    """Kiểm file kết quả trước khi đưa vào báo cáo. Trả về (lỗi, chú ý); còn lỗi thì chưa dùng được.
+
+    Lỗi: thiếu mô hình, không đo trên GPU, các mô hình đo trên GPU khác nhau, không đo cả tập kiểm tra,
+    thiếu một kích thước lô mặc định hay lô đó báo lỗi, hoặc bộ trọng số đã huấn luyện mà ở lô lớn nhất
+    cho hơn NGUONG_KHAC dự đoán khác file đã công bố.
+    Chú ý: mô hình đo với trọng số lúc khởi tạo, đo qua nhiều lần chạy, lặp ít hơn mặc định, lô 1 khác nhiều.
+    """
+    loi: List[str] = []
+    chu_y: List[str] = []
+    mh: Dict[str, Any] = kq.get("mo_hinh", {})
+    thieu = [e for e in THI_NGHIEM if e not in mh]
+    if thieu:
+        loi.append("thiếu mô hình: " + ", ".join(thieu))
+    gpu = {e: (r.get("moi_truong") or {}).get("ten_gpu") for e, r in mh.items()}
+    khong_gpu = [e for e, g in gpu.items() if not g]
+    if khong_gpu:
+        loi.append("không đo trên GPU: " + ", ".join(khong_gpu))
+    ten_gpu = sorted({g for g in gpu.values() if g})
+    if len(ten_gpu) > 1:
+        loi.append("các mô hình được đo trên các GPU khác nhau: " + "; ".join(
+            f"{g} ({', '.join(e for e in mh if gpu[e] == g)})" for g in ten_gpu))
+    lan_chay = sorted({(r.get("moi_truong") or {}).get("thoi_diem") for r in mh.values()} - {None})
+    if len(lan_chay) > 1:
+        chu_y.append(f"các mô hình được đo trong {len(lan_chay)} lần chạy ({', '.join(lan_chay)}); báo cáo nói đo trong một phiên")
+    lo_lon = str(max(CO_LO_MAC_DINH))
+    for e, r in mh.items():
+        if not r.get("ca_tap_kiem_tra"):
+            loi.append(f"{e}: chỉ đo {r.get('so_mau')} mẫu, không phải cả tập kiểm tra")
+        elif so_mau_test is not None and r.get("so_mau") != so_mau_test:
+            loi.append(f"{e}: đo {r.get('so_mau')} mẫu, tập kiểm tra có {so_mau_test}")
+        if r.get("so_lan_lap", 0) < LAP_MAC_DINH:
+            chu_y.append(f"{e}: chỉ lặp {r.get('so_lan_lap')} lần, mặc định là {LAP_MAC_DINH}")
+        for c in map(str, CO_LO_MAC_DINH):
+            m = r.get("theo_co_lo", {}).get(c)
+            if m is None:
+                loi.append(f"{e}: thiếu lô {c}")
+            elif "loi" in m:
+                loi.append(f"{e}: lô {c} báo lỗi: {m['loi']}")
+        if r.get("trong_so") != "best.pt":
+            chu_y.append(f"{e}: đo với trọng số lúc khởi tạo; báo cáo phải ghi rõ, và không kiểm được dự đoán")
+            continue
+        for c, m in r.get("theo_co_lo", {}).items():
+            khac = m.get("so_du_doan_khac")
+            if "loi" in m:
+                continue
+            if khac is None:
+                chu_y.append(f"{e}, lô {c}: không có predictions.jsonl để đối chiếu dự đoán")
+            elif khac > NGUONG_KHAC and c == lo_lon:
+                loi.append(f"{e}, lô {c}: {khac} dự đoán khác file đã công bố; có thể không phải bộ trọng số đã cho số của báo cáo")
+            elif khac > NGUONG_KHAC:
+                chu_y.append(f"{e}, lô {c}: {khac} dự đoán khác file đã công bố (xem GAP-035)")
+    return loi, chu_y
+
+
+def cmd_kiem(tep: Path, goc: Path) -> int:
+    if not tep.is_file():
+        print(f"Chưa có {tep}. Chạy phép đo trên GPU trước (mục 12 của notebooks/colab_train.ipynb).")
+        return 1
+    kq = json.loads(tep.read_text(encoding="utf-8"))
+    tep_test = goc / "data/processed/visfd_test.jsonl"
+    so_mau_test = sum(1 for d in tep_test.open(encoding="utf-8") if d.strip()) if tep_test.is_file() else None
+    loi, chu_y = kiem_ket_qua(kq, so_mau_test)
+    gpu = sorted({(r.get("moi_truong") or {}).get("ten_gpu") or "không có GPU" for r in kq.get("mo_hinh", {}).values()})
+    print(f"Kiểm {tep}: {len(kq.get('mo_hinh', {}))} mô hình, thiết bị: {', '.join(gpu) or 'không rõ'}")
+    for d in loi:
+        print(f"LỖI    {d}")
+    for d in chu_y:
+        print(f"CHÚ Ý  {d}")
+    print("Kết luận: " + ("CHƯA dùng được cho báo cáo, sửa các lỗi trên rồi đo lại." if loi else "dùng được cho báo cáo."
+                          + (" Đọc các dòng chú ý: chúng phải được ghi trong báo cáo." if chu_y else "")))
+    return 1 if loi else 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Đo thời gian suy luận và bộ nhớ GPU đỉnh của các mô hình trong cùng một điều kiện.")
     ap.add_argument("--exp", nargs="+", default=list(THI_NGHIEM), choices=list(THI_NGHIEM), help="thí nghiệm cần đo (mặc định cả sáu)")
     ap.add_argument("--seed", type=int, default=42, help="lấy best.pt của seed nào (mặc định 42)")
     ap.add_argument("--co-lo", nargs="+", type=int, default=list(CO_LO_MAC_DINH), help="các kích thước lô cần đo (mặc định 1 và 32)")
     ap.add_argument("--so-mau", type=int, default=None, help="chỉ đo trên N mẫu đầu của tập kiểm tra (mặc định cả tập)")
-    ap.add_argument("--lap", type=int, default=3, help="số lần lặp cho mỗi cấu hình, lấy trung vị (mặc định 3)")
+    ap.add_argument("--lap", type=int, default=LAP_MAC_DINH, help=f"số lần lặp cho mỗi cấu hình, lấy trung vị (mặc định {LAP_MAC_DINH})")
     ap.add_argument("--khoi-dong", type=int, default=5, help="số lô chạy khởi động trước khi bấm giờ (mặc định 5)")
     ap.add_argument("--device", default="auto", help="auto, cuda hoặc cpu (mặc định auto: có GPU thì dùng)")
     ap.add_argument("--goc", type=Path, default=Path("."), help="thư mục gốc của repo")
     ap.add_argument("--out", type=Path, default=RA_MAC_DINH, help=f"file kết quả (mặc định {RA_MAC_DINH})")
     ap.add_argument("--chi-in", action="store_true", help="chỉ in bảng, không ghi file")
+    ap.add_argument("--kiem", nargs="?", type=Path, const=RA_MAC_DINH, default=None, metavar="FILE",
+                    help=f"không đo; kiểm file kết quả đã có (mặc định {RA_MAC_DINH}) trước khi đưa vào báo cáo")
     a = ap.parse_args(argv)
+    if a.kiem is not None:
+        return cmd_kiem(a.goc / a.kiem, a.goc)
 
     import torch
 
