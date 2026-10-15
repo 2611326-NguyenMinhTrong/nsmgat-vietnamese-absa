@@ -158,3 +158,61 @@ def test_mo_ta_moc_llm_dem_lai_tap_con(tmp_path):
     assert cum["4.3, nhiệt độ"] == "với nhiệt độ bằng 0."
     assert cum["4.3, tên mô hình ngôn ngữ lớn"] == "tên gọi trên giao diện lập trình là gpt-4o,"
     assert "thêm hai ví dụ cho mỗi lớp" in cum["4.3, few-shot"] and "chạy ba lần với ba bộ ví dụ" in cum["4.3, few-shot"]
+
+
+def _chi_phi_gia(goc: Path) -> None:
+    """cost_profile.json và metrics.json giả cho sáu mô hình: PhoBERT nhanh nhất trong bốn mô hình dùng PhoBERT."""
+    ms = {"lexicon": (0.2, 0.02), "bilstm": (2.0, 0.1), "phobert": (10.0, 5.0), "asgcn": (13.0, 5.5), "asgcn_linked": (13.1, 5.6),
+          "senticgcn": (13.2, 5.7)}
+    mh = {}
+    for e, (a, b) in ms.items():
+        mh[e] = {"trong_so": "khoi_tao" if e in ("phobert", "asgcn") else "best.pt", "so_mau": 6722, "so_lan_lap": 3, "seed": 42,
+                 "moi_truong": {"ten_gpu": "Tesla T4"},
+                 "theo_co_lo": {"1": {"ms_moi_mau": a, "so_du_doan_khac": 3 if e == "bilstm" else 0, "bo_nho_dinh_mb": 1.0},
+                                "32": {"ms_moi_mau": b, "so_du_doan_khac": 1 if e == "bilstm" else 0,
+                                       "bo_nho_dinh_mb": 600.0 if e == "phobert" else (604.5 if e in ("asgcn", "asgcn_linked", "senticgcn") else 9.3)}}}
+        for s in m.cb.SEEDS:
+            d = goc / "results" / e / f"seed{s}"
+            d.mkdir(parents=True)
+            (d / "metrics.json").write_text(json.dumps({"test": {"macro_f1": 0.86 if e == "phobert" else 0.85}}), encoding="utf-8")
+    (goc / "results" / "cost_profile.json").write_text(json.dumps({"mo_hinh": mh}), encoding="utf-8")
+
+
+def test_cot_chi_phi_phai_nam_dung_hang_cua_mo_hinh(tmp_path):
+    _chi_phi_gia(tmp_path)
+    dong = [f"| {m.TEN[e]} | 1 | 2,0 | CPU | {a} | {b} |" for e, a, b in (
+        ("lexicon", "0,20 / 0,02", "9,3"), ("bilstm", "2,00 / 0,10", "9,3"), ("phobert", "10,00 / 5,00", "600,0"),
+        ("asgcn", "13,00 / 5,50", "604,5"), ("asgcn_linked", "13,10 / 5,60", "604,5"), ("senticgcn", "13,20 / 5,70", "604,5"))]
+    van = "Bảng 4.6: Số tham số và thời gian huấn luyện\n\n| a |\n|---|\n" + "\n".join(dong) + "\n"
+    kq = dict(m.kiem_cot_chi_phi(m.tach_bang(van), "rut_gon", tmp_path))
+    assert len(kq) == 6 and all(not v.startswith(f"| {m.TEN[e]} | ...") for e, v in zip(m.MO_HINH, kq.values()))
+    # đổi số của hai hàng cho nhau thì cả hai bị đòi lại đúng số của mình
+    van_sai = van.replace("13,00 / 5,50", "X").replace("13,10 / 5,60", "13,00 / 5,50").replace("X", "13,10 / 5,60")
+    kq = dict(m.kiem_cot_chi_phi(m.tach_bang(van_sai), "rut_gon", tmp_path))
+    assert kq["Bảng 4.9, chi phí suy luận của asgcn"].endswith("| 13,00 / 5,50 | 604,5 |") and " ... " in kq["Bảng 4.9, chi phí suy luận của asgcn"]
+    assert m.kiem_cot_chi_phi(m.tach_bang(van), "day_du", tmp_path) == []  # bản đầy đủ không có hai cột này
+
+
+def test_ket_qua_chi_phi_tinh_lai_tu_file(tmp_path):
+    _chi_phi_gia(tmp_path)
+    mh = json.loads((tmp_path / "results" / "cost_profile.json").read_text(encoding="utf-8"))["mo_hinh"]
+    kq = dict(m.ket_qua_chi_phi(tmp_path, mh))
+    assert kq["4.5, GPU"] == "Phép đo chạy trên GPU Tesla T4"
+    assert kq["4.5, BiLSTM khác dự đoán"] == "BiLSTM khác 3 trong 6.722 dự đoán ở lô 1 và 1 ở lô 32"
+    assert kq["4.5, mô hình đồ thị chậm hơn"] == "chậm hơn PhoBERT từ 30 đến 32 % ở lô 1 và từ 10 đến 14 % ở lô 32"
+    assert kq["4.5, bộ nhớ thêm"] == "bộ nhớ đỉnh chỉ cao hơn 4,5 MB"
+    assert kq["4.5, Sentic-GCN so với ASGCN"] == "Sentic-GCN chỉ chậm hơn ASGCN 0,20 ms một mẫu ở lô 1"
+    assert kq["4.5, mô hình nhẹ nhanh hơn"] == "mô hình từ điển nhanh hơn PhoBERT khoảng 50 lần và BiLSTM khoảng 5,0 lần"
+    assert not kq["4.5, đánh đổi"].startswith("SỐ LIỆU KHÔNG CÒN")
+    assert not kq["4.5, dự đoán trùng"].startswith("SỐ LIỆU KHÔNG CÒN")
+
+
+def test_file_chi_phi_thieu_mo_hinh_bi_bao_lech_chu_khong_dung(tmp_path):
+    tep = tmp_path / "results" / "cost_profile.json"
+    tep.parent.mkdir()
+    r = {"so_lan_lap": 3, "so_mau": 6722, "seed": 42, "theo_co_lo": {"1": {"ms_moi_mau": 1.0}, "32": {"ms_moi_mau": 1.0}}}
+    tep.write_text(json.dumps({"mo_hinh": {"phobert": r}}), encoding="utf-8")
+    cum = dict(m.so_lieu_chi_phi(tmp_path, 6722))
+    assert cum["4.5, kết quả chi phí"].startswith("[cost_profile.json thiếu mô hình: lexicon")
+    kq = dict(m.kiem_cot_chi_phi({}, "rut_gon", tmp_path))
+    assert kq["Bảng 4.9, chi phí suy luận của lexicon"].startswith("[cost_profile.json không có số đo")

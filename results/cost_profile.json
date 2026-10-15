@@ -1,0 +1,280 @@
+{
+ "mo_hinh": {
+  "lexicon": {
+   "exp": "lexicon",
+   "seed": 42,
+   "so_tham_so": 9,
+   "trong_so": "best.pt",
+   "so_mau": 6722,
+   "ca_tap_kiem_tra": true,
+   "do_dai_toi_da": 128,
+   "so_lan_lap": 3,
+   "tach_subword_ms_moi_mau": 0.5357,
+   "theo_co_lo": {
+    "1": {
+     "ms_moi_mau": 0.2428,
+     "ms_nho_nhat": 0.2332,
+     "ms_lon_nhat": 0.2428,
+     "mau_moi_giay": 4119.1,
+     "bo_nho_dinh_mb": 12.4,
+     "bo_nho_giu_cho_dinh_mb": 26.0,
+     "accuracy": 0.747099,
+     "so_du_doan_khac": 0
+    },
+    "32": {
+     "ms_moi_mau": 0.0268,
+     "ms_nho_nhat": 0.0267,
+     "ms_lon_nhat": 0.0306,
+     "mau_moi_giay": 37325.0,
+     "bo_nho_dinh_mb": 9.3,
+     "bo_nho_giu_cho_dinh_mb": 26.0,
+     "accuracy": 0.747099,
+     "so_du_doan_khac": 0
+    }
+   },
+   "bo_nho_trong_so_mb": 0.0,
+   "moi_truong": {
+    "thoi_diem": "2026-10-15T19:23:25",
+    "thiet_bi": "cuda",
+    "ten_gpu": "Tesla T4",
+    "bo_nho_gpu_mb": 14912,
+    "torch": "2.11.0+cu128",
+    "transformers": "5.16.1",
+    "python": "3.13.15",
+    "he_dieu_hanh": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "bo_xu_ly": "x86_64",
+    "commit": "e4cc63a"
+   }
+  },
+  "bilstm": {
+   "exp": "bilstm",
+   "seed": 42,
+   "so_tham_so": 4017412,
+   "trong_so": "best.pt",
+   "so_mau": 6722,
+   "ca_tap_kiem_tra": true,
+   "do_dai_toi_da": 128,
+   "so_lan_lap": 3,
+   "tach_subword_ms_moi_mau": 0.5458,
+   "theo_co_lo": {
+    "1": {
+     "ms_moi_mau": 1.9673,
+     "ms_nho_nhat": 1.964,
+     "ms_lon_nhat": 2.0409,
+     "mau_moi_giay": 508.3,
+     "bo_nho_dinh_mb": 51.5,
+     "bo_nho_giu_cho_dinh_mb": 92.0,
+     "accuracy": 0.857632,
+     "so_du_doan_khac": 59
+    },
+    "32": {
+     "ms_moi_mau": 0.1078,
+     "ms_nho_nhat": 0.1075,
+     "ms_lon_nhat": 0.1136,
+     "mau_moi_giay": 9276.3,
+     "bo_nho_dinh_mb": 133.5,
+     "bo_nho_giu_cho_dinh_mb": 234.0,
+     "accuracy": 0.858227,
+     "so_du_doan_khac": 10
+    }
+   },
+   "bo_nho_trong_so_mb": 24.9,
+   "moi_truong": {
+    "thoi_diem": "2026-10-15T19:23:25",
+    "thiet_bi": "cuda",
+    "ten_gpu": "Tesla T4",
+    "bo_nho_gpu_mb": 14912,
+    "torch": "2.11.0+cu128",
+    "transformers": "5.16.1",
+    "python": "3.13.15",
+    "he_dieu_hanh": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "bo_xu_ly": "x86_64",
+    "commit": "e4cc63a"
+   }
+  },
+  "phobert": {
+   "exp": "phobert",
+   "seed": 42,
+   "so_tham_so": 135000579,
+   "trong_so": "khoi_tao",
+   "so_mau": 6722,
+   "ca_tap_kiem_tra": true,
+   "do_dai_toi_da": 128,
+   "so_lan_lap": 3,
+   "tach_subword_ms_moi_mau": 0.5556,
+   "theo_co_lo": {
+    "1": {
+     "ms_moi_mau": 8.9411,
+     "ms_nho_nhat": 8.9382,
+     "ms_lon_nhat": 9.1415,
+     "mau_moi_giay": 111.8,
+     "bo_nho_dinh_mb": 533.6,
+     "bo_nho_giu_cho_dinh_mb": 578.0,
+     "accuracy": 0.494347,
+     "so_du_doan_khac": null
+    },
+    "32": {
+     "ms_moi_mau": 5.548,
+     "ms_nho_nhat": 5.5438,
+     "ms_lon_nhat": 5.5701,
+     "mau_moi_giay": 180.2,
+     "bo_nho_dinh_mb": 657.9,
+     "bo_nho_giu_cho_dinh_mb": 804.0,
+     "accuracy": 0.494347,
+     "so_du_doan_khac": null
+    }
+   },
+   "bo_nho_trong_so_mb": 525.2,
+   "moi_truong": {
+    "thoi_diem": "2026-10-15T19:23:25",
+    "thiet_bi": "cuda",
+    "ten_gpu": "Tesla T4",
+    "bo_nho_gpu_mb": 14912,
+    "torch": "2.11.0+cu128",
+    "transformers": "5.16.1",
+    "python": "3.13.15",
+    "he_dieu_hanh": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "bo_xu_ly": "x86_64",
+    "commit": "e4cc63a"
+   }
+  },
+  "asgcn": {
+   "exp": "asgcn",
+   "seed": 42,
+   "so_tham_so": 136181763,
+   "trong_so": "khoi_tao",
+   "so_mau": 6722,
+   "ca_tap_kiem_tra": true,
+   "do_dai_toi_da": 128,
+   "so_lan_lap": 3,
+   "tach_subword_ms_moi_mau": 0.5625,
+   "theo_co_lo": {
+    "1": {
+     "ms_moi_mau": 11.5566,
+     "ms_nho_nhat": 11.3667,
+     "ms_lon_nhat": 11.5675,
+     "mau_moi_giay": 86.5,
+     "bo_nho_dinh_mb": 538.1,
+     "bo_nho_giu_cho_dinh_mb": 578.0,
+     "accuracy": 0.308242,
+     "so_du_doan_khac": null
+    },
+    "32": {
+     "ms_moi_mau": 6.0695,
+     "ms_nho_nhat": 6.0518,
+     "ms_lon_nhat": 6.1124,
+     "mau_moi_giay": 164.8,
+     "bo_nho_dinh_mb": 662.4,
+     "bo_nho_giu_cho_dinh_mb": 794.0,
+     "accuracy": 0.308093,
+     "so_du_doan_khac": null
+    }
+   },
+   "bo_nho_trong_so_mb": 529.7,
+   "moi_truong": {
+    "thoi_diem": "2026-10-15T19:23:25",
+    "thiet_bi": "cuda",
+    "ten_gpu": "Tesla T4",
+    "bo_nho_gpu_mb": 14912,
+    "torch": "2.11.0+cu128",
+    "transformers": "5.16.1",
+    "python": "3.13.15",
+    "he_dieu_hanh": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "bo_xu_ly": "x86_64",
+    "commit": "e4cc63a"
+   }
+  },
+  "asgcn_linked": {
+   "exp": "asgcn_linked",
+   "seed": 42,
+   "so_tham_so": 136181763,
+   "trong_so": "best.pt",
+   "so_mau": 6722,
+   "ca_tap_kiem_tra": true,
+   "do_dai_toi_da": 128,
+   "so_lan_lap": 3,
+   "tach_subword_ms_moi_mau": 0.5827,
+   "theo_co_lo": {
+    "1": {
+     "ms_moi_mau": 11.7117,
+     "ms_nho_nhat": 11.6233,
+     "ms_lon_nhat": 11.712,
+     "mau_moi_giay": 85.4,
+     "bo_nho_dinh_mb": 538.1,
+     "bo_nho_giu_cho_dinh_mb": 578.0,
+     "accuracy": 0.916394,
+     "so_du_doan_khac": 0
+    },
+    "32": {
+     "ms_moi_mau": 6.0972,
+     "ms_nho_nhat": 6.0685,
+     "ms_lon_nhat": 6.1008,
+     "mau_moi_giay": 164.0,
+     "bo_nho_dinh_mb": 662.4,
+     "bo_nho_giu_cho_dinh_mb": 794.0,
+     "accuracy": 0.916394,
+     "so_du_doan_khac": 0
+    }
+   },
+   "bo_nho_trong_so_mb": 529.7,
+   "moi_truong": {
+    "thoi_diem": "2026-10-15T19:23:25",
+    "thiet_bi": "cuda",
+    "ten_gpu": "Tesla T4",
+    "bo_nho_gpu_mb": 14912,
+    "torch": "2.11.0+cu128",
+    "transformers": "5.16.1",
+    "python": "3.13.15",
+    "he_dieu_hanh": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "bo_xu_ly": "x86_64",
+    "commit": "e4cc63a"
+   }
+  },
+  "senticgcn": {
+   "exp": "senticgcn",
+   "seed": 42,
+   "so_tham_so": 136181763,
+   "trong_so": "best.pt",
+   "so_mau": 6722,
+   "ca_tap_kiem_tra": true,
+   "do_dai_toi_da": 128,
+   "so_lan_lap": 3,
+   "tach_subword_ms_moi_mau": 0.5645,
+   "theo_co_lo": {
+    "1": {
+     "ms_moi_mau": 11.7776,
+     "ms_nho_nhat": 11.7452,
+     "ms_lon_nhat": 11.8911,
+     "mau_moi_giay": 84.9,
+     "bo_nho_dinh_mb": 538.1,
+     "bo_nho_giu_cho_dinh_mb": 578.0,
+     "accuracy": 0.911931,
+     "so_du_doan_khac": 0
+    },
+    "32": {
+     "ms_moi_mau": 6.1789,
+     "ms_nho_nhat": 6.1694,
+     "ms_lon_nhat": 6.2093,
+     "mau_moi_giay": 161.8,
+     "bo_nho_dinh_mb": 662.4,
+     "bo_nho_giu_cho_dinh_mb": 794.0,
+     "accuracy": 0.911931,
+     "so_du_doan_khac": 0
+    }
+   },
+   "bo_nho_trong_so_mb": 529.7,
+   "moi_truong": {
+    "thoi_diem": "2026-10-15T19:23:25",
+    "thiet_bi": "cuda",
+    "ten_gpu": "Tesla T4",
+    "bo_nho_gpu_mb": 14912,
+    "torch": "2.11.0+cu128",
+    "transformers": "5.16.1",
+    "python": "3.13.15",
+    "he_dieu_hanh": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "bo_xu_ly": "x86_64",
+    "commit": "e4cc63a"
+   }
+  }
+ }
+}

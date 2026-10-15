@@ -413,12 +413,74 @@ def so_lieu_chi_phi(goc: Path, so_mau_test: int) -> List[Tuple[str, Optional[str
         print(f"CHÚ Ý: chưa có {tep}; cách đo ở mục 4.5 được so với giá trị mặc định của scripts/profile_cost.py")
         co_lo, lap, so_mau, seed = list(pc.CO_LO_MAC_DINH), pc.LAP_MAC_DINH, so_mau_test, 42
     lo = " và ".join(map(str, co_lo))
-    return [
+    ra = [
         ("4.5, số mẫu và kích thước lô", f"toàn bộ {nghin(so_mau)} mẫu của tập kiểm tra ở {CHU_SO[len(co_lo)]} kích thước lô, {lo}, "
                                          "không dùng độ chính xác hỗn hợp"),
         ("4.5, số lần lặp", f"mỗi cấu hình lặp {CHU_SO[lap]} lần và lấy trung vị"),
         ("4.5, hạt giống đối chiếu", f"dự đoán của hạt giống {seed} đã dùng cho Bảng {SO_BANG_RUT_GON['4.5']}"),
     ]
+    if tep.is_file():
+        thieu = [e for e in MO_HINH if e not in mh]
+        # File thiếu mô hình thì đòi một cụm không thể có, để chỗ này bị báo lệch thay vì làm dừng công cụ
+        ra += ket_qua_chi_phi(goc, mh) if not thieu else [("4.5, kết quả chi phí", f"[{tep.name} thiếu mô hình: {', '.join(thieu)}]")]
+    return ra
+
+
+def ket_qua_chi_phi(goc: Path, mh: Dict[str, dict]) -> List[Tuple[str, Optional[str]]]:
+    """Các con số và câu so sánh trong hai đoạn kết quả của mục 4.5, tính lại từ results/cost_profile.json."""
+    ms = {e: {c: mh[e]["theo_co_lo"][c]["ms_moi_mau"] for c in ("1", "32")} for e in MO_HINH}
+    mb = {e: mh[e]["theo_co_lo"]["32"]["bo_nho_dinh_mb"] for e in MO_HINH}
+    khac = {e: {c: mh[e]["theo_co_lo"][c]["so_du_doan_khac"] for c in ("1", "32")} for e in MO_HINH}
+    f1 = {e: st.mean(json.loads((goc / f"results/{e}/seed{s}/metrics.json").read_text(encoding="utf-8"))["test"]["macro_f1"]
+                     for s in cb.SEEDS) for e in MO_HINH}
+    do_thi = ("asgcn", "asgcn_linked", "senticgcn")
+    cham = {c: [(ms[e][c] / ms["phobert"][c] - 1) * 100 for e in do_thi] for c in ("1", "32")}
+    them_mb = sorted({round(mb[e] - mb["phobert"], 1) for e in do_thi})
+    khoi_tao = sorted(e for e in MO_HINH if mh[e]["trong_so"] != "best.pt")
+    gpu = {r["moi_truong"]["ten_gpu"] for r in mh.values()}
+    so_mau = mh["bilstm"]["so_mau"]
+    return [
+        ("4.5, GPU", f"Phép đo chạy trên GPU {gpu.pop() if len(gpu) == 1 else sorted(gpu)}"),
+        neu(khoi_tao == ["asgcn", "phobert"], "PhoBERT và ASGCN được đo với trọng số lúc khởi tạo", "4.5, mô hình đo với trọng số lúc khởi tạo"),
+        neu(all(khac[e][c] == 0 for e in ("lexicon", "asgcn_linked", "senticgcn") for c in ("1", "32")),
+            "Mô hình từ điển, ASGCN nối gốc và Sentic-GCN cho đúng từng dự đoán đã công bố ở cả hai kích thước lô", "4.5, dự đoán trùng"),
+        ("4.5, BiLSTM khác dự đoán", f"BiLSTM khác {khac['bilstm']['1']} trong {nghin(so_mau)} dự đoán ở lô 1 và {khac['bilstm']['32']} ở lô 32"),
+        ("4.5, mô hình đồ thị chậm hơn", f"chậm hơn PhoBERT từ {min(cham['1']):.0f} đến {max(cham['1']):.0f} % ở lô 1 và từ {min(cham['32']):.0f} "
+                                         f"đến {max(cham['32']):.0f} % ở lô 32"),
+        ("4.5, bộ nhớ thêm", f"bộ nhớ đỉnh chỉ cao hơn {tp(them_mb[0], 1)} MB" if len(them_mb) == 1 else f"[bộ nhớ thêm khác nhau: {them_mb}]"),
+        ("4.5, Sentic-GCN so với ASGCN", f"Sentic-GCN chỉ chậm hơn ASGCN {tp(ms['senticgcn']['1'] - ms['asgcn']['1'])} ms một mẫu ở lô 1"),
+        ("4.5, mô hình nhẹ nhanh hơn", f"mô hình từ điển nhanh hơn PhoBERT khoảng {ms['phobert']['1'] / ms['lexicon']['1']:.0f} lần và BiLSTM "
+                                       f"khoảng {tp(ms['phobert']['1'] / ms['bilstm']['1'], 1)} lần"),
+        neu(all(ms[e][c] > ms["phobert"][c] for e in do_thi for c in ("1", "32")) and all(f1[e] < f1["phobert"] for e in do_thi),
+            "ba mô hình đồ thị tốn thêm thời gian suy luận mà không đạt macro-F1 cao hơn PhoBERT", "4.5, đánh đổi"),
+    ]
+
+
+def kiem_cot_chi_phi(cac_bang: Dict[str, dict], ban: str, goc: Path) -> List[Tuple[str, Optional[str]]]:
+    """Hai cột cuối của bảng chi phí: hàng của mỗi mô hình phải kết thúc bằng thời gian suy luận và bộ nhớ đỉnh đã đo.
+
+    Bảng này mang số 4.9 ở bản đầy đủ; bản đầy đủ không có hai cột này nên chỉ kiểm bản chính.
+    """
+    import profile_cost as pc
+
+    tep = goc / pc.RA_MAC_DINH
+    if ban != "rut_gon" or not tep.is_file():
+        return []
+    mh = json.loads(tep.read_text(encoding="utf-8"))["mo_hinh"]
+    hang = cac_bang.get(so_bang_cua(ban, "4.9"), {}).get("hang", [])
+    ra: List[Tuple[str, Optional[str]]] = []
+    for e in MO_HINH:
+        lo = mh.get(e, {}).get("theo_co_lo", {})
+        if (lo.get("1", {}).get("ms_moi_mau") is None or lo.get("32", {}).get("ms_moi_mau") is None
+                or lo.get("32", {}).get("bo_nho_dinh_mb") is None):
+            ra.append((f"Bảng 4.9, chi phí suy luận của {e}", f"[{tep.name} không có số đo lô 1 và 32 của {e}, hoặc không có bộ nhớ GPU]"))
+            continue
+        m = mh[e]["theo_co_lo"]
+        duoi = f"| {tp(m['1']['ms_moi_mau'])} / {tp(m['32']['ms_moi_mau'])} | {tp(m['32']['bo_nho_dinh_mb'], 1)} |"
+        ung = [h for h in hang if h.startswith(f"| {TEN[e]} |")]
+        dung = len(ung) == 1 and ung[0].endswith(duoi)
+        ra.append((f"Bảng 4.9, chi phí suy luận của {e}", ung[0] if dung else f"| {TEN[e]} | ... {duoi}"))
+    return ra
 
 
 def do_ti_le_cat(goc: Path, do_dai: int = 128) -> List[Tuple[str, str]]:
@@ -806,6 +868,7 @@ def main(argv=None) -> int:
     k2, bang = so_lieu_ket_qua(a.goc, tho, a.ban)
     kiem += k2
     kiem += kiem_thang_mo_hinh(cac_bang, a.ban, tho["tham_so"])
+    kiem += kiem_cot_chi_phi(cac_bang, a.ban, a.goc)
     if a.ban == "rut_gon":
         kiem += so_lieu_thong_ke(a.goc)
         kiem += so_lieu_llm(a.goc)

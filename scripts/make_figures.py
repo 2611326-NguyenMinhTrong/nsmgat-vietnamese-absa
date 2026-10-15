@@ -127,6 +127,7 @@ def so_truc(v: float, _=None) -> str:
 
 
 MO_HINH_PHOBERT = ("phobert", "asgcn", "asgcn_linked", "senticgcn")
+TEN_NGAN = {"phobert": "PhoBERT", "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối gốc", "senticgcn": "Sentic-GCN"}
 
 
 def hinh_4_2(chi_phi: dict, ket_qua: Path, out: Path, co_lo: str = "1") -> None:
@@ -167,9 +168,20 @@ def hinh_4_2(chi_phi: dict, ket_qua: Path, out: Path, co_lo: str = "1") -> None:
         ax.set_axisbelow(True)
         ax.set_xlabel(f"Mili giây cho một mẫu, lô {co_lo}")
     ax1.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+    x_min = min(v[0] for v in diem.values())
+    ax1.set_xlim(left=10 ** np.floor(np.log10(x_min)))  # có vạch thập phân dưới điểm nhỏ nhất để đọc được giá trị
     ax1.set_title("(a) Sáu mô hình, trục thời gian logarit", fontsize=10)
     ax2.set_title("(b) Bốn mô hình dùng PhoBERT, phóng to", fontsize=10)
     ax2.margins(x=0.25, y=0.15)
+    # Khung (b): ghi tên cạnh điểm, vì các mô hình đồ thị có thời gian gần như bằng nhau và điểm chồng lên nhau.
+    # Trong một cụm điểm sát nhau theo trục thời gian, điểm phải nhất ghi tên bên phải, các điểm còn lại bên trái.
+    o_b = sorted((diem[e][0], e) for e in MO_HINH_PHOBERT if e in diem)
+    nguong = 0.05 * (o_b[-1][0] - o_b[0][0] or 1)
+    for k, (x, e) in enumerate(o_b):
+        phai = k == len(o_b) - 1 or o_b[k + 1][0] - x > nguong
+        # bên trái đẩy xa hơn: điểm bên trái trong cụm có thể có vạch sai số chạy qua chỗ ghi tên
+        ax2.annotate(TEN_NGAN.get(e, e), (x, diem[e][1]), xytext=(8 if phai else -18, 0), textcoords="offset points",
+                     ha="left" if phai else "right", va="center", fontsize=9, color="#333333")
     ax1.set_ylabel("Macro-F1 trên tập kiểm tra (%)")
     tay = [Line2D([], [], linestyle="none", **kieu(e)) for e in diem]
     fig.legend(tay, [f"{cb.TEN_HIEN_THI.get(e, e)} ({ten_tham_so(diem[e][3])})" for e in diem], frameon=False, fontsize=9,
