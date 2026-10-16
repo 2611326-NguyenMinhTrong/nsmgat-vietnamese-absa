@@ -61,4 +61,14 @@ nguyên: không mô hình đồ thị nào hơn PhoBERT có ý nghĩa; nhóm c�
 2. Push các commit đang ở máy?
 3. Ba việc còn treo: 34 đoạn kiểu "Nhãn. Nội dung"; trang bìa "ĐỀ CƯƠNG THẠC SĨ"; chạy GPT-4o (mục 4.4 còn một dòng TODO).
 
-## 6. GHI CHÚ SAU KHI TRAO ĐỔI *(điền sau)*
+## 6. GHI CHÚ SAU KHI TRAO ĐỔI
+
+**17/10/2026, học viên bảo:** sửa 34 đoạn kiểu "Nhãn. Nội dung" cho tự nhiên hơn, push các commit, trang bìa "ĐỀ CƯƠNG THẠC
+SĨ" giữ nguyên.
+
+- Quét lại thấy 38 đoạn (thêm "Hai mô hình đối chứng.", "Mốc tham chiếu GPT-4o.", "Thí nghiệm đối chứng." mới viết, và
+  "Hai nhận xét rút ra cho tiếng Việt." ở mục 3.8). Sửa theo cách học viên tự làm với "Tính cấp thiết, ...": đưa ý của nhãn
+  vào câu đầu hoặc bỏ nhãn khi câu đầu đã đủ nghĩa. Không thêm tiểu mục nên mục lục không đổi, file vẫn 69 trang.
+- Bản nháp sao lưu ở `nhap_rut_gon/sao_luu/20261017-bo-nhan/`; file Word: ghép riêng Chương 4 và Phụ lục (`--chi`, sao lưu
+  `..._rutgon.20261017-023503.docx.bak`), sửa thẳng hai đoạn ở mục 1.3 và 3.8 bằng COM. Chạy thử trên bản sao trước.
+- Ba chỗ kiểm của công cụ đối chiếu đổi chữ hoa đầu câu theo câu mới; bản chính 244/244, bản lưu 174/174; 543 test qua.

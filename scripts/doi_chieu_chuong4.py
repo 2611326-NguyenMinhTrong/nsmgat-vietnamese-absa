@@ -312,17 +312,17 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
     nho_nhat_f1 = min(hoc, key=lambda e: f1[e][1])
     kho_nhat = all(lop[e][1] < min(lop[e][0], lop[e][2]) for e in MO_HINH)  # F1 lớp trung tính thấp nhất ở mọi mô hình
     return [
-        ("4.4, mô hình từ điển", f"Mô hình từ điển đạt accuracy {tp(acc['lexicon'][0])} % nhưng macro-F1 chỉ {tp(f1['lexicon'][0])} %"),
+        ("4.4, mô hình từ điển", f"mô hình từ điển đạt accuracy {tp(acc['lexicon'][0])} % nhưng macro-F1 chỉ {tp(f1['lexicon'][0])} %"),
         neu(not any(so_doan_tt["lexicon"]), f"vì nó không đoán lớp trung tính một lần nào trong cả {so_chu(len(cb.SEEDS))} lần chạy", "4.4, mô hình từ điển không đoán trung tính"),
         neu(acc["lexicon"][0] < tho["tran"] * 100, f"Accuracy của nó nằm dưới trần {tp(tho['tran'] * 100)} % của mô hình mù khía cạnh", "4.4, mô hình từ điển dưới trần"),
         ("4.4, BiLSTM", f"BiLSTM đạt accuracy {tp(acc['bilstm'][0])} %, vượt trần đó {tp(acc['bilstm'][0] - tho['tran'] * 100)} điểm"),
         neu(all(hs(f1, "phobert", "bilstm") > abs(hs(f1, a, b)) for a, b in (("asgcn", "phobert"), ("senticgcn", "asgcn"))),
-            "Tri thức tiền huấn luyện đem lại mức tăng lớn nhất trong các bậc có nhìn khía cạnh", "4.4, bậc tăng lớn nhất"),
+            "tri thức tiền huấn luyện đem lại mức tăng lớn nhất trong các bậc có nhìn khía cạnh", "4.4, bậc tăng lớn nhất"),
         ("4.4, độ lệch chuẩn BiLSTM và PhoBERT", f"Độ lệch chuẩn của macro-F1 giảm từ {tp(f1['bilstm'][1])} xuống {tp(f1['phobert'][1])}"),
         ("4.4, F1 trung tính so với hai lớp còn lại", f"nhưng vẫn thấp hơn hai lớp còn lại hơn {math.floor(min(lop['phobert'][0], lop['phobert'][2]) - lop['phobert'][1])} điểm"),
         ("4.4, độ lệch chuẩn ASGCN", f"độ lệch chuẩn của macro-F1 tăng lên {tp(f1['asgcn'][1])}"),
         neu(doi_dau(tung_seed("asgcn", "phobert")), cau_tung_seed(tung_seed("asgcn", "phobert"), "ASGCN nhỉnh hơn PhoBERT", "nó thấp hơn"), "4.4, ASGCN từng seed"),
-        ("4.4, nối gốc", f"Biến thể nối gốc đạt macro-F1 {tp(f1['asgcn_linked'][0])} %, cao hơn ASGCN {tp(hs(f1, 'asgcn_linked', 'asgcn'))} điểm với {p_loi(ng_ag['macro_f1']['p'])}"),
+        ("4.4, nối gốc", f"biến thể nối gốc đạt macro-F1 {tp(f1['asgcn_linked'][0])} %, cao hơn ASGCN {tp(hs(f1, 'asgcn_linked', 'asgcn'))} điểm với {p_loi(ng_ag['macro_f1']['p'])}"),
         ("4.4, độ lệch chuẩn nối gốc", f"độ lệch chuẩn giảm từ {tp(f1['asgcn'][1])} xuống {tp(f1['asgcn_linked'][1])}"),
         neu(bool(am_ng := [str(sd) for sd, x in zip(cb.SEEDS, tung_seed("asgcn_linked", "asgcn")) if x < 0]),
             "Hiệu số với ASGCN còn đổi dấu ở " + " và ".join(f"seed {sd}" for sd in am_ng), "4.4, nối gốc đổi dấu theo seed"),
