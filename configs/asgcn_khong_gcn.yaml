@@ -1,0 +1,25 @@
+# [CD1.12i / GAP-040] asgcn_khong_gcn — DOI CHUNG cua `asgcn`: bo GCN, giu cach doc ra.
+#
+# KHONG phai mo hinh moi. Tu `phobert` len `asgcn` doi HAI thu:
+#   1. cach doc ra: token <s>  ->  gop attention theo khia canh tren cac tu cua ve cau
+#   2. them hai lop GCN tren cay phu thuoc (chi tao khoa cho attention o buoc 1)
+# File nay giu (1), bo (2), de tach hai phan do ra:
+#     phobert -> asgcn_khong_gcn   do: cach doc ra
+#     asgcn_khong_gcn -> asgcn     do: GCN tren cay phu thuoc
+#
+# `gcn_layers: 0` khong can sua ma: ModuleList rong nen khoa attention chinh la
+# bieu dien token, va ma tran ke khong con anh huong dau ra (da thu 16/10/2026).
+# So tham so phai DUNG BANG `phobert` (135.000.579): cung bo ma hoa, cung lop
+# Linear 768 -> 3.
+#
+# Chay — PHAI co --exp-name, neu khong ket qua ghi de results/asgcn/:
+#     python -m nsmgat.train --config configs/asgcn_khong_gcn.yaml --model asgcn \
+#         --exp-name asgcn_khong_gcn --seed 42
+#
+# Ke thua asgcn.yaml va chi duoc chua DUNG MOT khoa, cung ly do voi
+# asgcn_linked.yaml (test: tests/test_asgcn.py).
+
+extends: asgcn.yaml
+
+model:
+  gcn_layers: 0

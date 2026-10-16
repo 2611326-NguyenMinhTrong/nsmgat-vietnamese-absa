@@ -184,3 +184,25 @@ def test_cai_dat_rieng_cua_phobert_KHONG_tran_sang_base_yaml():
     base = yaml.safe_load((REPO_ROOT / "configs" / "base.yaml").read_text(encoding="utf-8"))
     assert base["train"]["use_amp"] is False
     assert "pair_mode" not in base["data"]
+
+
+def test_phobert_fp32_khac_phobert_DUNG_MOT_khoa():
+    """Doi chung cua GAP-040: chi tat do chinh xac hon hop. Lech them khoa nao
+    thi hieu so phobert_fp32 -> phobert khong con la phan fp16."""
+    from nsmgat.utils.io import load_config
+
+    a = load_config(REPO_ROOT / "configs" / "phobert.yaml")
+    b = load_config(REPO_ROOT / "configs" / "phobert_fp32.yaml")
+
+    def phang(d, tien_to=""):
+        ra = {}
+        for k, v in d.items():
+            if isinstance(v, dict):
+                ra.update(phang(v, f"{tien_to}{k}."))
+            else:
+                ra[f"{tien_to}{k}"] = v
+        return ra
+
+    pa, pb = phang(a), phang(b)
+    khac = {k: (pa.get(k), pb.get(k)) for k in pa.keys() | pb.keys() if pa.get(k) != pb.get(k)}
+    assert khac == {"train.use_amp": (True, False)}, f"hai config lech o: {khac}"

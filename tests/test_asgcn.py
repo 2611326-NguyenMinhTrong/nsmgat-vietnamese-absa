@@ -36,6 +36,41 @@ def test_asgcn_linked_khac_asgcn_DUNG_MOT_khoa():
     assert khac == {"model.link_roots": (False, True)}, f"hai config lech o: {khac}"
 
 
+def test_asgcn_khong_gcn_khac_asgcn_DUNG_MOT_khoa():
+    """Doi chung cua GAP-040: chi bo GCN, giu nguyen cach doc ra. Lech them
+    khoa nao thi hieu so asgcn_khong_gcn -> asgcn khong con la phan GCN."""
+    a = load_config(CONFIGS / "asgcn.yaml")
+    b = load_config(CONFIGS / "asgcn_khong_gcn.yaml")
+
+    khac = _so_sanh_sau(a, b)
+    assert khac == {"model.gcn_layers": (2, 0)}, f"hai config lech o: {khac}"
+
+
+def test_khong_gcn_thi_do_thi_khong_con_anh_huong(du_lieu_dev, batch_4):
+    """gcn_layers = 0: khoa attention chinh la bieu dien token, nen thay ma
+    tran ke bang toan 0 phai cho DUNG cung dau ra. Neu khac, do thi con lot
+    vao dau do va mo hinh doi chung khong con la 'khong do thi'."""
+    m = ASGCNModel(_cfg(du_lieu_dev, gcn_layers=0), encoder=_encoder_ti_hon()).eval()
+    assert len(m.gcn) == 0
+
+    with torch.no_grad():
+        that = m(batch_4)
+        m._ma_tran_ke = lambda uids, n, device, dtype: torch.zeros((len(uids), n, n), dtype=dtype, device=device)
+        rong = m(batch_4)
+    assert torch.allclose(that, rong)
+
+
+def test_khong_gcn_co_dung_so_tham_so_cua_phobert(du_lieu_dev):
+    """Cung bo ma hoa, cung Linear hidden -> 3: so tham so phai bang PhoBERTClassifier.
+    Chay that thi ca hai la 135.000.579."""
+    from nsmgat.models.phobert import PhoBERTClassifier
+
+    torch.manual_seed(0)
+    khong_gcn = ASGCNModel(_cfg(du_lieu_dev, gcn_layers=0), encoder=_encoder_ti_hon())
+    phobert = PhoBERTClassifier({"model": {"dropout": 0.1}}, encoder=_encoder_ti_hon())
+    assert khong_gcn.count_params() == phobert.count_params()
+
+
 def test_asgcn_dung_chuan_hoa_cua_bai_goc():
     """row_plus1 = chia cho (d_i + 1), cong thuc (3) cua ASGCN. Hoc vien chot 02/10/2026."""
     cfg = load_config(CONFIGS / "asgcn.yaml")

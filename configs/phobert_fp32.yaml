@@ -1,0 +1,17 @@
+# [CD1.12i / GAP-040] phobert_fp32 — `phobert` KHONG dung do chinh xac hon hop.
+#
+# KHONG phai mo hinh moi. `phobert` duoc huan luyen voi use_amp: true (fp16),
+# con ba mo hinh do thi thi khong (asgcn.yaml ke thua base.yaml, use_amp: false).
+# File nay go bien lan thu hai do: cung mo hinh, cung sieu tham so, chi tat AMP.
+#     phobert_fp32 -> asgcn_khong_gcn -> asgcn   deu fp32
+#
+# Chay — PHAI co --exp-name, neu khong ket qua ghi de results/phobert/:
+#     python -m nsmgat.train --config configs/phobert_fp32.yaml --model phobert \
+#         --exp-name phobert_fp32 --seed 42
+#
+# Chi duoc chua DUNG MOT khoa (test: tests/test_phobert.py).
+
+extends: phobert.yaml
+
+train:
+  use_amp: false
