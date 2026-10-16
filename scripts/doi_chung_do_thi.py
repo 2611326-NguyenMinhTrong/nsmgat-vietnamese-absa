@@ -73,13 +73,16 @@ CAP: Tuple[Tuple[str, str, str], ...] = (
     ("asgcn", "phobert", "như Bảng 4.4, 5 seed"),
     ("asgcn_linked", "phobert", "như Bảng 4.4, 5 seed"),
     ("senticgcn", "phobert", "như Bảng 4.4, 5 seed"),
+    ("asgcn_linked", "asgcn", "nối gốc, như Bảng 4.4"),
 )
 TEN = {"phobert": "PhoBERT", "phobert_fp32": "PhoBERT fp32", "asgcn_khong_gcn": "Gộp attention, không GCN",
        "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối gốc", "senticgcn": "Sentic-GCN"}
-NHOM = ("toan_bo", "trai_cam_xuc", "co_phu_dinh", "co_chuyen_y", "ca_hai")
+NHOM = ("toan_bo", "trai_cam_xuc", "co_phu_dinh", "co_chuyen_y", "ca_hai", "mot_goc", "nhieu_goc")
 TEN_NHOM = {"toan_bo": "Toàn tập kiểm tra", "trai_cam_xuc": "Bình luận trái cảm xúc",
             "co_phu_dinh": "Chẩn đoán: có phủ định", "co_chuyen_y": "Chẩn đoán: có chuyển ý",
-            "ca_hai": "Chẩn đoán: cả hai"}
+            "ca_hai": "Chẩn đoán: cả hai",
+            "mot_goc": "Đồ thị một gốc (nối gốc không đổi đồ thị)",
+            "nhieu_goc": "Đồ thị từ hai gốc (nối gốc có đổi đồ thị)"}
 
 
 def doc_jsonl(p: Path) -> List[dict]:
@@ -87,12 +90,14 @@ def doc_jsonl(p: Path) -> List[dict]:
         return [json.loads(d) for d in fh if d.strip()]
 
 
-def mat_na_nhom(uid: Sequence[str], vang: np.ndarray, chan_doan: Sequence[dict]) -> Dict[str, np.ndarray]:
+def mat_na_nhom(uid: Sequence[str], vang: np.ndarray, chan_doan: Sequence[dict],
+                so_goc: Sequence[int] = ()) -> Dict[str, np.ndarray]:
     """Mặt nạ (số mẫu,) cho từng nhóm.
 
     Trái cảm xúc: các khía cạnh của cùng bình luận không cùng một nhãn (giống `loai_cau` = da_trai của
     error_analysis.py). Nhóm chẩn đoán gộp theo DẤU HIỆU như Bảng C.4 (C.5 trước 16/10/2026): có phủ định = negation hoặc both,
-    có chuyển ý = contrast hoặc both.
+    có chuyển ý = contrast hoặc both. Một gốc / nhiều gốc: số từ có head = -1 trong cây phụ thuộc; biến thể nối gốc
+    đổi đồ thị ĐÚNG ở các mẫu nhiều gốc (đã đối chiếu với SyntacticGraphBuilder ngày 16/10/2026, phiếu CD1.12i).
     """
     nhan_cau: Dict[str, set] = {}
     for u, y in zip(uid, vang):
@@ -108,6 +113,8 @@ def mat_na_nhom(uid: Sequence[str], vang: np.ndarray, chan_doan: Sequence[dict])
         "co_phu_dinh": np.array([h in ("negation", "both") for h in ht]),
         "co_chuyen_y": np.array([h in ("contrast", "both") for h in ht]),
         "ca_hai": np.array([h == "both" for h in ht]),
+        "mot_goc": np.array([g == 1 for g in so_goc]) if len(so_goc) else np.zeros(len(uid), dtype=bool),
+        "nhieu_goc": np.array([g >= 2 for g in so_goc]) if len(so_goc) else np.zeros(len(uid), dtype=bool),
     }
 
 
@@ -151,10 +158,11 @@ def hoan_vi_seed(a: np.ndarray, b: np.ndarray) -> float:
 
 def phan_tich(goc: Path, test_path: Path, chan_doan_path: Path, so_lan: int, seed: int) -> dict:
     uid, vang, doan = nap(goc, SEED_THI_NGHIEM)
-    test_uid = [r["uid"] for r in doc_jsonl(test_path)]
-    if test_uid != uid:
+    test = doc_jsonl(test_path)
+    if [r["uid"] for r in test] != uid:
         raise ValueError(f"thứ tự uid của dự đoán khác {test_path}")
-    nhom = mat_na_nhom(uid, vang, doc_jsonl(chan_doan_path))
+    so_goc = [sum(1 for h in r["heads"] if h == -1) for r in test]
+    nhom = mat_na_nhom(uid, vang, doc_jsonl(chan_doan_path), so_goc)
     rng = np.random.default_rng(seed)
 
     kq: dict = {"so_lan": so_lan, "seed": seed, "don_vi_lay_mau": "cau",

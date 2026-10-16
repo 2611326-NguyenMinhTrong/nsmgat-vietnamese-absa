@@ -68,7 +68,10 @@ def _gia(tmp_path: Path, monkeypatch) -> Path:
             (d / "predictions.jsonl").write_text(
                 "".join(json.dumps({"uid": u, "y_true": int(g), "y_pred": int(p)}) + "\n" for u, g, p in zip(uid, vang, doan)),
                 encoding="utf-8")
-    (tmp_path / "test.jsonl").write_text("".join(json.dumps({"uid": u}) + "\n" for u in uid), encoding="utf-8")
+    # heads: mẫu chẵn hai gốc (nối gốc có đổi đồ thị), mẫu lẻ một gốc
+    (tmp_path / "test.jsonl").write_text(
+        "".join(json.dumps({"uid": u, "heads": [-1, 0] if i % 2 else [-1, -1]}) + "\n" for i, u in enumerate(uid)),
+        encoding="utf-8")
     (tmp_path / "cd.jsonl").write_text(
         "".join(json.dumps({"uid": u, "phenomenon": ("negation", "contrast", "both")[i % 3]}) + "\n"
                 for i, u in enumerate(uid[:30])), encoding="utf-8")

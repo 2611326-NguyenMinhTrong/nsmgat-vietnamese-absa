@@ -14,7 +14,7 @@ CÁCH LÀM, VÀ HAI CHỖ PHẢI NÓI RÕ KHI ĐƯA VÀO BÁO CÁO
    (ba khía cạnh) có chung văn bản nên không độc lập với nhau; lấy mẫu theo mẫu sẽ cho
    khoảng tin cậy hẹp giả tạo. Mỗi lần lấy mẫu rút có hoàn lại đủ số câu của tập kiểm
    tra, mọi mẫu của câu được rút đi theo câu.
-2. Mỗi mô hình có ba lần chạy (ba seed). Thống kê được kiểm định là TRUNG BÌNH BA SEED
+2. Mỗi mô hình có nhiều lần chạy (5 seed từ 17/10/2026). Thống kê được kiểm định là TRUNG BÌNH CÁC SEED
    của độ đo, tính trên cùng một tập câu được rút. Vì vậy kiểm định này chỉ trả lời về
    độ bất định do TẬP KIỂM TRA; nó coi ba bộ trọng số đã huấn luyện là cố định và không
    tính tới việc huấn luyện lại với seed khác sẽ ra mô hình khác. Độ dao động giữa các
@@ -38,7 +38,11 @@ import numpy as np
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-SEEDS = (42, 1337, 2024)
+# Từ 17/10/2026 cả sáu mô hình có 5 seed (học viên chọn chuyển Chương 4 sang 5 seed). Seed 7 và 123 chạy trên Kaggle,
+# xem phiếu CD1.12k. Mọi công cụ dùng chung danh sách này (error_analysis, finalize_diagnostic, make_figures,
+# doi_chieu_chuong4). SEEDS_BA là ba seed của bản đầy đủ (bản lưu), kết quả của nó chụp ở results/ba_seed/.
+SEEDS = (42, 1337, 2024, 7, 123)
+SEEDS_BA = (42, 1337, 2024)
 SO_LOP = 3
 # (A, B): kiểm định hiệu số A − B. Nửa đầu là các bậc liền nhau của thang, nửa sau là
 # so với mốc chính `phobert`.
@@ -148,7 +152,7 @@ def p_chu(p: float) -> str:
 def bang_markdown(kq: List[dict], so_lan: int, so_cau: int) -> str:
     nghin = lambda n: f"{n:,}".replace(",", ".")  # noqa: E731
     dong = [f"Kiểm định bootstrap ghép cặp: {nghin(so_lan)} lần lấy mẫu theo câu ({nghin(so_cau)} câu), "
-            "trên trung bình ba seed. Hiệu số tính bằng điểm phần trăm, A trừ B.",
+            "trên trung bình các seed. Hiệu số tính bằng điểm phần trăm, A trừ B.",
             "",
             "| A | B | Hiệu số macro-F1 | Khoảng tin cậy 95 % | p | Hiệu số accuracy | Khoảng tin cậy 95 % | p |",
             "|---|---|---|---|---|---|---|---|"]

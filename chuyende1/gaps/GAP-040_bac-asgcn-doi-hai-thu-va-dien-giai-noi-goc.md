@@ -3,7 +3,7 @@
 **Ngày phát hiện:** 16/10/2026 · **Phát hiện bởi:** Claude Code, khi học viên hỏi "có thật là bổ sung đồ thị chưa mang lại cải thiện rõ rệt không, vì sao"
 **Loại:** phương pháp · tài liệu
 **Mức độ:** nghiêm trọng (không đổi con số nào, nhưng đổi cách quy kết quả cho thành phần nào)
-**Trạng thái:** 🟡 Đã đo bằng thí nghiệm đối chứng (16/10/2026, phiếu CD1.12k); lời văn báo cáo chưa sửa, chờ học viên chọn cách
+**Trạng thái:** ✅ Đã sửa ngày 17/10/2026 (phiếu CD1.12l): thí nghiệm đối chứng vào mục 4.4 (Bảng 4.5), lời văn mục 4.3, 4.4, 4.7, phần tóm tắt, Chương 1 đã viết lại
 
 ---
 

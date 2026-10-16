@@ -8,7 +8,7 @@ chạy mô hình nào. Năm lát cắt:
     3. Theo độ dài câu (số từ sau tách từ).
     4. Theo loại câu: một khía cạnh, nhiều khía cạnh cùng nhãn, nhiều khía cạnh trái nhãn;
        kèm tỉ lệ "sụp nhãn" (câu trái nhãn mà mô hình đoán một nhãn cho mọi khía cạnh).
-    5. Giao lỗi: bao nhiêu mẫu mọi mô hình mạnh cùng sai ở cả ba seed, chúng có đặc điểm gì.
+    5. Giao lỗi: bao nhiêu mẫu mọi mô hình mạnh cùng sai ở mọi seed, chúng có đặc điểm gì.
 
 Lát cắt theo hiện tượng ngôn ngữ (phủ định, chuyển ý) nằm ở `finalize_diagnostic.py cham`.
 
@@ -16,8 +16,8 @@ Lát cắt theo hiện tượng ngôn ngữ (phủ định, chuyển ý) nằm �
     python scripts/error_analysis.py --chi-in       # chỉ in
     python scripts/error_analysis.py --ca 10        # ghi thêm 10 ca cùng sai ra file nháp (không đưa lên GitHub)
 
-Mọi độ đo là TRUNG BÌNH BA SEED. Khoảng tin cậy và giá trị p lấy bằng bootstrap theo CÂU, như
-compare_baselines.py. "Luôn sai" nghĩa là sai ở cả ba seed.
+Mọi độ đo là TRUNG BÌNH CÁC SEED. Khoảng tin cậy và giá trị p lấy bằng bootstrap theo CÂU, như
+compare_baselines.py. "Luôn sai" nghĩa là sai ở mọi seed.
 """
 
 from __future__ import annotations
@@ -161,11 +161,11 @@ def bang_tat_ca(kq: dict, so_lan: int) -> str:
     ten = lambda e: cb.TEN_HIEN_THI.get(e, e)  # noqa: E731
     nghin = lambda n: f"{n:,}".replace(",", ".")  # noqa: E731
     cau = kq["so_cau"]
-    chu = (f"Mỗi ô: trung bình ba seed (%), khoảng tin cậy 95 % trong ngoặc vuông; nhóm khác nhóm đầu có thêm hiệu so với nhóm đầu "
+    chu = (f"Mỗi ô: trung bình các seed (%), khoảng tin cậy 95 % trong ngoặc vuông; nhóm khác nhóm đầu có thêm hiệu so với nhóm đầu "
            f"(điểm phần trăm) và p hai phía. Bootstrap {nghin(so_lan)} lần theo câu ({nghin(cau)} câu).")
     k = []
 
-    k.append("Bảng A. Lỗi theo cặp lớp, trung bình ba seed. Sáu cột giữa là phần trăm trên tổng số lỗi của mô hình; "
+    k.append("Bảng A. Lỗi theo cặp lớp, trung bình các seed. Sáu cột giữa là phần trăm trên tổng số lỗi của mô hình; "
              "ba cột cuối là tỉ lệ tìm lại của từng lớp (%).\n")
     cap = [(i, j) for i in range(3) for j in range(3) if i != j]
     k.append("| Mô hình | Số lỗi | " + " | ".join(f"{NHAN[i]} thành {NHAN[j]}" for i, j in cap) + " | " + " | ".join(f"Tìm lại {x}" for x in NHAN) + " |")
@@ -175,7 +175,7 @@ def bang_tat_ca(kq: dict, so_lan: int) -> str:
                  + " | " + " | ".join(pt(x) for x in r["ti_le_tim_lai"]) + " |")
 
     kc = kq["khia_canh"]
-    k.append("\nBảng B. Macro-F1 theo khía cạnh (%), trung bình ba seed, xếp theo số mẫu huấn luyện giảm dần.\n")
+    k.append("\nBảng B. Macro-F1 theo khía cạnh (%), trung bình các seed, xếp theo số mẫu huấn luyện giảm dần.\n")
     k.append("| Khía cạnh | Mẫu huấn luyện | Mẫu kiểm tra | Trung tính trong kiểm tra (%) | " + " | ".join(ten(e) for e in kq["mo_hinh"]) + " |")
     k.append("|---|---|---|---|" + "---|" * len(kq["mo_hinh"]))
     for a in kc["thu_tu"]:
@@ -200,7 +200,7 @@ def bang_tat_ca(kq: dict, so_lan: int) -> str:
 
     g = kq["giao_loi"]
     n = g["so_mau"]
-    k.append(f"\nBảng F. Số mẫu sai trên {nghin(n)} mẫu kiểm tra. Luôn sai: sai ở cả ba seed.\n")
+    k.append(f"\nBảng F. Số mẫu sai trên {nghin(n)} mẫu kiểm tra. Luôn sai: sai ở mọi seed.\n")
     k.append("| Mô hình | Luôn sai | Sai ở ít nhất một seed |")
     k.append("|---|---|---|")
     for e in g["luon_sai"]:
@@ -238,7 +238,7 @@ def ghi_ca(test: Sequence[dict], doan: Dict[str, np.ndarray], chi_so: Sequence[i
         r = test[i]
         dong += [f"## {r['uid']}", "", f"- Câu: {r.get('text') or ' '.join(r['tokens'])}", f"- Khía cạnh: {r['aspect']}",
                  f"- Nhãn thật: {NHAN[int(r['label'])]}",
-                 "- Dự đoán ba seed: " + "; ".join(f"{cb.TEN_HIEN_THI.get(e, e)}: " + ", ".join(NHAN[int(x)] for x in doan[e][:, i]) for e in MANH), ""]
+                 "- Dự đoán các seed: " + "; ".join(f"{cb.TEN_HIEN_THI.get(e, e)}: " + ", ".join(NHAN[int(x)] for x in doan[e][:, i]) for e in MANH), ""]
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(dong), encoding="utf-8")
 

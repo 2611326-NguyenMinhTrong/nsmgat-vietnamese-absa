@@ -60,7 +60,7 @@ def test_hang_bang_phai_nam_o_dung_bang():
     _, lech, _ = m.tim([("Bảng 4.12, dòng 1", "| PhoBERT tinh chỉnh | 91,86 |")], van, b, "rut_gon")
     assert len(lech) == 1 and "nằm ở Bảng 4.3 chứ không ở Bảng C.3" in lech[0][2] and lech[0][0] == "Bảng C.3, dòng 1"
     _, lech, _ = m.tim([("Bảng 4.11, dòng 1", "| PhoBERT tinh chỉnh | 90,0 |")], van, b, "rut_gon")
-    assert "bản nháp không có Bảng 4.8" in lech[0][2]
+    assert "bản nháp không có Bảng 4.9" in lech[0][2]
     # ở bản đầy đủ số bảng giữ nguyên
     _, lech, _ = m.tim([("Bảng 4.5, phobert", "| PhoBERT tinh chỉnh | 91,86 |")], van, b, "day_du")
     assert "bản nháp không có Bảng 4.5" in lech[0][2]
@@ -187,6 +187,10 @@ def _chi_phi_gia(goc: Path) -> None:
             d.mkdir(parents=True)
             (d / "metrics.json").write_text(json.dumps({"test": {"macro_f1": 0.86 if e == "phobert" else 0.85}}), encoding="utf-8")
     (goc / "results" / "cost_profile.json").write_text(json.dumps({"mo_hinh": mh}), encoding="utf-8")
+    # câu "đánh đổi" ở mục 4.5 cần biết có mô hình đồ thị nào hơn PhoBERT có ý nghĩa không: ở đây không có
+    (goc / "results" / "compare_baselines.json").write_text(json.dumps({"ket_qua": [
+        {"a": e, "b": "phobert", "macro_f1": {"hieu_so": -0.01, "p": 0.04}} for e in ("asgcn", "asgcn_linked", "senticgcn")]}),
+        encoding="utf-8")
 
 
 def test_cot_chi_phi_phai_nam_dung_hang_cua_mo_hinh(tmp_path):
@@ -194,7 +198,7 @@ def test_cot_chi_phi_phai_nam_dung_hang_cua_mo_hinh(tmp_path):
     dong = [f"| {m.TEN[e]} | 1 | 2,0 | CPU | {a} | {b} |" for e, a, b in (
         ("lexicon", "0,20 / 0,02", "9,3"), ("bilstm", "2,00 / 0,10", "9,3"), ("phobert", "10,00 / 5,00", "600,0"),
         ("asgcn", "13,00 / 5,50", "604,5"), ("asgcn_linked", "13,10 / 5,60", "604,5"), ("senticgcn", "13,20 / 5,70", "604,5"))]
-    van = "Bảng 4.6: Số tham số và thời gian huấn luyện\n\n| a |\n|---|\n" + "\n".join(dong) + "\n"
+    van = f"Bảng {m.SO_BANG_RUT_GON['4.9']}: Số tham số và thời gian huấn luyện\n\n| a |\n|---|\n" + "\n".join(dong) + "\n"
     kq = dict(m.kiem_cot_chi_phi(m.tach_bang(van), "rut_gon", tmp_path))
     assert len(kq) == 6 and all(not v.startswith(f"| {m.TEN[e]} | ...") for e, v in zip(m.MO_HINH, kq.values()))
     # đổi số của hai hàng cho nhau thì cả hai bị đòi lại đúng số của mình

@@ -136,6 +136,25 @@ def test_ghep_dung_chuong_giu_nguyen_chuong_khac_va_viet_danh_muc(tmp_path):
                                 "[3] Tác giả C. Bài C. 2022. [CẦN KIỂM: chưa đối chiếu.]", ""]
 
 
+def test_chi_thay_chuong_duoc_chon_giu_nguyen_chuong_khac_va_tai_lieu(tmp_path):
+    """--chi 4: Chương 3 và danh mục tài liệu giữ nguyên chữ cũ (17/10/2026: Chương 2 của bản chính có phương trình Word,
+    học viên sửa thẳng trong Word, nên chỉ được thay đúng chương cần đổi)."""
+    p = _cuon(tmp_path)
+    assert _chay(tmp_path, p, "--chi", "4") == 0
+    ten = [t for _, t in _chu(p)]
+    assert "Đoạn mở đầu trích lại [2] và thêm [3]." in ten  # chương 4 được ghép, số trích dẫn vẫn theo toàn văn
+    assert "(Ngân sách: khoảng 7 trang)" in ten  # chương 3 không bị đụng
+    assert "[TODO: danh mục]" in ten  # danh mục tài liệu không bị đụng
+    assert "Nội dung phụ lục." in ten  # không có file phụ lục trong bản nháp thì phụ lục giữ nguyên
+
+
+def test_chi_nhan_so_chuong_va_phu_luc(tmp_path, capsys):
+    p = _cuon(tmp_path)
+    truoc = p.read_bytes()
+    assert _chay(tmp_path, p, "--chi", "4", "tai_lieu") == 1
+    assert "--chi chỉ nhận" in capsys.readouterr().out and p.read_bytes() == truoc
+
+
 def test_bang_nam_ngay_sau_ten_bang(tmp_path):
     p = _cuon(tmp_path)
     _chay(tmp_path, p)

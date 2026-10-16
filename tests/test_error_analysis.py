@@ -41,11 +41,11 @@ def test_loai_cau_va_o_dem(tmp_path):
     loai = m.loai_cau(idx, vang)
     assert loai.tolist() == [1, 0, 0, 2, 2, 2, 2, 2]  # 1 = một khía cạnh, 0 = cùng nhãn, 2 = trái nhãn
     o = m.dem(loai, 3, idx, 4, vang, doan["phobert"])
-    assert o.shape == (3, 3, 4, 9) and o.sum() == 24
-    assert o[2].sum(axis=(1, 2)).tolist() == [5.0] * 3 and o[2, 0, 3].sum() == 3
+    assert o.shape == (3, len(m.cb.SEEDS), 4, 9) and o.sum() == 8 * len(m.cb.SEEDS)
+    assert o[2].sum(axis=(1, 2)).tolist() == [5.0] * len(m.cb.SEEDS) and o[2, 0, 3].sum() == 3
     bo = loai.copy()
     bo[0] = -1
-    assert m.dem(bo, 3, idx, 4, vang, doan["phobert"]).sum() == 21
+    assert m.dem(bo, 3, idx, 4, vang, doan["phobert"]).sum() == 7 * len(m.cb.SEEDS)
 
 
 def test_nap_dung_khi_lech_nhan_that(tmp_path):

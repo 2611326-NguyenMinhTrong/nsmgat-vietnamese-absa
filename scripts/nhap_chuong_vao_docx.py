@@ -451,9 +451,19 @@ def main(argv=None) -> int:
     ap.add_argument("--chi-xem", action="store_true", help="chỉ in thống kê, không ghi file")
     ap.add_argument("--ghi-de", action="store_true",
                     help="ghi cả khi có chương đã có nội dung (mất chỗ sửa tay trong Word ở các chương đó, có sao lưu)")
+    ap.add_argument("--chi", nargs="+", default=None, metavar="PHAN",
+                    help="chỉ thay các phần này: số chương (1 đến 6) và/hoặc phu_luc. Không đụng trang đầu, tài liệu tham khảo "
+                         "và các chương khác (dùng từ 17/10/2026: Chương 2 có phương trình Word, học viên sửa thẳng trong Word)")
     ap.add_argument("--sua-dinh-dang", action="store_true",
                     help="áp lại khổ A4, lề và font của các style lên file (file dựng trước 13/10/2026 ở khổ Letter, tiêu đề Calibri)")
     a = ap.parse_args(argv)
+    chon_chuong, chon_pl = None, True
+    if a.chi:
+        la = [x for x in a.chi if not (x.isdigit() or x == "phu_luc")]
+        if la:
+            print(f"DỪNG: --chi chỉ nhận số chương và phu_luc, có {la}")
+            return 1
+        chon_chuong, chon_pl = {int(x) for x in a.chi if x.isdigit()}, "phu_luc" in a.chi
 
     cac_file = tim_file_chuong(a.nhap)
     if not cac_file:
@@ -507,17 +517,24 @@ def main(argv=None) -> int:
 
     if a.chi_xem:
         return 0
+    if chon_chuong is not None:
+        da_co = [so for so in da_co if so in chon_chuong]
+        trang_dau_da_co = []
     if (da_co or trang_dau_da_co) and not a.ghi_de:
         print(f"DỪNG: chương {da_co} và mục trang đầu {trang_dau_da_co} đã có nội dung trong Word. Dùng --ghi-de nếu chắc chắn "
               "muốn thay (chỗ sửa tay trong Word ở các phần này sẽ mất, chỉ còn trong bản sao lưu).")
         return 2
     ban = sao_luu(a.docx)
     for so, khoi in khoi_chuong.items():
-        thay_than_muc(doc, f"Chương {so}.", khoi)
-    thay_than_muc(doc, TIEU_DE_TAI_LIEU, khoi_tl)
-    if khoi_pl is not None:
+        if chon_chuong is None or so in chon_chuong:
+            thay_than_muc(doc, f"Chương {so}.", khoi)
+    if chon_chuong is None:
+        thay_than_muc(doc, TIEU_DE_TAI_LIEU, khoi_tl)
+    if khoi_pl is not None and chon_pl:
         thay_than_muc(doc, TIEU_DE_PHU_LUC, khoi_pl)
-    if trang_dau is not None:
+    if chon_chuong is not None:
+        print(f"Chỉ thay: chương {sorted(chon_chuong)}{' và phụ lục' if chon_pl else ''}; giữ nguyên trang đầu, tài liệu tham khảo, các chương khác")
+    elif trang_dau is not None:
         kq = ghep_trang_dau(doc, trang_dau)
         print(f"Trang đầu: {kq['so_muc']} mục trước Chương 1, mỗi mục một trang mới; dựng {kq['danh_sach']} danh sách tự động; "
               f"bỏ {kq['muc_bo']} mục ngoài quy định và {kq['dong_danh_dau_bo']} dòng chỉ có chỗ đánh dấu")

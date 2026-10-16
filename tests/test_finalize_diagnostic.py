@@ -131,7 +131,7 @@ def test_cham_dem_dung_theo_nhom_va_hieu_voi_nhom_thuong(tmp_path):
     sai = {r["uid"] for r in rows if r["phenomenon"] == "both"} | {[r["uid"] for r in rows if r["phenomenon"] == "contrast"][0]}
     _du_doan(tmp_path / "kq", rows, sai)
     cau, o = m.dem_theo_nhom(rows, tmp_path / "kq", ["phobert"])
-    assert len(cau) == 40 and o["phobert"].shape == (4, 3, 40, 9) and o["phobert"].sum() == 120
+    assert len(cau) == 40 and o["phobert"].shape == (4, len(m.cb.SEEDS), 40, 9) and o["phobert"].sum() == 40 * len(m.cb.SEEDS)
     r = m.cham_mot_mo_hinh(o["phobert"], 300, np.random.default_rng(0))
     assert {g: r[g]["n"] for g in m.NHOM_CHAM} == dict.fromkeys(m.NHOM_CHAM, 10)
     assert r["regular"]["accuracy"]["gia_tri"] == 1.0 and "p" not in r["regular"]["accuracy"]
@@ -278,7 +278,7 @@ def test_gop_nhom_va_so_voi_mo_hinh_moc_trong_tung_nhom(tmp_path):
                     fh.write(json.dumps({"uid": r["uid"], "y_true": g, "y_pred": 2 if exp == "asgcn" and r["uid"] in ca_hai else g}) + "\n")
     _, o = m.dem_theo_nhom(rows, tmp_path / "kq", ["phobert", "asgcn"])
     gop = m.gop_nhom(o["asgcn"])
-    assert gop.shape == (3, 3, 40, 9)
+    assert gop.shape == (3, len(m.cb.SEEDS), 40, 9)
     r = m.cham_mot_mo_hinh(gop, 200, np.random.default_rng(0), ten_nhom=tuple(m.NHOM_GOP))
     assert {g: r[g]["n"] for g in m.NHOM_GOP} == {"regular": 10, "co_phu_dinh": 20, "co_chuyen_y": 20}
     assert r["co_phu_dinh"]["accuracy"]["gia_tri"] == pytest.approx(0.5)  # 10 dòng negation đúng, 10 dòng both sai

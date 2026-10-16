@@ -286,7 +286,7 @@ def dem_theo_nhom(rows: Sequence[Dong], goc: Path, mo_hinh: Sequence[str]):
 
 
 def cham_mot_mo_hinh(o, so_lan: int, rng, khoi: int = 500, ten_nhom: Sequence[str] = NHOM_CHAM) -> Dict[str, dict]:
-    """o: (nhóm, seed, câu, 9). Mỗi nhóm: trung bình ba seed, khoảng tin cậy 95 %, và hiệu so với nhóm mốc (nhóm đầu)."""
+    """o: (nhóm, seed, câu, 9). Mỗi nhóm: trung bình các seed, khoảng tin cậy 95 %, và hiệu so với nhóm mốc (nhóm đầu)."""
     import numpy as np
 
     so_cau = o.shape[2]
@@ -326,7 +326,7 @@ def gop_nhom(o):
 
 def so_voi_mo_hinh_moc(o: Dict[str, "object"], moc: str, so_lan: int, rng, khoi: int = 500,
                        ten_nhom: Sequence[str] = NHOM_CHAM) -> Dict[str, Dict[str, dict]]:
-    """Trong TỪNG nhóm: hiệu (mô hình trừ mô hình mốc) của trung bình ba seed, bootstrap ghép cặp theo câu.
+    """Trong TỪNG nhóm: hiệu (mô hình trừ mô hình mốc) của trung bình các seed, bootstrap ghép cặp theo câu.
 
     Hai mô hình được chấm trên cùng tập câu ở mỗi lần rút, nên hiệu số đã tính phần phụ thuộc giữa chúng.
     o: {mô hình: mảng (nhóm, seed, câu, 9)}.
@@ -437,7 +437,7 @@ def cmd_cham(csv_path: Path, goc: Path, so_lan: int, seed: int, kappa_json: Path
             dau += (f" **Lần gán lại ngày {kappa['ngay_gan_lai']} cách lần gán đầu không quá {kappa['khoang_cach_toi_da_ngay']} ngày, "
                     f"không đủ {kappa['so_ngay_quy_uoc']} ngày như quy ước; kappa này là cận trên.**")
         dau += "\n\n"
-    chu = ("Mỗi ô: giá trị trung bình ba seed (%), khoảng tin cậy 95 % trong ngoặc vuông; với nhóm khác nhóm thường "
+    chu = ("Mỗi ô: giá trị trung bình các seed (%), khoảng tin cậy 95 % trong ngoặc vuông; với nhóm khác nhóm thường "
            "có thêm hiệu so với nhóm thường (điểm phần trăm) và p hai phía. Bootstrap {lan} lần theo câu ({cau} câu). "
            "Nhãn chấm là nhãn gốc của bộ dữ liệu.")
     chu_moc = ("Mỗi ô: hiệu số so với {moc} trong chính nhóm đó (điểm phần trăm, mô hình trừ {moc}), khoảng tin cậy 95 % và p hai phía. "
