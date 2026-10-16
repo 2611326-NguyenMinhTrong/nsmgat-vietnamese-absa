@@ -132,3 +132,15 @@ trong `chuyende1/report/nhap_rut_gon/TrangDau.md` (bản cũ ở `nhap_rut_gon/s
 - Kết quả về đồ thị viết thành một câu: "ASGCN và Sentic-GCN không tốt hơn PhoBERT".
 - Công cụ đối chiếu sửa theo: bản chính 236 trên 236, bản lưu 174 trên 174.
 - Chưa ghép vào file Word: lúc sửa, file `..._rutgon.docx` đang mở trong Word.
+
+**16/10/2026, sau đó:** học viên bảo ghép, push, và hỏi "chuyển cả Chương 4 sang 5 seed nghĩa là đã chạy lại toàn bộ các mô
+hình rồi à?". Claude trả lời: chưa, chỉ bốn mô hình dùng PhoBERT có thêm seed 7 và 123; từ điển và BiLSTM mới có 3 seed.
+
+- Đã ghép phần tóm tắt mới vào `ChuyenDe1_NguyenMinhTrong_rutgon.docx` (sao lưu `..._rutgon.20261016-215620.docx.bak`),
+  Word cập nhật mục lục và trường: 67 trang, Chương 4 vẫn từ trang 21 đến 39.
+- Đã push tới `66ecf43`.
+- **Học viên chọn cách (b) và chạy thêm 2 seed cho từ điển và BiLSTM trên Kaggle.** Claude viết
+  `notebooks/kaggle_them_seed_lexicon_bilstm.ipynb` (4 lần chạy, chỉ CPU như ba seed cũ), đã chạy thử ở máy với lệnh huấn
+  luyện giả. Việc chuyển Chương 4 sang 5 seed làm sau khi có kết quả; phải ghi rõ trong báo cáo: với bốn mô hình dùng PhoBERT,
+  ba seed chạy trên Colab và hai seed trên Kaggle; với từ điển và BiLSTM, ba seed trên CPU máy học viên và hai seed trên CPU
+  của Kaggle.
