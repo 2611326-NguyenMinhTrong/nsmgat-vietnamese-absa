@@ -1,0 +1,31 @@
+{
+  "exp_name": "bilstm",
+  "seed": 123,
+  "dataset": "visfd",
+  "test": {
+    "accuracy": 0.8635822671823862,
+    "macro_f1": 0.7947429779201354,
+    "f1_per_class": [
+      0.8726477024070022,
+      0.6,
+      0.9115812313534039
+    ]
+  },
+  "diagnostic": {
+    "negation": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "contrast": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "regular": {
+      "macro_f1": 0.0,
+      "n": 0
+    }
+  },
+  "train_time_sec": 2449.1,
+  "n_params": 4017412,
+  "config_hash": "1c83dd274e8b"
+}

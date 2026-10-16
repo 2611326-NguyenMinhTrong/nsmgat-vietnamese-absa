@@ -1,0 +1,20 @@
+2026-10-16 15:22:56 | __main__ | INFO | === BAT DAU bilstm/seed7 | config=configs/bilstm.yaml | device=cpu ===
+2026-10-16 15:22:56 | __main__ | INFO | Log ghi tai logs/bilstm/seed7.log — theo doi: python scripts/watch_train.py --exp bilstm --seed 7
+2026-10-16 15:23:03 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-16 15:26:45 | __main__ | INFO | [bilstm/seed7] epoch 1/30 | train_loss=0.7301 | dev_acc=0.7943 | dev_macro_f1=0.692057
+2026-10-16 15:30:30 | __main__ | INFO | [bilstm/seed7] epoch 2/30 | train_loss=0.4955 | dev_acc=0.8459 | dev_macro_f1=0.747085
+2026-10-16 15:34:11 | __main__ | INFO | [bilstm/seed7] epoch 3/30 | train_loss=0.3922 | dev_acc=0.8519 | dev_macro_f1=0.750027
+2026-10-16 15:37:53 | __main__ | INFO | [bilstm/seed7] epoch 4/30 | train_loss=0.3229 | dev_acc=0.8640 | dev_macro_f1=0.780404
+2026-10-16 15:41:34 | __main__ | INFO | [bilstm/seed7] epoch 5/30 | train_loss=0.2620 | dev_acc=0.8643 | dev_macro_f1=0.782648
+2026-10-16 15:45:17 | __main__ | INFO | [bilstm/seed7] epoch 6/30 | train_loss=0.2104 | dev_acc=0.8610 | dev_macro_f1=0.781129
+2026-10-16 15:48:59 | __main__ | INFO | [bilstm/seed7] epoch 7/30 | train_loss=0.1736 | dev_acc=0.8664 | dev_macro_f1=0.785050
+2026-10-16 15:52:44 | __main__ | INFO | [bilstm/seed7] epoch 8/30 | train_loss=0.1394 | dev_acc=0.8685 | dev_macro_f1=0.791491
+2026-10-16 15:56:31 | __main__ | INFO | [bilstm/seed7] epoch 9/30 | train_loss=0.1074 | dev_acc=0.8543 | dev_macro_f1=0.772597
+2026-10-16 16:00:20 | __main__ | INFO | [bilstm/seed7] epoch 10/30 | train_loss=0.0897 | dev_acc=0.8670 | dev_macro_f1=0.787827
+2026-10-16 16:04:07 | __main__ | INFO | [bilstm/seed7] epoch 11/30 | train_loss=0.0711 | dev_acc=0.8619 | dev_macro_f1=0.780835
+2026-10-16 16:07:53 | __main__ | INFO | [bilstm/seed7] epoch 12/30 | train_loss=0.0538 | dev_acc=0.8559 | dev_macro_f1=0.769755
+2026-10-16 16:11:43 | __main__ | INFO | [bilstm/seed7] epoch 13/30 | train_loss=0.0478 | dev_acc=0.8577 | dev_macro_f1=0.774824
+2026-10-16 16:11:43 | __main__ | INFO | Dung som o epoch 13 (khong cai thien sau 5 epoch)
+2026-10-16 16:11:56 | __main__ | INFO | Da ghi results/bilstm/seed7/metrics.json
+2026-10-16 16:11:56 | __main__ | INFO | Da ghi results/bilstm/seed7/predictions.jsonl (6,722 dong)
+2026-10-16 16:11:56 | __main__ | INFO | === KET THUC bilstm/seed7 ===

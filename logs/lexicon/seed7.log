@@ -1,0 +1,22 @@
+2026-10-16 15:17:00 | __main__ | INFO | === BAT DAU lexicon/seed7 | config=configs/lexicon.yaml | device=cpu ===
+2026-10-16 15:17:00 | __main__ | INFO | Log ghi tai logs/lexicon/seed7.log — theo doi: python scripts/watch_train.py --exp lexicon --seed 7
+2026-10-16 15:17:04 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-16 15:17:18 | __main__ | INFO | [lexicon/seed7] epoch 1/20 | train_loss=0.8480 | dev_acc=0.7473 | dev_macro_f1=0.513328
+2026-10-16 15:17:32 | __main__ | INFO | [lexicon/seed7] epoch 2/20 | train_loss=0.7140 | dev_acc=0.7606 | dev_macro_f1=0.528168
+2026-10-16 15:17:45 | __main__ | INFO | [lexicon/seed7] epoch 3/20 | train_loss=0.6772 | dev_acc=0.7590 | dev_macro_f1=0.527254
+2026-10-16 15:17:58 | __main__ | INFO | [lexicon/seed7] epoch 4/20 | train_loss=0.6646 | dev_acc=0.7609 | dev_macro_f1=0.528601
+2026-10-16 15:18:12 | __main__ | INFO | [lexicon/seed7] epoch 5/20 | train_loss=0.6597 | dev_acc=0.7590 | dev_macro_f1=0.527254
+2026-10-16 15:18:25 | __main__ | INFO | [lexicon/seed7] epoch 6/20 | train_loss=0.6577 | dev_acc=0.7563 | dev_macro_f1=0.526036
+2026-10-16 15:18:38 | __main__ | INFO | [lexicon/seed7] epoch 7/20 | train_loss=0.6560 | dev_acc=0.7566 | dev_macro_f1=0.526157
+2026-10-16 15:18:52 | __main__ | INFO | [lexicon/seed7] epoch 8/20 | train_loss=0.6566 | dev_acc=0.7606 | dev_macro_f1=0.529120
+2026-10-16 15:19:05 | __main__ | INFO | [lexicon/seed7] epoch 9/20 | train_loss=0.6573 | dev_acc=0.7578 | dev_macro_f1=0.526993
+2026-10-16 15:19:18 | __main__ | INFO | [lexicon/seed7] epoch 10/20 | train_loss=0.6553 | dev_acc=0.7624 | dev_macro_f1=0.530365
+2026-10-16 15:19:31 | __main__ | INFO | [lexicon/seed7] epoch 11/20 | train_loss=0.6570 | dev_acc=0.7560 | dev_macro_f1=0.525787
+2026-10-16 15:19:45 | __main__ | INFO | [lexicon/seed7] epoch 12/20 | train_loss=0.6559 | dev_acc=0.7593 | dev_macro_f1=0.528213
+2026-10-16 15:19:58 | __main__ | INFO | [lexicon/seed7] epoch 13/20 | train_loss=0.6555 | dev_acc=0.7557 | dev_macro_f1=0.525416
+2026-10-16 15:20:11 | __main__ | INFO | [lexicon/seed7] epoch 14/20 | train_loss=0.6564 | dev_acc=0.7593 | dev_macro_f1=0.528213
+2026-10-16 15:20:24 | __main__ | INFO | [lexicon/seed7] epoch 15/20 | train_loss=0.6548 | dev_acc=0.7560 | dev_macro_f1=0.525787
+2026-10-16 15:20:24 | __main__ | INFO | Dung som o epoch 15 (khong cai thien sau 5 epoch)
+2026-10-16 15:20:28 | __main__ | INFO | Da ghi results/lexicon/seed7/metrics.json
+2026-10-16 15:20:28 | __main__ | INFO | Da ghi results/lexicon/seed7/predictions.jsonl (6,722 dong)
+2026-10-16 15:20:28 | __main__ | INFO | === KET THUC lexicon/seed7 ===

@@ -1,0 +1,18 @@
+2026-10-16 16:12:06 | __main__ | INFO | === BAT DAU bilstm/seed123 | config=configs/bilstm.yaml | device=cpu ===
+2026-10-16 16:12:06 | __main__ | INFO | Log ghi tai logs/bilstm/seed123.log — theo doi: python scripts/watch_train.py --exp bilstm --seed 123
+2026-10-16 16:12:13 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-16 16:15:52 | __main__ | INFO | [bilstm/seed123] epoch 1/30 | train_loss=0.7235 | dev_acc=0.8037 | dev_macro_f1=0.692010
+2026-10-16 16:19:32 | __main__ | INFO | [bilstm/seed123] epoch 2/30 | train_loss=0.4887 | dev_acc=0.8459 | dev_macro_f1=0.754455
+2026-10-16 16:23:13 | __main__ | INFO | [bilstm/seed123] epoch 3/30 | train_loss=0.3881 | dev_acc=0.8643 | dev_macro_f1=0.771778
+2026-10-16 16:26:58 | __main__ | INFO | [bilstm/seed123] epoch 4/30 | train_loss=0.3197 | dev_acc=0.8655 | dev_macro_f1=0.785586
+2026-10-16 16:30:43 | __main__ | INFO | [bilstm/seed123] epoch 5/30 | train_loss=0.2618 | dev_acc=0.8688 | dev_macro_f1=0.796639
+2026-10-16 16:34:26 | __main__ | INFO | [bilstm/seed123] epoch 6/30 | train_loss=0.2158 | dev_acc=0.8697 | dev_macro_f1=0.799032
+2026-10-16 16:38:09 | __main__ | INFO | [bilstm/seed123] epoch 7/30 | train_loss=0.1724 | dev_acc=0.8655 | dev_macro_f1=0.789710
+2026-10-16 16:41:52 | __main__ | INFO | [bilstm/seed123] epoch 8/30 | train_loss=0.1334 | dev_acc=0.8661 | dev_macro_f1=0.789786
+2026-10-16 16:45:36 | __main__ | INFO | [bilstm/seed123] epoch 9/30 | train_loss=0.1092 | dev_acc=0.8679 | dev_macro_f1=0.793095
+2026-10-16 16:49:19 | __main__ | INFO | [bilstm/seed123] epoch 10/30 | train_loss=0.0874 | dev_acc=0.8685 | dev_macro_f1=0.791833
+2026-10-16 16:53:02 | __main__ | INFO | [bilstm/seed123] epoch 11/30 | train_loss=0.0651 | dev_acc=0.8574 | dev_macro_f1=0.779638
+2026-10-16 16:53:02 | __main__ | INFO | Dung som o epoch 11 (khong cai thien sau 5 epoch)
+2026-10-16 16:53:15 | __main__ | INFO | Da ghi results/bilstm/seed123/metrics.json
+2026-10-16 16:53:15 | __main__ | INFO | Da ghi results/bilstm/seed123/predictions.jsonl (6,722 dong)
+2026-10-16 16:53:15 | __main__ | INFO | === KET THUC bilstm/seed123 ===
