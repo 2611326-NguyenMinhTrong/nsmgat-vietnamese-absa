@@ -81,7 +81,8 @@ kiểm định bằng `scripts/doi_chung_do_thi.py`, chi tiết ở phiếu CD1.
 | Đổi cách đọc ra, cùng fp32 | −0,63 | 0,007 | 0,018 |
 | Thêm GCN cây phụ thuộc lên cùng cách đọc ra | −0,58 | 0,010 | 0,310 |
 
-Phần (a) của GAP được xác nhận: khoảng một nửa mức ASGCN thua PhoBERT đến từ cách đọc ra. Lời văn báo cáo vẫn chưa sửa.
+Phần (a) của GAP được xác nhận: khoảng một nửa mức ASGCN thua PhoBERT đến từ cách đọc ra. Lời văn báo cáo vẫn chưa sửa,
+trừ phần TÓM TẮT: ngày 16/10/2026 câu "mỗi bậc thêm một thành phần" đã được thay bằng "từ đơn giản đến phức tạp".
 
 ## 6. Bài học — phòng lần sau bằng cách nào
 

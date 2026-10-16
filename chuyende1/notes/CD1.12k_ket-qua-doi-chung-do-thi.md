@@ -117,4 +117,18 @@ Claude đề xuất (a).
 2. Báo cáo: cách (a) hay (b) ở mục 5?
 3. Push commit chứa 17 lần chạy, script và phiếu này?
 
-## 8. GHI CHÚ SAU KHI TRAO ĐỔI *(điền sau)*
+## 8. GHI CHÚ SAU KHI TRAO ĐỔI
+
+**16/10/2026, học viên quyết câu 1:** coi là **chưa chứng minh được** đồ thị có ích, không thêm khảo sát (phiếu CD1.12j)
+vào báo cáo. Câu 2 (cách a hay b) và câu 3 (push) chưa trả lời.
+
+Cùng lúc học viên thấy phần TÓM TẮT của báo cáo "đưa số liệu vào hơi nhiều và hơi khó hiểu". Claude viết lại mục TÓM TẮT
+trong `chuyende1/report/nhap_rut_gon/TrangDau.md` (bản cũ ở `nhap_rut_gon/sao_luu/20261016-tom-tat/`):
+
+- Bỏ năm con số: 85,43 %, 86,50 %, p bằng 0,630, 71,31 % và kappa 0,733 (vẫn có ở thân bài). Giữ 34, 12, 11.122, 86,64 %,
+  799 và khoảng 15,8 đến 19,6 điểm, đều có nguyên văn ở thân bài, không làm tròn số mới.
+- Thêm ví dụ cho hai hiện tượng ("không tốt", "đẹp nhưng pin yếu"), viết ba câu hỏi thành câu hỏi thường.
+- Bỏ câu "mỗi bậc thêm một thành phần" (sai theo GAP-040), thay bằng "từ đơn giản đến phức tạp".
+- Kết quả về đồ thị viết thành một câu: "ASGCN và Sentic-GCN không tốt hơn PhoBERT".
+- Công cụ đối chiếu sửa theo: bản chính 236 trên 236, bản lưu 174 trên 174.
+- Chưa ghép vào file Word: lúc sửa, file `..._rutgon.docx` đang mở trong Word.

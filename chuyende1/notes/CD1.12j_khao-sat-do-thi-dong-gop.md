@@ -142,3 +142,6 @@ Cách hiểu và áp dụng:
   câu trái cảm xúc thì thêm hướng A và D), đọc toàn văn và kiểm số trước khi ghi.
 - Nếu không: phiếu này chỉ là tài liệu nội bộ cho kế hoạch CĐ2, báo cáo CĐ1 không nhắc.
 - Câu hỏi 3 (đưa hướng C và D vào kế hoạch CĐ2) chưa được trả lời, để lại.
+
+**16/10/2026, sau khi có kết quả 17 lần chạy (phiếu CD1.12k):** học viên quyết coi là chưa chứng minh được đồ thị có ích.
+Phiếu này giữ làm tài liệu nội bộ cho kế hoạch CĐ2; báo cáo CĐ1 không thêm công trình nào từ đây.

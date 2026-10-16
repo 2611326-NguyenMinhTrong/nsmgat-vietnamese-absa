@@ -332,12 +332,11 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
         neu(kho_nhat, "Lớp trung tính là lớp khó nhất ở mọi mô hình", "4.7, lớp trung tính khó nhất"),
         # Phần tóm tắt: các cụm dưới đây chỉ được tìm trong mục TÓM TẮT của TrangDau.md.
         ("Tóm tắt, số bình luận", f"trên tập UIT-ViSFD gồm {nghin(sum(BINH_LUAN_GOC.values()))} bình luận"),
-        neu(max(f1, key=lambda e: f1[e][0]) == "phobert", f"PhoBERT tinh chỉnh đứng đầu với macro-F1 {tp(f1['phobert'][0])} %", "Tóm tắt, PhoBERT đứng đầu"),
-        ("Tóm tắt, hai mô hình đồ thị", f"ASGCN đạt {tp(f1['asgcn'][0])} % và Sentic-GCN đạt {tp(f1['senticgcn'][0])} %"),
-        neu(doi_dau(tung_seed("asgcn", "phobert")), "hiệu số của ASGCN so với PhoBERT đổi dấu theo seed", "Tóm tắt, ASGCN đổi dấu theo seed"),
-        neu(sg_pb["macro_f1"]["p"] >= 0.05, f"hiệu số của Sentic-GCN so với PhoBERT không có ý nghĩa thống kê (p bằng {cb.p_chu(sg_pb['macro_f1']['p'])})",
-            "Tóm tắt, Sentic-GCN so với PhoBERT"),
-        neu(kho_nhat, f"Lớp trung tính là lớp khó nhất ở mọi mô hình, với F1 cao nhất là {tp(tt[tot])} %", "Tóm tắt, lớp trung tính"),
+        # Viết lại 16/10/2026 cho dễ đọc: bỏ 85,43, 86,50, p 0,630, 71,31 và kappa khỏi phần tóm tắt (vẫn kiểm ở thân bài).
+        neu(max(f1, key=lambda e: f1[e][0]) == "phobert", f"PhoBERT tinh chỉnh cho kết quả tốt nhất, với macro-F1 {tp(f1['phobert'][0])} %", "Tóm tắt, PhoBERT đứng đầu"),
+        neu(hs(f1, "asgcn", "phobert") < 0 and hs(f1, "senticgcn", "phobert") < 0,
+            "ASGCN và Sentic-GCN không tốt hơn PhoBERT", "Tóm tắt, hai mô hình đồ thị không tốt hơn PhoBERT"),
+        neu(kho_nhat, "Ở mọi mô hình, cảm xúc trung tính là lớp khó nhận đúng nhất", "Tóm tắt, lớp trung tính"),
     ]
 
 
@@ -714,8 +713,9 @@ def so_lieu_chan_doan(goc: Path, ban: str = "rut_gon"):
             neu(all(abs(cd_pb[g]["hieu_voi_moc"]) < abs(o("phobert", g)["hieu_voi_moc"]) for g in cd_pb), "Trên tập con này, khoảng cách với nhóm thường thu hẹp lại", "4.6, khoảng cách thu hẹp trên tập con"),
             neu(all(gop_cy[e]["hieu_voi_moc"] < 0 for e in MO_HINH), "mẫu có chuyển ý cũng thấp hơn mẫu thường ở mọi mô hình", "4.7, mẫu có chuyển ý ở mọi mô hình"),
             ("Tóm tắt, cỡ tập chẩn đoán", f"một tập chẩn đoán gồm {len(dung)} mẫu lấy từ tập kiểm tra"),
-            ("Tóm tắt, kappa", f"độ nhất quán giữa hai lần gán của người đó đạt kappa {tp(ph['kappa'], 3)}"),
-            ("Tóm tắt, nhóm cả hai", f"thấp hơn nhóm thường từ {khoang([o(e, 'both')['hieu_voi_moc'] for e in MO_HINH])} điểm accuracy ở cả sáu mô hình"),
+            neu(len(MO_HINH) == 6 and all(o(e, "both")["hieu_voi_moc"] < 0 for e in MO_HINH),
+                f"Ở cả sáu mô hình, nhóm có cả phủ định lẫn chuyển ý khó hơn hẳn: accuracy thấp hơn nhóm thường từ "
+                f"{khoang([o(e, 'both')['hieu_voi_moc'] for e in MO_HINH])} điểm", "Tóm tắt, nhóm cả hai"),
         ]
     return kiem, {k: "\n".join(v) for k, v in bang.items()}
 
