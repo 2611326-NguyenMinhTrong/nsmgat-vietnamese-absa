@@ -1,6 +1,8 @@
 """[CD1.12f] Kiểm phần tìm kiếm của scripts/doi_chieu_chuong4.py trên văn bản tí hon, không cần dữ liệu thật."""
 
 import json
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -231,3 +233,55 @@ def test_file_chi_phi_thieu_mo_hinh_bi_bao_lech_chu_khong_dung(tmp_path):
     assert cum["4.5, kết quả chi phí"].startswith("[cost_profile.json thiếu mô hình: lexicon")
     kq = dict(m.kiem_cot_chi_phi({}, "rut_gon", tmp_path))
     assert kq["Bảng 4.9, chi phí suy luận của lexicon"].startswith("[cost_profile.json không có số đo")
+
+
+def _git(goc: Path, *lenh: str) -> str:
+    r = subprocess.run(["git", "-C", str(goc), "-c", "user.name=t", "-c", "user.email=t@t", *lenh],
+                       capture_output=True, text=True, check=True)
+    return r.stdout.strip()
+
+
+def _dia_chi(ma: str) -> str:
+    return f"https://github.com/a/b/blob/{ma}/{m.TEP_PHU_LUC_TRUC_TUYEN.as_posix()}"
+
+
+def test_dia_chi_phu_luc_phai_ghim_dung_ban_tren_dia(tmp_path):
+    if shutil.which("git") is None:
+        pytest.skip("máy không có git")
+    _git(tmp_path, "init", "-q")
+    tep = tmp_path / m.TEP_PHU_LUC_TRUC_TUYEN
+    tep.parent.mkdir(parents=True)
+    tep.write_text("Bảng C.1: bản đầu\n", encoding="utf-8")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-q", "-m", "dau")
+    ma = _git(tmp_path, "rev-parse", "--short=7", "HEAD")
+
+    # chưa có địa chỉ, hoặc địa chỉ trỏ vào nhánh chứ không vào commit
+    loi, _ = m.kiem_ghim_phu_luc(tmp_path, "Phụ lục A")
+    assert len(loi) == 1 and "không có địa chỉ" in loi[0]
+    loi, _ = m.kiem_ghim_phu_luc(tmp_path, f"https://github.com/a/b/blob/main/{m.TEP_PHU_LUC_TRUC_TUYEN.as_posix()}")
+    assert len(loi) == 1 and "không có địa chỉ" in loi[0]
+
+    # ghim đúng: không lỗi; kho không có nhánh từ xa nên có lưu ý chưa push
+    loi, luu_y = m.kiem_ghim_phu_luc(tmp_path, f"tại địa chỉ:\n\n>> {_dia_chi(ma)}\n")
+    assert loi == [] and len(luu_y) == 1 and "chưa có trên GitHub" in luu_y[0]
+
+    # sửa file sau khi ghim: lỗi, vì người đọc sẽ mở ra bản cũ
+    tep.write_text("Bảng C.1: bản sửa\n", encoding="utf-8")
+    loi, _ = m.kiem_ghim_phu_luc(tmp_path, _dia_chi(ma))
+    assert len(loi) == 1 and "khác file trên đĩa" in loi[0]
+
+    # commit mới: địa chỉ cũ vẫn lỗi, địa chỉ mới đúng; ghim hai commit khác nhau cũng là lỗi
+    _git(tmp_path, "commit", "-q", "-am", "sua")
+    ma_moi = _git(tmp_path, "rev-parse", "HEAD")
+    assert m.kiem_ghim_phu_luc(tmp_path, _dia_chi(ma_moi))[0] == []
+    loi, _ = m.kiem_ghim_phu_luc(tmp_path, _dia_chi(ma) + "\n" + _dia_chi(ma_moi))
+    assert any("2 commit khác nhau" in s for s in loi)
+
+    # commit không có file, hoặc mã không tồn tại
+    assert "không chứa" in m.kiem_ghim_phu_luc(tmp_path, _dia_chi("abcdef1"))[0][0]
+
+
+def test_ban_chinh_kiem_ca_file_phu_luc_truc_tuyen():
+    assert m.TEP_PHU_LUC_TRUC_TUYEN in m.TEP_THEO_BAN["rut_gon"]
+    assert m.TEP_PHU_LUC_TRUC_TUYEN not in m.TEP_THEO_BAN["day_du"]

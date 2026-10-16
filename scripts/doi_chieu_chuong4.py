@@ -4,7 +4,7 @@ Tính lại từng con số từ data/processed/, results/<exp>/seed<N>/ và cá
 đúng dòng bảng hoặc cụm chữ mà chương phải có, rồi tìm trong bản nháp. In ra những chỗ KHÔNG
 tìm thấy. Không sửa gì trong bản nháp.
 
-    python scripts/doi_chieu_chuong4.py                 # kiểm bản chính (bản rút gọn): Chương 4, Phụ lục và phần tóm tắt
+    python scripts/doi_chieu_chuong4.py                 # kiểm bản chính (bản rút gọn): Chương 4, Phụ lục B và C, phần tóm tắt
     python scripts/doi_chieu_chuong4.py --ban day_du    # kiểm bản đầy đủ (bản lưu)
     python scripts/doi_chieu_chuong4.py --in-bang       # in thêm các bảng tính lại, để chép khi cần
     python scripts/doi_chieu_chuong4.py --do-cat        # đo thêm tỉ lệ mẫu bị cắt ở 128 subword (cần bộ tách từ PhoBERT)
@@ -18,6 +18,14 @@ Từ 13/10/2026 bản chính là bản rút gọn. Nó chia nội dung của Ch�
 và PhuLuc.md), đánh số bảng lại và viết lại một số câu. Trong mã, mỗi bảng được gọi bằng số của bản đầy
 đủ ("Bảng 4.5"); SO_BANG_RUT_GON đổi sang số của bản chính khi tìm và khi in. Câu nào hai bản viết khác
 nhau thì có hai cụm chữ, chọn bằng theo_ban(). Câu chỉ có ở một bản thì bản kia bỏ qua.
+
+PHỤ LỤC B VÀ C KHÔNG IN KÈM (từ 17/10/2026)
+-------------------------------------------
+Học viên chuyển Phụ lục B (quy trình chú thích) và Phụ lục C (các bảng bổ sung) của bản chính ra
+chuyende1/phu_luc/PhuLuc_B_C.md, file này được push lên GitHub; PhuLuc.md chỉ còn Phụ lục A và một địa
+chỉ GitHub ghim vào một commit. Công cụ kiểm số liệu trong file đó như trước, và kiểm thêm (kiem_ghim_phu_luc)
+rằng file ở commit được ghim giống hệt file trên đĩa: người đọc báo cáo mở địa chỉ ra phải thấy đúng bản vừa kiểm.
+Sửa file phụ lục trực tuyến thì phải commit lại rồi đổi mã commit trong PhuLuc.md và trong file Word.
 
 CÁCH TÌM
 --------
@@ -46,6 +54,7 @@ import json
 import math
 import re
 import statistics as st
+import subprocess
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -60,10 +69,15 @@ for _luong in (sys.stdout, sys.stderr):
         _luong.reconfigure(encoding="utf-8", errors="replace")
 
 # Các file của từng bản. Bản chính (rut_gon) là mặc định từ 13/10/2026.
+TEP_PHU_LUC = Path("chuyende1/report/nhap_rut_gon/PhuLuc.md")
+TEP_PHU_LUC_TRUC_TUYEN = Path("chuyende1/phu_luc/PhuLuc_B_C.md")  # Phụ lục B và C, không in kèm báo cáo
 TEP_THEO_BAN = {
-    "rut_gon": (Path("chuyende1/report/nhap_rut_gon/Chuong4_ThucNghiem.md"), Path("chuyende1/report/nhap_rut_gon/PhuLuc.md")),
+    "rut_gon": (Path("chuyende1/report/nhap_rut_gon/Chuong4_ThucNghiem.md"), TEP_PHU_LUC, TEP_PHU_LUC_TRUC_TUYEN),
     "day_du": (Path("chuyende1/report/nhap/Chuong4_ThucNghiem.md"),),
 }
+# Địa chỉ ghi trong PhuLuc.md: phải ghim vào một commit (7 đến 40 ký tự hex), không trỏ vào nhánh.
+MAU_DIA_CHI_PHU_LUC = re.compile(r"https://github\.com/[\w.-]+/[\w.-]+/blob/([0-9a-f]{7,40})/"
+                                 + re.escape(TEP_PHU_LUC_TRUC_TUYEN.as_posix()))
 TEP_TRANG_DAU = Path("chuyende1/report/nhap_rut_gon/TrangDau.md")
 TIEU_DE_TOM_TAT = "TÓM TẮT"
 DAU_TOM_TAT = "Tóm tắt, "  # mô tả của các chỗ kiểm chỉ tìm trong phần tóm tắt
@@ -979,6 +993,34 @@ def doc_tom_tat(tep: Path) -> Optional[str]:
     return "\n".join(than).strip() or None
 
 
+def kiem_ghim_phu_luc(goc: Path, van_phu_luc: str) -> Tuple[List[str], List[str]]:
+    """(lỗi, lưu ý) về địa chỉ của Phụ lục B và C ghi trong PhuLuc.md.
+
+    Địa chỉ phải ghim vào một commit có file phụ lục trực tuyến, và file ở commit đó phải giống hệt file trên đĩa:
+    nếu không, người đọc báo cáo mở ra một bản khác bản mà công cụ vừa kiểm. Commit chưa có trên nhánh từ xa nào chỉ
+    là lưu ý, vì lúc đang sửa thì chưa push; địa chỉ chỉ mở được sau khi push.
+    """
+    tep = goc / TEP_PHU_LUC_TRUC_TUYEN
+    cac_ma = sorted(set(MAU_DIA_CHI_PHU_LUC.findall(van_phu_luc)))
+    if not cac_ma:
+        return [f"PhuLuc.md không có địa chỉ GitHub ghim vào một commit của {TEP_PHU_LUC_TRUC_TUYEN.as_posix()}"], []
+    loi = [f"PhuLuc.md ghim {len(cac_ma)} commit khác nhau ({', '.join(cac_ma)}), chỉ được một"] if len(cac_ma) > 1 else []
+    luu_y: List[str] = []
+    tren_dia = tep.read_bytes().replace(b"\r\n", b"\n") if tep.is_file() else None
+    for ma in cac_ma:
+        r = subprocess.run(["git", "-C", str(goc), "show", f"{ma}:{TEP_PHU_LUC_TRUC_TUYEN.as_posix()}"], capture_output=True)
+        if r.returncode != 0:
+            loi.append(f"commit {ma} không có hoặc không chứa {TEP_PHU_LUC_TRUC_TUYEN.as_posix()}")
+        elif r.stdout.replace(b"\r\n", b"\n") != tren_dia:
+            loi.append(f"{TEP_PHU_LUC_TRUC_TUYEN.as_posix()} ở commit {ma} khác file trên đĩa: commit file mới rồi đổi mã "
+                       "commit trong PhuLuc.md và trong file Word")
+        else:
+            xa = subprocess.run(["git", "-C", str(goc), "branch", "-r", "--contains", ma], capture_output=True, text=True)
+            if not xa.stdout.strip():
+                luu_y.append(f"commit {ma} chưa có trên GitHub: địa chỉ trong báo cáo chỉ mở được sau khi push")
+    return loi, luu_y
+
+
 def so_la_trong_tom_tat(tom_tat: str, than_bai: str) -> List[str]:
     """Con số có trong phần tóm tắt mà không có trong thân bài. Phần tóm tắt không được đưa ra số mới."""
     co = set(MAU_SO.findall(than_bai))
@@ -1047,12 +1089,20 @@ def main(argv=None) -> int:
         print(f"BỎ QUA phần tóm tắt: chưa có {TEP_TRANG_DAU} hoặc file chưa có mục {TIEU_DE_TOM_TAT}")
     for s in so_la:
         print(f"SỐ LẠ TRONG TÓM TẮT  {s}: con số này không có trong chương nào hay trong phụ lục")
+    loi_ghim: List[str] = []
+    if a.ban == "rut_gon" and not a.nhap:
+        loi_ghim, luu_y_ghim = kiem_ghim_phu_luc(a.goc, (a.goc / TEP_PHU_LUC).read_text(encoding="utf-8"))
+        for s in loi_ghim:
+            print(f"ĐỊA CHỈ PHỤ LỤC  {s}")
+        for s in luu_y_ghim:
+            print(f"LƯU Ý  {s}")
     ten_ban = "bản chính" if a.ban == "rut_gon" else "bản đầy đủ"
     print(f"Đã kiểm {da_kiem} chỗ trong {ten_ban} ({', '.join(p.name for p in cac_tep)}"
           f"{', phần tóm tắt' if tom_tat else ''}): {da_kiem - len(lech)} khớp, {len(lech)} lệch."
           + (f" Bỏ qua {bo_qua} chỗ vì bản này không có câu tương ứng hoặc chưa có phần tóm tắt." if bo_qua else "")
-          + (f" Phần tóm tắt có {len(so_la)} con số lạ." if so_la else ""))
-    return 1 if lech or so_la else 0
+          + (f" Phần tóm tắt có {len(so_la)} con số lạ." if so_la else "")
+          + (f" Địa chỉ Phụ lục B, C có {len(loi_ghim)} lỗi." if loi_ghim else ""))
+    return 1 if lech or so_la or loi_ghim else 0
 
 
 if __name__ == "__main__":
