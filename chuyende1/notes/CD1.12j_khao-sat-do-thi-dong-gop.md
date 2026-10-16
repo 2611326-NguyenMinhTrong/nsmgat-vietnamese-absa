@@ -126,4 +126,19 @@ Nguồn đã tra: aclanthology.org/2021.naacl-main.146, 2021.eacl-main.228, 2021
 2020.acl-main.295, 2021.naacl-main.231, 2022.acl-long.145, 2021.emnlp-main.724, 2020.coling-main.72, 2020.coling-main.13,
 2020.emnlp-main.292; arXiv 2010.01461, 2010.02656, 1906.04501; scholar.hit.edu.cn (Locate-Combine).
 
-## 8. GHI CHÚ SAU KHI TRAO ĐỔI *(điền sau)*
+## 8. GHI CHÚ SAU KHI TRAO ĐỔI
+
+**16/10/2026, học viên quyết** (nguyên văn): "phần khảo sát thêm nếu chứng minh được đồ thị có ích thì ghi thêm vào những
+khảo sát có ích, còn không thì không cần ghi".
+
+Cách hiểu và áp dụng:
+
+- Chưa ghi gì vào báo cáo hay `survey_matrix.csv` lúc này. Quyết định chờ kết quả thí nghiệm, trước hết là 17 lần chạy
+  trên Kaggle (`notebooks/kaggle_doi_chung_do_thi.ipynb`).
+- "Chứng minh được đồ thị có ích" nghĩa là có một hiệu số dương có ý nghĩa do chính phần đồ thị đem lại, đo bằng bootstrap
+  ghép cặp trên trung bình 5 seed, so với đối chứng không đồ thị (`asgcn_khong_gcn` hoặc PhoBERT), trên toàn tập kiểm tra
+  hoặc trên nhóm câu trái cảm xúc hay tập chẩn đoán.
+- Nếu có: chỉ thêm những công trình ở mục 4 thuộc đúng hướng giải thích được hiệu số đó (ví dụ GCN hơn đối chứng ở nhóm
+  câu trái cảm xúc thì thêm hướng A và D), đọc toàn văn và kiểm số trước khi ghi.
+- Nếu không: phiếu này chỉ là tài liệu nội bộ cho kế hoạch CĐ2, báo cáo CĐ1 không nhắc.
+- Câu hỏi 3 (đưa hướng C và D vào kế hoạch CĐ2) chưa được trả lời, để lại.
