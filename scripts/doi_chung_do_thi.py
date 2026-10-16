@@ -91,7 +91,7 @@ def mat_na_nhom(uid: Sequence[str], vang: np.ndarray, chan_doan: Sequence[dict])
     """Mặt nạ (số mẫu,) cho từng nhóm.
 
     Trái cảm xúc: các khía cạnh của cùng bình luận không cùng một nhãn (giống `loai_cau` = da_trai của
-    error_analysis.py). Nhóm chẩn đoán gộp theo DẤU HIỆU như Bảng C.5: có phủ định = negation hoặc both,
+    error_analysis.py). Nhóm chẩn đoán gộp theo DẤU HIỆU như Bảng C.4 (C.5 trước 16/10/2026): có phủ định = negation hoặc both,
     có chuyển ý = contrast hoặc both.
     """
     nhan_cau: Dict[str, set] = {}

@@ -13,6 +13,15 @@ Word, nhưng chỉ thấy bản đã lưu).
 Giới hạn: chỉ so CHỮ. Không thấy được chỗ sửa định dạng (font, in đậm, giãn dòng), hình, chú thích, hay dòng trống.
 Bỏ qua mục lục, danh sách bảng, danh sách hình vì Word tự sinh. Trang bìa không bị lệnh ghép thay chữ nên không bao giờ
 hiện ở đây.
+
+PHƯƠNG TRÌNH WORD (từ 16/10/2026): học viên chuyển các công thức của Chương 2 sang phương trình của Word (OMML). Bản
+nháp chỉ có công thức dạng chữ, nên ghép sẽ biến chúng về chữ thường. Lệnh bỏ qua dòng công thức ở cả hai phía khi so
+chữ (đoạn chỉ có phương trình và số hiệu như "(2.2)"), nhưng hễ file Word còn phương trình thì trả mã 2: chữ đã khớp
+bản nháp, nhưng KHÔNG ĐƯỢC GHÉP, mọi chỗ sửa làm thẳng trong Word.
+
+    mã 0: chữ khớp, không có phương trình Word, ghép an toàn
+    mã 1: có chỗ sửa tay chưa có trong bản nháp (in từng chỗ)
+    mã 2: chữ khớp, nhưng file Word có phương trình: không được ghép
 """
 
 from __future__ import annotations
@@ -21,6 +30,7 @@ import argparse
 import contextlib
 import difflib
 import io
+import re
 import shutil
 import sys
 import tempfile
@@ -39,22 +49,39 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 STYLE_BO_QUA = ("toc", "table of figures")
+OMATH = "{http://schemas.openxmlformats.org/officeDocument/2006/math}oMath"
+# Dòng công thức: chữ thường (ngoài phương trình) chỉ còn số hiệu, hoặc công thức dạng chữ của bản nháp kết thúc bằng số hiệu
+# Phương trình Word: chữ thường ngoài phương trình chỉ còn vài ký tự lọt ra (như ")V") và số hiệu, hoặc rỗng
+MAU_CHI_SO_HIEU = re.compile(r"(.{0,12}\(\d+\.\d+\))?")
+MAU_CONG_THUC_CHU = re.compile(r"=.*\(\d+\.\d+\)\s*$")
+
+
+def so_phuong_trinh(duong_dan: Path) -> int:
+    return sum(1 for _ in docx.Document(str(duong_dan)).element.body.iter(OMATH))
+
+
+def la_dong_cong_thuc(p: Paragraph) -> bool:
+    chu = p.text.strip()
+    if p._p.find(".//" + OMATH) is not None:
+        return MAU_CHI_SO_HIEU.fullmatch(chu) is not None
+    return MAU_CONG_THUC_CHU.search(chu) is not None
 
 
 def cac_khoi(duong_dan: Path) -> List[str]:
-    """Chữ của file Word theo thứ tự: mỗi đoạn văn khác rỗng một khối, mỗi hàng bảng một khối."""
+    """Chữ của file Word theo thứ tự: mỗi đoạn văn khác rỗng một khối, mỗi hàng bảng một khối.
+    Bỏ qua mục lục, hai danh sách tự động và dòng công thức (xem docstring của module)."""
     d = docx.Document(str(duong_dan))
     ra: List[str] = []
     for el in d.element.body.iterchildren():
         if el.tag == qn("w:p"):
             p = Paragraph(el, d)
             ten = (p.style.name if p.style is not None else "") or ""
-            if ten.lower().startswith(STYLE_BO_QUA) or not p.text.strip():
+            if ten.lower().startswith(STYLE_BO_QUA) or la_dong_cong_thuc(p) or not p.text.strip():
                 continue
-            ra.append(p.text)
+            ra.append(p.text.strip())  # dấu cách thừa ở hai đầu đoạn không thấy được, không tính là sửa
         elif el.tag == qn("w:tbl"):
             for hang in Table(el, d).rows:
-                ra.append("| " + " | ".join(o.text for o in hang.cells) + " |")
+                ra.append("| " + " | ".join(o.text.strip() for o in hang.cells) + " |")
     return ra
 
 
@@ -98,10 +125,15 @@ def main(argv=None) -> int:
             print(f"  WORD (sẽ mất)         : {k}")
         if len(x) == len(y) == 1:
             print(f"  TỪ KHÁC: {chu_khac(x[0], y[0])}")
+    so_pt = so_phuong_trinh(a.docx)
     if khac:
         print(f"\nGHÉP BÂY GIỜ SẼ GHI ĐÈ {len(khac)} chỗ trong {a.docx.name}. Đưa các chỗ sửa ở dòng WORD vào bản nháp "
               "trước, hoặc sửa thẳng trong Word thay vì ghép.")
         return 1
+    if so_pt:
+        print(f"Chữ của {a.docx.name} khớp bản nháp (không kể định dạng, mục lục, trang bìa, dòng công thức). NHƯNG file "
+              f"Word có {so_pt} phương trình dạng Word: KHÔNG ĐƯỢC GHÉP, ghép sẽ đổi chúng về chữ thường. Sửa thẳng trong Word.")
+        return 2
     print(f"Ghép an toàn: chữ của {a.docx.name} trùng với bản nháp (không kể định dạng, mục lục, trang bìa).")
     return 0
 

@@ -20,7 +20,7 @@ Bảng 4.3: Kết quả trên tập kiểm tra của X
 |---|---|
 | PhoBERT   tinh chỉnh | 91,86 |
 
-Bảng C.4: Macro-F1 trên bốn nhóm của tập chẩn đoán
+Bảng C.3: Macro-F1 trên bốn nhóm của tập chẩn đoán
 
 | Mô hình | Thường |
 |---|---|
@@ -43,7 +43,7 @@ def test_moi_bang_duoc_kiem_deu_co_so_o_ban_chinh_va_tu_khoa():
 
 def test_tach_bang_lay_ten_va_hang_bo_khoang_trang_thua():
     b = m.tach_bang(VAN)
-    assert list(b) == ["4.3", "C.4", "4.2"]
+    assert list(b) == ["4.3", "C.3", "4.2"]
     assert b["4.3"]["ten"] == "Kết quả trên tập kiểm tra của X"
     assert "| PhoBERT tinh chỉnh | 91,86 |" in b["4.3"]["van"]
     assert b["4.2"]["hang"][-1] == "| 4b | ASGCN nối gốc | 136.181.763 |"
@@ -56,9 +56,9 @@ def test_hang_bang_phai_nam_o_dung_bang():
     # Bảng 4.5 của bản đầy đủ là Bảng 4.3 của bản chính
     da_kiem, lech, bo_qua = m.tim([("Bảng 4.5, phobert", "| PhoBERT tinh chỉnh | 91,86 |")], van, b, "rut_gon")
     assert (da_kiem, lech, bo_qua) == (1, [], 0)
-    # hàng của bảng macro-F1 (4.12, tức C.4) không được tính là có ở bảng accuracy 4.11 (tức 4.8)
+    # hàng của bảng macro-F1 (4.12, tức C.3) không được tính là có ở bảng accuracy 4.11 (tức 4.8)
     _, lech, _ = m.tim([("Bảng 4.12, dòng 1", "| PhoBERT tinh chỉnh | 91,86 |")], van, b, "rut_gon")
-    assert len(lech) == 1 and "nằm ở Bảng 4.3 chứ không ở Bảng C.4" in lech[0][2] and lech[0][0] == "Bảng C.4, dòng 1"
+    assert len(lech) == 1 and "nằm ở Bảng 4.3 chứ không ở Bảng C.3" in lech[0][2] and lech[0][0] == "Bảng C.3, dòng 1"
     _, lech, _ = m.tim([("Bảng 4.11, dòng 1", "| PhoBERT tinh chỉnh | 90,0 |")], van, b, "rut_gon")
     assert "bản nháp không có Bảng 4.8" in lech[0][2]
     # ở bản đầy đủ số bảng giữ nguyên
@@ -81,8 +81,19 @@ def test_cum_chu_loi_van_cau_bo_qua_va_cau_cua_phan_tom_tat():
 
 def test_theo_ban_va_doi_so_bang():
     assert m.theo_ban("day_du", day_du="a", rut_gon="b") == "a" and m.theo_ban("rut_gon", day_du="a") is None
-    assert m.doi_so_bang("rut_gon", "4.6, số phép so ở Bảng 4.15") == "4.6, số phép so ở Bảng C.6"
+    assert m.doi_so_bang("rut_gon", "4.6, số phép so ở Bảng 4.15") == "4.6, số phép so ở Bảng C.5"
     assert m.doi_so_bang("day_du", "Bảng 4.15, dòng 2") == "Bảng 4.15, dòng 2"
+
+
+def test_bang_bo_o_ban_chinh_thi_bo_qua_o_ban_chinh_van_kiem_o_ban_luu():
+    """Bảng phân bố theo khía cạnh (4.2 ở bản đầy đủ) bị học viên bỏ khỏi bản chính ngày 16/10/2026."""
+    b, van = m.tach_bang(VAN), m.chuan(VAN)
+    kiem = [("Bảng 4.2, GENERAL", "| GENERAL | 294 | 83 | 1.004 | 1.381 |")]
+    assert m.tim(kiem, van, b, "rut_gon") == (0, [], 1)
+    da_kiem, lech, _ = m.tim(kiem, van, b, "day_du")
+    assert da_kiem == 1 and len(lech) == 1  # bản lưu vẫn kiểm (đoạn mẫu không có hàng này nên báo lệch)
+    assert m.kiem_ten_bang(b, "rut_gon", ["4.2"]) == []
+    assert m.doi_so_bang("rut_gon", "Bảng 4.2, GENERAL") == "Bảng 4.2, GENERAL"
 
 
 def test_ten_bang_phai_chua_tu_khoa():

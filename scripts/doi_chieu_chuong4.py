@@ -67,10 +67,12 @@ TEP_THEO_BAN = {
 TEP_TRANG_DAU = Path("chuyende1/report/nhap_rut_gon/TrangDau.md")
 TIEU_DE_TOM_TAT = "TÓM TẮT"
 DAU_TOM_TAT = "Tóm tắt, "  # mô tả của các chỗ kiểm chỉ tìm trong phần tóm tắt
-# Số bảng của bản đầy đủ -> số bảng của bản chính.
-SO_BANG_RUT_GON = {"4.1": "4.1", "4.2": "C.1", "4.4": "4.2", "4.5": "4.3", "4.6": "4.4", "4.7": "C.3", "4.8": "4.5",
-                   "4.9": "4.6", "4.10": "4.7", "4.11": "4.8", "4.12": "C.4", "4.13": "4.9", "4.14": "C.5",
-                   "4.15": "C.6", "4.16": "C.7"}
+# Số bảng của bản đầy đủ -> số bảng của bản chính. None: bản chính không có bảng đó, mọi chỗ kiểm hàng của nó bị bỏ
+# qua ở bản chính. Ngày 16/10/2026 học viên bỏ bảng phân bố mẫu theo khía cạnh và nhãn (Hình 4.1 đã thể hiện), các
+# bảng C sau nó lùi một số.
+SO_BANG_RUT_GON = {"4.1": "4.1", "4.2": None, "4.4": "4.2", "4.5": "4.3", "4.6": "4.4", "4.7": "C.2", "4.8": "4.5",
+                   "4.9": "4.6", "4.10": "4.7", "4.11": "4.8", "4.12": "C.3", "4.13": "4.9", "4.14": "C.4",
+                   "4.15": "C.5", "4.16": "C.6"}
 # Tên bảng phải chứa cụm này: bắt trường hợp hai bảng cùng dạng hàng bị đổi chỗ cho nhau.
 TU_KHOA_BANG = {
     "4.1": "Quy mô và phân bố nhãn", "4.2": "Phân bố mẫu theo khía cạnh và nhãn", "4.4": "Thang mô hình",
@@ -761,7 +763,8 @@ def tach_bang(van_ban: str) -> Dict[str, dict]:
     return ra
 
 
-def so_bang_cua(ban: str, so_goc: str) -> str:
+def so_bang_cua(ban: str, so_goc: str) -> Optional[str]:
+    """Số bảng ở bản đang kiểm; None khi bản đó không có bảng này."""
     return SO_BANG_RUT_GON[so_goc] if ban == "rut_gon" else so_goc
 
 
@@ -769,7 +772,7 @@ def doi_so_bang(ban: str, mo_ta: str) -> str:
     """Đổi số bảng trong lời mô tả sang số của bản đang kiểm, để người đọc tìm được bảng."""
     if ban != "rut_gon":
         return mo_ta
-    return re.sub(r"Bảng (\d+\.\d+)", lambda m: f"Bảng {SO_BANG_RUT_GON.get(m.group(1), m.group(1))}", mo_ta)
+    return re.sub(r"Bảng (\d+\.\d+)", lambda m: f"Bảng {SO_BANG_RUT_GON.get(m.group(1)) or m.group(1)}", mo_ta)
 
 
 def tim(kiem: Sequence[Tuple[str, Optional[str]]], van: str, cac_bang: Dict[str, dict], ban: str, tom_tat: Optional[str] = None):
@@ -780,20 +783,20 @@ def tim(kiem: Sequence[Tuple[str, Optional[str]]], van: str, cac_bang: Dict[str,
     lech, bo_qua, da_kiem = [], 0, 0
     van_tom_tat = chuan(tom_tat) if tom_tat else None
     for mo_ta, chuoi in kiem:
-        if chuoi is None or (mo_ta.startswith(DAU_TOM_TAT) and van_tom_tat is None):
-            bo_qua += 1
+        m = MAU_MO_TA_BANG.match(mo_ta)
+        so = so_bang_cua(ban, m.group(1)) if m else None
+        if chuoi is None or (mo_ta.startswith(DAU_TOM_TAT) and van_tom_tat is None) or (m and so is None):
+            bo_qua += 1  # câu không có ở bản này, chưa có phần tóm tắt, hoặc bản này không có bảng đó
             continue
         da_kiem += 1
         if mo_ta.startswith(DAU_TOM_TAT):
             if chuan(chuoi) not in van_tom_tat:
                 lech.append((mo_ta, chuoi, "không thấy cụm chữ này trong phần tóm tắt"))
             continue
-        m = MAU_MO_TA_BANG.match(mo_ta)
         if not m:
             if chuan(chuoi) not in van:
                 lech.append((doi_so_bang(ban, mo_ta), chuoi, "không thấy cụm chữ này trong lời văn"))
             continue
-        so = so_bang_cua(ban, m.group(1))
         bang = cac_bang.get(so)
         if bang is None:
             lech.append((doi_so_bang(ban, mo_ta), chuoi, f"bản nháp không có Bảng {so}"))
@@ -809,6 +812,8 @@ def kiem_ten_bang(cac_bang: Dict[str, dict], ban: str, so_goc_can: Sequence[str]
     ra: List[Tuple[str, Optional[str]]] = []
     for so_goc in so_goc_can:
         so = so_bang_cua(ban, so_goc)
+        if so is None:  # bản này không có bảng đó
+            continue
         ten = cac_bang.get(so, {}).get("ten", "")
         tu = TU_KHOA_BANG[so_goc]
         # Cụm chữ đòi có là chính dòng tên bảng; nếu tên không chứa từ khoá thì đòi một chuỗi không thể có.
