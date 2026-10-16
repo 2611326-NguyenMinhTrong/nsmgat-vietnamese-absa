@@ -1,0 +1,15 @@
+2026-10-16 09:24:59 | __main__ | INFO | === BAT DAU phobert_fp32/seed1337 | config=configs/phobert_fp32.yaml | device=cuda ===
+2026-10-16 09:24:59 | __main__ | INFO | Log ghi tai logs/phobert_fp32/seed1337.log — theo doi: python scripts/watch_train.py --exp phobert_fp32 --seed 1337
+2026-10-16 09:25:02 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-16 09:33:26 | __main__ | INFO | [phobert_fp32/seed1337] epoch 1/8 | train_loss=0.5532 | dev_acc=0.8830 | dev_macro_f1=0.805097
+2026-10-16 09:41:50 | __main__ | INFO | [phobert_fp32/seed1337] epoch 2/8 | train_loss=0.3102 | dev_acc=0.9032 | dev_macro_f1=0.834031
+2026-10-16 09:50:12 | __main__ | INFO | [phobert_fp32/seed1337] epoch 3/8 | train_loss=0.2307 | dev_acc=0.9008 | dev_macro_f1=0.833202
+2026-10-16 09:58:35 | __main__ | INFO | [phobert_fp32/seed1337] epoch 4/8 | train_loss=0.1734 | dev_acc=0.9053 | dev_macro_f1=0.844572
+2026-10-16 10:07:04 | __main__ | INFO | [phobert_fp32/seed1337] epoch 5/8 | train_loss=0.1367 | dev_acc=0.9071 | dev_macro_f1=0.845864
+2026-10-16 10:15:25 | __main__ | INFO | [phobert_fp32/seed1337] epoch 6/8 | train_loss=0.1043 | dev_acc=0.9038 | dev_macro_f1=0.841335
+2026-10-16 10:23:52 | __main__ | INFO | [phobert_fp32/seed1337] epoch 7/8 | train_loss=0.0814 | dev_acc=0.9026 | dev_macro_f1=0.841492
+2026-10-16 10:32:14 | __main__ | INFO | [phobert_fp32/seed1337] epoch 8/8 | train_loss=0.0649 | dev_acc=0.9047 | dev_macro_f1=0.841796
+2026-10-16 10:32:16 | __main__ | INFO | Dung som o epoch 8 (khong cai thien sau 3 epoch)
+2026-10-16 10:32:53 | __main__ | INFO | Da ghi results/phobert_fp32/seed1337/metrics.json
+2026-10-16 10:32:53 | __main__ | INFO | Da ghi results/phobert_fp32/seed1337/predictions.jsonl (6,722 dong)
+2026-10-16 10:32:53 | __main__ | INFO | === KET THUC phobert_fp32/seed1337 ===

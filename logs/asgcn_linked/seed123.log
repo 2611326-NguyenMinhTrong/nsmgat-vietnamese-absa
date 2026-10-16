@@ -1,0 +1,14 @@
+2026-10-16 12:29:13 | __main__ | INFO | === BAT DAU asgcn_linked/seed123 | config=configs/asgcn_linked.yaml | device=cuda ===
+2026-10-16 12:29:13 | __main__ | INFO | Log ghi tai logs/asgcn_linked/seed123.log — theo doi: python scripts/watch_train.py --exp asgcn_linked --seed 123
+2026-10-16 12:29:21 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-16 12:38:05 | __main__ | INFO | [asgcn_linked/seed123] epoch 1/8 | train_loss=0.5793 | dev_acc=0.8824 | dev_macro_f1=0.797103
+2026-10-16 12:46:53 | __main__ | INFO | [asgcn_linked/seed123] epoch 2/8 | train_loss=0.3124 | dev_acc=0.8911 | dev_macro_f1=0.803192
+2026-10-16 12:55:43 | __main__ | INFO | [asgcn_linked/seed123] epoch 3/8 | train_loss=0.2272 | dev_acc=0.9041 | dev_macro_f1=0.841384
+2026-10-16 13:05:04 | __main__ | INFO | [asgcn_linked/seed123] epoch 4/8 | train_loss=0.1685 | dev_acc=0.9053 | dev_macro_f1=0.835987
+2026-10-16 13:14:23 | __main__ | INFO | [asgcn_linked/seed123] epoch 5/8 | train_loss=0.1262 | dev_acc=0.9038 | dev_macro_f1=0.844580
+2026-10-16 13:23:44 | __main__ | INFO | [asgcn_linked/seed123] epoch 6/8 | train_loss=0.0955 | dev_acc=0.9041 | dev_macro_f1=0.842253
+2026-10-16 13:33:04 | __main__ | INFO | [asgcn_linked/seed123] epoch 7/8 | train_loss=0.0709 | dev_acc=0.9068 | dev_macro_f1=0.847585
+2026-10-16 13:42:24 | __main__ | INFO | [asgcn_linked/seed123] epoch 8/8 | train_loss=0.0513 | dev_acc=0.9056 | dev_macro_f1=0.844797
+2026-10-16 13:43:11 | __main__ | INFO | Da ghi results/asgcn_linked/seed123/metrics.json
+2026-10-16 13:43:11 | __main__ | INFO | Da ghi results/asgcn_linked/seed123/predictions.jsonl (6,722 dong)
+2026-10-16 13:43:11 | __main__ | INFO | === KET THUC asgcn_linked/seed123 ===

@@ -3,7 +3,7 @@
 **Ngày phát hiện:** 16/10/2026 · **Phát hiện bởi:** Claude Code, khi học viên hỏi "có thật là bổ sung đồ thị chưa mang lại cải thiện rõ rệt không, vì sao"
 **Loại:** phương pháp · tài liệu
 **Mức độ:** nghiêm trọng (không đổi con số nào, nhưng đổi cách quy kết quả cho thành phần nào)
-**Trạng thái:** 🔴 Mở, chờ học viên chọn: chạy thí nghiệm đối chứng, hay chỉ sửa lời văn
+**Trạng thái:** 🟡 Đã đo bằng thí nghiệm đối chứng (16/10/2026, phiếu CD1.12k); lời văn báo cáo chưa sửa, chờ học viên chọn cách
 
 ---
 
@@ -72,6 +72,16 @@ Chưa sửa. Hai hướng, học viên chọn (phiếu CD1.12i mục 7):
 1. Chạy mô hình đối chứng "PhoBERT cộng gộp attention theo khía cạnh, không GCN" (`gcn_layers: 0`, đã thử chạy được, không
    cần sửa mã) để tách hai thứ, rồi viết lại theo kết quả.
 2. Không chạy thêm: sửa lời văn cho đúng phạm vi ("đầu đồ thị kiểu ASGCN", bỏ hoặc đảo đoạn nối gốc), ghi thành giới hạn.
+
+**Cập nhật 16/10/2026, học viên chọn hướng 1.** Chạy 17 lần trên Kaggle (`notebooks/kaggle_doi_chung_do_thi.ipynb`),
+kiểm định bằng `scripts/doi_chung_do_thi.py`, chi tiết ở phiếu CD1.12k. Trên toàn tập kiểm tra, 5 seed:
+
+| Bước | Hiệu số macro-F1 | p bootstrap | p hoán vị seed |
+|---|---|---|---|
+| Đổi cách đọc ra, cùng fp32 | −0,63 | 0,007 | 0,018 |
+| Thêm GCN cây phụ thuộc lên cùng cách đọc ra | −0,58 | 0,010 | 0,310 |
+
+Phần (a) của GAP được xác nhận: khoảng một nửa mức ASGCN thua PhoBERT đến từ cách đọc ra. Lời văn báo cáo vẫn chưa sửa.
 
 ## 6. Bài học — phòng lần sau bằng cách nào
 

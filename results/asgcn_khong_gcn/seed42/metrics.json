@@ -1,0 +1,31 @@
+{
+  "exp_name": "asgcn_khong_gcn",
+  "seed": 42,
+  "dataset": "visfd",
+  "test": {
+    "accuracy": 0.915352573638798,
+    "macro_f1": 0.8635521790067032,
+    "f1_per_class": [
+      0.9322336156932679,
+      0.7094723458359822,
+      0.9489505754908598
+    ]
+  },
+  "diagnostic": {
+    "negation": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "contrast": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "regular": {
+      "macro_f1": 0.0,
+      "n": 0
+    }
+  },
+  "train_time_sec": 3658.3,
+  "n_params": 135000579,
+  "config_hash": "57de5c47d73c"
+}

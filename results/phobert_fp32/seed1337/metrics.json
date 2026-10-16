@@ -1,0 +1,31 @@
+{
+  "exp_name": "phobert_fp32",
+  "seed": 1337,
+  "dataset": "visfd",
+  "test": {
+    "accuracy": 0.9199642963403749,
+    "macro_f1": 0.867998921338803,
+    "f1_per_class": [
+      0.9375694290157742,
+      0.7139175257731959,
+      0.9525098092274388
+    ]
+  },
+  "diagnostic": {
+    "negation": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "contrast": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "regular": {
+      "macro_f1": 0.0,
+      "n": 0
+    }
+  },
+  "train_time_sec": 4033.9,
+  "n_params": 135000579,
+  "config_hash": "6e51a01a58e3"
+}

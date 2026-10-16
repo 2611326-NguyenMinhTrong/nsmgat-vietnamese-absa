@@ -1,0 +1,31 @@
+{
+  "exp_name": "asgcn_linked",
+  "seed": 7,
+  "dataset": "visfd",
+  "test": {
+    "accuracy": 0.9198155310919369,
+    "macro_f1": 0.8682691785870031,
+    "f1_per_class": [
+      0.9373068432671081,
+      0.7168316831683168,
+      0.9506690093255845
+    ]
+  },
+  "diagnostic": {
+    "negation": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "contrast": {
+      "macro_f1": 0.0,
+      "n": 0
+    },
+    "regular": {
+      "macro_f1": 0.0,
+      "n": 0
+    }
+  },
+  "train_time_sec": 4225.8,
+  "n_params": 136181763,
+  "config_hash": "8275e7f3fda8"
+}

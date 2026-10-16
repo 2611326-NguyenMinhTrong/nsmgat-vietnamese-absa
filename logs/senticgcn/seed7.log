@@ -1,0 +1,14 @@
+2026-10-16 10:33:03 | __main__ | INFO | === BAT DAU senticgcn/seed7 | config=configs/senticgcn.yaml | device=cuda ===
+2026-10-16 10:33:03 | __main__ | INFO | Log ghi tai logs/senticgcn/seed7.log — theo doi: python scripts/watch_train.py --exp senticgcn --seed 7
+2026-10-16 10:33:11 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-16 10:42:00 | __main__ | INFO | [senticgcn/seed7] epoch 1/8 | train_loss=0.5859 | dev_acc=0.8806 | dev_macro_f1=0.789855
+2026-10-16 10:50:51 | __main__ | INFO | [senticgcn/seed7] epoch 2/8 | train_loss=0.3175 | dev_acc=0.9026 | dev_macro_f1=0.835624
+2026-10-16 10:59:43 | __main__ | INFO | [senticgcn/seed7] epoch 3/8 | train_loss=0.2258 | dev_acc=0.9098 | dev_macro_f1=0.849807
+2026-10-16 11:08:32 | __main__ | INFO | [senticgcn/seed7] epoch 4/8 | train_loss=0.1777 | dev_acc=0.9107 | dev_macro_f1=0.852910
+2026-10-16 11:17:25 | __main__ | INFO | [senticgcn/seed7] epoch 5/8 | train_loss=0.1391 | dev_acc=0.9125 | dev_macro_f1=0.858922
+2026-10-16 11:26:15 | __main__ | INFO | [senticgcn/seed7] epoch 6/8 | train_loss=0.1059 | dev_acc=0.9125 | dev_macro_f1=0.851132
+2026-10-16 11:35:03 | __main__ | INFO | [senticgcn/seed7] epoch 7/8 | train_loss=0.0819 | dev_acc=0.9150 | dev_macro_f1=0.859849
+2026-10-16 11:43:55 | __main__ | INFO | [senticgcn/seed7] epoch 8/8 | train_loss=0.0659 | dev_acc=0.9122 | dev_macro_f1=0.853799
+2026-10-16 11:44:41 | __main__ | INFO | Da ghi results/senticgcn/seed7/metrics.json
+2026-10-16 11:44:41 | __main__ | INFO | Da ghi results/senticgcn/seed7/predictions.jsonl (6,722 dong)
+2026-10-16 11:44:41 | __main__ | INFO | === KET THUC senticgcn/seed7 ===

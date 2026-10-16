@@ -1,0 +1,15 @@
+2026-10-16 05:51:27 | __main__ | INFO | === BAT DAU asgcn/seed7 | config=configs/asgcn.yaml | device=cuda ===
+2026-10-16 05:51:27 | __main__ | INFO | Log ghi tai logs/asgcn/seed7.log — theo doi: python scripts/watch_train.py --exp asgcn --seed 7
+2026-10-16 05:51:34 | __main__ | INFO | Chuan bi xong (dung dataset + mo hinh) — bat dau huan luyen
+2026-10-16 06:00:22 | __main__ | INFO | [asgcn/seed7] epoch 1/8 | train_loss=0.5695 | dev_acc=0.8758 | dev_macro_f1=0.787708
+2026-10-16 06:09:10 | __main__ | INFO | [asgcn/seed7] epoch 2/8 | train_loss=0.3056 | dev_acc=0.9023 | dev_macro_f1=0.833719
+2026-10-16 06:17:59 | __main__ | INFO | [asgcn/seed7] epoch 3/8 | train_loss=0.2187 | dev_acc=0.9038 | dev_macro_f1=0.842199
+2026-10-16 06:26:48 | __main__ | INFO | [asgcn/seed7] epoch 4/8 | train_loss=0.1675 | dev_acc=0.8993 | dev_macro_f1=0.830425
+2026-10-16 06:35:36 | __main__ | INFO | [asgcn/seed7] epoch 5/8 | train_loss=0.1265 | dev_acc=0.9101 | dev_macro_f1=0.851832
+2026-10-16 06:44:23 | __main__ | INFO | [asgcn/seed7] epoch 6/8 | train_loss=0.0891 | dev_acc=0.9095 | dev_macro_f1=0.844673
+2026-10-16 06:53:10 | __main__ | INFO | [asgcn/seed7] epoch 7/8 | train_loss=0.0656 | dev_acc=0.9035 | dev_macro_f1=0.844469
+2026-10-16 07:01:56 | __main__ | INFO | [asgcn/seed7] epoch 8/8 | train_loss=0.0466 | dev_acc=0.9053 | dev_macro_f1=0.847615
+2026-10-16 07:01:58 | __main__ | INFO | Dung som o epoch 8 (khong cai thien sau 3 epoch)
+2026-10-16 07:02:42 | __main__ | INFO | Da ghi results/asgcn/seed7/metrics.json
+2026-10-16 07:02:42 | __main__ | INFO | Da ghi results/asgcn/seed7/predictions.jsonl (6,722 dong)
+2026-10-16 07:02:42 | __main__ | INFO | === KET THUC asgcn/seed7 ===
