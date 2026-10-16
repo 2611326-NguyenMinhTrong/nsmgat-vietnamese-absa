@@ -52,6 +52,7 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 |---|---|
 | `chuyende1/survey/` | Giao thức khảo sát, ma trận phân loại, phân tích khoảng trống, danh sách đọc bắt buộc (`doc_bat_buoc.md`) |
 | `chuyende1/report/` | Cuốn `.docx` nộp + `reference.docx` (style UTE). **Được sửa tay tự do trong Word** — chạy lại `scripts/build_cd1_report.py` an toàn, tự chặn nếu đã sửa (REQ-006). File `.generated.json` cùng thư mục là sổ theo dõi nội bộ của cơ chế đó, không cần đụng vào |
+| `chuyende1/phu_luc/` | [CD1.12n] Phụ lục B (quy trình chú thích tập chẩn đoán) và Phụ lục C (các bảng bổ sung của Chương 4) của báo cáo, không in kèm. Báo cáo trỏ tới `PhuLuc_B_C.md` bằng một địa chỉ GitHub ghim vào commit; sửa file này thì commit lại rồi đổi mã commit trong `PhuLuc.md` của bản nháp và trong file Word (`scripts/doi_chieu_chuong4.py` báo lỗi nếu hai bên lệch) |
 | `chuyende1/tables/` | Bảng xuất ra để dán vào báo cáo |
 | `chuyende1/figures/` | Hình, biểu đồ của báo cáo |
 | `chuyende1/slides/` | Slide bảo vệ CĐ1 — khối A (lõi 15′) + B (mở rộng 30′) + C (dự phòng Q&A), kèm `qa_preparation.md`. **Trỏ tới `tables/` và `figures/`, không vẽ lại số** |
