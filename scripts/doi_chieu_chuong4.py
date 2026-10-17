@@ -108,7 +108,8 @@ MAU_TEN_BANG = re.compile(r"^Bảng ((?:\d+|[A-Z])\.\d+): (.*)$")
 MAU_SO = re.compile(r"\d[\d.,]*\d|\d")
 MO_HINH = ("lexicon", "bilstm", "phobert", "asgcn", "asgcn_linked", "senticgcn")
 TEN = cb.TEN_HIEN_THI
-KHIA_CANH = ("GENERAL", "PERFORMANCE", "BATTERY", "FEATURES", "SER&ACC", "CAMERA", "PRICE", "DESIGN", "SCREEN", "STORAGE")
+TEN_BAN_LUU = {"asgcn_linked": "ASGCN nối gốc"}  # tên cũ, bản lưu (bản đầy đủ) vẫn dùng; xem main()
+KHIA_CANH =("GENERAL", "PERFORMANCE", "BATTERY", "FEATURES", "SER&ACC", "CAMERA", "PRICE", "DESIGN", "SCREEN", "STORAGE")
 # Số bình luận gốc của từng phần, đếm trên file của tác giả (Train.csv, Dev.csv, Test.csv). Không suy được từ
 # data/processed vì bình luận chỉ có nhãn OTHERS không sinh mẫu.
 BINH_LUAN_GOC = {"train": 7786, "dev": 1112, "test": 2224}
@@ -363,7 +364,7 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
             f"ở {' và '.join(f'seed {sd}' for sd in duong_ag)} ASGCN nhỉnh hơn PhoBERT, ở {so_chu(len(cb.SEEDS) - len(duong_ag))} seed còn lại nó thấp hơn",
             "4.4, ASGCN từng seed"),
         neu(all(ng_ag[d]["hieu_so"] > 0 and ng_ag[d]["p"] < 0.05 for d in ("macro_f1", "accuracy")),
-            "biến thể nối gốc hơn ASGCN có ý nghĩa ở cả hai độ đo", "4.4, nối gốc hơn ASGCN"),
+            "biến thể nối câu hơn ASGCN có ý nghĩa ở cả hai độ đo", "4.4, nối gốc hơn ASGCN"),
         neu(f1["asgcn_linked"][1] < f1["asgcn"][1], "ổn định hơn ASGCN giữa các seed", "4.4, độ lệch chuẩn nối gốc"),
         neu(bool(am_ng := [str(sd) for sd, x in zip(cb.SEEDS, tung_seed("asgcn_linked", "asgcn")) if x < 0]),
             "Hiệu số với ASGCN còn đổi dấu ở " + " và ".join(f"seed {sd}" for sd in am_ng), "4.4, nối gốc đổi dấu theo seed"),
@@ -386,7 +387,7 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
             f"dùng PhoBERT, {tp(pre_tt['senticgcn'])} %, và tổng số mẫu đoán sai vẫn nhiều hơn PhoBERT",
             "4.4, recall và precision của Sentic-GCN"),
         neu(all(cap[(e, "phobert")][d]["p"] >= 0.05 for e in ("senticgcn", "asgcn_linked") for d in ("macro_f1", "accuracy")),
-            "Sentic-GCN và ASGCN nối gốc không khác PhoBERT có ý nghĩa ở cả hai độ đo", "4.7, ba mô hình ngang nhau"),
+            "Sentic-GCN và ASGCN nối câu không khác PhoBERT có ý nghĩa ở cả hai độ đo", "4.7, ba mô hình ngang nhau"),
         neu(max(acc, key=lambda e: acc[e][0]) == "phobert" and nho_nhat_f1 == "phobert",
             "có accuracy cao nhất và, trong năm mô hình học, ổn định nhất giữa các seed", "4.7, mô hình đứng đầu"),
         neu(all(x > 0 for x in tung_seed("bilstm", "lexicon") + tung_seed("phobert", "bilstm"))
@@ -423,9 +424,9 @@ def so_lieu_doi_chung(goc: Path) -> Tuple[List[Tuple[str, Optional[str]]], Dict[
     """
     kq = json.loads((goc / "results/doi_chung_do_thi.json").read_text(encoding="utf-8"))
     ten = {"phobert": "PhoBERT tinh chỉnh", "phobert_fp32": "PhoBERT fp32", "asgcn_khong_gcn": "ASGCN bỏ GCN",
-           "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối gốc", "senticgcn": "Sentic-GCN"}
+           "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối câu", "senticgcn": "Sentic-GCN"}
     buoc = {("phobert_fp32", "phobert"): "Tắt độ chính xác hỗn hợp", ("asgcn_khong_gcn", "phobert_fp32"): "Đổi cách đọc ra",
-            ("asgcn", "asgcn_khong_gcn"): "Thêm GCN trên cây phụ thuộc", ("asgcn_linked", "asgcn_khong_gcn"): "Thêm GCN trên cây nối gốc",
+            ("asgcn", "asgcn_khong_gcn"): "Thêm GCN trên cây phụ thuộc", ("asgcn_linked", "asgcn_khong_gcn"): "Thêm GCN trên đồ thị nối câu",
             ("senticgcn", "asgcn_khong_gcn"): "Thêm GCN có trọng số cảm xúc"}
 
     def cap(nhom: str, a: str, b: str) -> dict:
@@ -468,7 +469,7 @@ def so_lieu_doi_chung(goc: Path) -> Tuple[List[Tuple[str, Optional[str]]], Dict[
             "4.4, đổi cách đọc ra"),
         neu(cay["hieu_so"] < 0 and cay["p_hoan_vi_seed"] >= 0.05,
             "cây phụ thuộc làm giảm thêm nhưng không vượt được dao động giữa các seed", "4.4, GCN trên cây phụ thuộc"),
-        neu(abs(noi["hieu_so"]) < 0.001, "cây nối gốc gần như không đổi gì", "4.4, GCN trên cây nối gốc"),
+        neu(abs(noi["hieu_so"]) < 0.001, "đồ thị nối câu gần như không đổi gì", "4.4, GCN trên cây nối gốc"),
         neu(0 < sen["hieu_so"] < 0.005 and sen["p"] >= 0.05, "còn trọng số cảm xúc tăng nhẹ mà không có ý nghĩa", "4.4, GCN có trọng số cảm xúc"),
         # Trước 17/10/2026 câu này viết "phần lớn khoảng cách ... đến từ cách đọc ra chứ không từ cây phụ thuộc": nói quá,
         # vì hai phần gần bằng nhau về độ lớn (0,63 và 0,58 điểm), chỉ khác ở phép hoán vị seed (GAP-042).
@@ -480,9 +481,9 @@ def so_lieu_doi_chung(goc: Path) -> Tuple[List[Tuple[str, Optional[str]]], Dict[
             f"Sentic-GCN hơn ASGCN bỏ GCN {tp(trai['hieu_so'] * 100)} điểm macro-F1 với p bootstrap bằng {cb.p_chu(trai['p'])}, "
             f"nhưng p hoán vị bằng {cb.p_chu(trai['p_hoan_vi_seed'])}, và nó vẫn thấp hơn PhoBERT fp32 {tp(-trai_fp['hieu_so'] * 100)} điểm",
             "4.4, Sentic-GCN ở nhóm trái cảm xúc"),
-        ("4.4, mẫu nối gốc có đổi đồ thị", f"Nối gốc chỉ đổi đồ thị ở {nghin(n_nhom['nhieu_goc'])} mẫu có từ hai gốc trở lên"),
+        ("4.4, mẫu nối gốc có đổi đồ thị", f"Việc nối câu chỉ đổi đồ thị ở {nghin(n_nhom['nhieu_goc'])} mẫu có từ hai câu trở lên"),
         neu(mot["hieu_so"] > nhieu["hieu_so"],
-            f"Ở {nghin(n_nhom['mot_goc'])} mẫu chỉ có một gốc, đồ thị của hai mô hình giống hệt nhau, vậy mà biến thể nối gốc vẫn hơn ASGCN "
+            f"Ở {nghin(n_nhom['mot_goc'])} mẫu chỉ có một câu, đồ thị của hai mô hình giống hệt nhau, vậy mà biến thể nối câu vẫn hơn ASGCN "
             f"{tp(mot['hieu_so'] * 100)} điểm ({p_loi(mot['p'])}); ở nhóm có đổi đồ thị nó chỉ hơn {tp(nhieu['hieu_so'] * 100)} điểm ({p_loi(nhieu['p'])})",
             "4.4, nối gốc theo nhóm một gốc và nhiều gốc"),
         neu(ng_toan["p_hoan_vi_seed"] >= 0.05, f"không qua được phép hoán vị seed (p bằng {cb.p_chu(ng_toan['p_hoan_vi_seed'])})", "4.4, nối gốc qua phép hoán vị"),
@@ -596,7 +597,7 @@ def ket_qua_chi_phi(goc: Path, mh: Dict[str, dict]) -> List[Tuple[str, Optional[
         ("4.5, GPU", f"Phép đo chạy trên GPU {gpu.pop() if len(gpu) == 1 else sorted(gpu)}"),
         neu(khoi_tao == ["asgcn", "phobert"], "PhoBERT và ASGCN được đo với trọng số lúc khởi tạo", "4.5, mô hình đo với trọng số lúc khởi tạo"),
         neu(all(khac[e][c] == 0 for e in ("lexicon", "asgcn_linked", "senticgcn") for c in ("1", "32")),
-            "Mô hình từ điển, ASGCN nối gốc và Sentic-GCN cho đúng từng dự đoán đã công bố ở cả hai kích thước lô", "4.5, dự đoán trùng"),
+            "Mô hình từ điển, ASGCN nối câu và Sentic-GCN cho đúng từng dự đoán đã công bố ở cả hai kích thước lô", "4.5, dự đoán trùng"),
         ("4.5, BiLSTM khác dự đoán", f"BiLSTM khác {khac['bilstm']['1']} trong {nghin(so_mau)} dự đoán ở lô 1 và {khac['bilstm']['32']} ở lô 32"),
         ("4.5, mô hình đồ thị chậm hơn", f"chậm hơn PhoBERT từ {min(cham['1']):.0f} đến {max(cham['1']):.0f} % ở lô 1 và từ {min(cham['32']):.0f} "
                                          f"đến {max(cham['32']):.0f} % ở lô 32"),
@@ -1076,11 +1077,14 @@ def main(argv=None) -> int:
     ap.add_argument("--do-cat", action="store_true", help="đo thêm tỉ lệ mẫu bị cắt ở 128 subword")
     ap.add_argument("--do-mau-so", action="store_true", help="đo thêm tỉ lệ từ và mẫu có mẫu số chuẩn hoá không dương ở Sentic-GCN (cần torch)")
     a = ap.parse_args(argv)
-    global THU_MUC_KQ
+    global THU_MUC_KQ, TEN
     if a.ban == "day_du":  # bản lưu viết theo 3 seed, không sửa nữa: kiểm với kết quả 3 seed đã chụp
         cb.SEEDS, THU_MUC_KQ = cb.SEEDS_BA, Path("results/ba_seed")
+        # Ngày 17/10/2026 học viên đổi tên biến thể "ASGCN nối gốc" thành "ASGCN nối câu" ở bản chính; bản lưu giữ tên cũ.
+        TEN = {**cb.TEN_HIEN_THI, **TEN_BAN_LUU}
     else:
         THU_MUC_KQ = Path("results")
+        TEN = cb.TEN_HIEN_THI
 
     cac_tep = list(a.nhap) if a.nhap else list(TEP_THEO_BAN[a.ban])
     tho_van = "\n\n".join((a.goc / p).read_text(encoding="utf-8") for p in cac_tep)

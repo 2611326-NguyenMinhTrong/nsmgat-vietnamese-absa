@@ -6,12 +6,12 @@ Bảng A. Lỗi theo cặp lớp, trung bình các seed. Sáu cột giữa là p
 | BiLSTM với attention | 916 | 10,7 | 15,2 | 19,5 | 20,2 | 18,9 | 15,6 | 89,3 | 55,5 | 91,5 |
 | PhoBERT tinh chỉnh | 552 | 15,9 | 8,0 | 19,7 | 24,9 | 9,6 | 21,9 | 94,0 | 69,9 | 95,3 |
 | ASGCN | 574 | 12,1 | 8,0 | 22,8 | 27,1 | 10,6 | 19,4 | 94,8 | 64,9 | 95,3 |
-| ASGCN nối gốc | 558 | 10,0 | 7,3 | 23,0 | 25,9 | 12,2 | 21,5 | 95,6 | 66,6 | 94,9 |
+| ASGCN nối câu | 558 | 10,0 | 7,3 | 23,0 | 25,9 | 12,2 | 21,5 | 95,6 | 66,6 | 94,9 |
 | Sentic-GCN | 565 | 16,9 | 7,5 | 17,4 | 21,8 | 9,2 | 27,3 | 93,8 | 72,9 | 94,4 |
 
 Bảng B. Macro-F1 theo khía cạnh (%), trung bình các seed, xếp theo số mẫu huấn luyện giảm dần.
 
-| Khía cạnh | Mẫu huấn luyện | Mẫu kiểm tra | Trung tính trong kiểm tra (%) | Từ điển cảm xúc | BiLSTM với attention | PhoBERT tinh chỉnh | ASGCN | ASGCN nối gốc | Sentic-GCN |
+| Khía cạnh | Mẫu huấn luyện | Mẫu kiểm tra | Trung tính trong kiểm tra (%) | Từ điển cảm xúc | BiLSTM với attention | PhoBERT tinh chỉnh | ASGCN | ASGCN nối câu | Sentic-GCN |
 |---|---|---|---|---|---|---|---|---|---|
 | GENERAL | 4.866 | 1.381 | 6,0 | 53,2 | 81,2 | 86,0 | 85,3 | 85,3 | 87,4 |
 | PERFORMANCE | 4.140 | 1.172 | 9,9 | 55,9 | 71,7 | 81,3 | 81,1 | 81,1 | 82,4 |
@@ -24,7 +24,7 @@ Bảng B. Macro-F1 theo khía cạnh (%), trung bình các seed, xếp theo số
 | SCREEN | 949 | 269 | 6,3 | 53,4 | 67,1 | 76,8 | 73,9 | 76,0 | 78,7 |
 | STORAGE | 91 | 27 | 11,1 | 52,6 | 48,6 | 80,7 | 77,5 | 76,9 | 76,7 |
 
-Tương quan hạng Spearman giữa số mẫu huấn luyện của khía cạnh và macro-F1 trên khía cạnh đó (10 khía cạnh): Từ điển cảm xúc rho = 0,05, p = 0,881; BiLSTM với attention rho = 0,66, p = 0,038; PhoBERT tinh chỉnh rho = 0,60, p = 0,067; ASGCN rho = 0,58, p = 0,082; ASGCN nối gốc rho = 0,65, p = 0,043; Sentic-GCN rho = 0,76, p = 0,011.
+Tương quan hạng Spearman giữa số mẫu huấn luyện của khía cạnh và macro-F1 trên khía cạnh đó (10 khía cạnh): Từ điển cảm xúc rho = 0,05, p = 0,881; BiLSTM với attention rho = 0,66, p = 0,038; PhoBERT tinh chỉnh rho = 0,60, p = 0,067; ASGCN rho = 0,58, p = 0,082; ASGCN nối câu rho = 0,65, p = 0,043; Sentic-GCN rho = 0,76, p = 0,011.
 
 Bảng C. Accuracy theo độ dài câu. Mỗi ô: trung bình các seed (%), khoảng tin cậy 95 % trong ngoặc vuông; nhóm khác nhóm đầu có thêm hiệu so với nhóm đầu (điểm phần trăm) và p hai phía. Bootstrap 10.000 lần theo câu (2.187 câu).
 
@@ -34,7 +34,7 @@ Bảng C. Accuracy theo độ dài câu. Mỗi ô: trung bình các seed (%), kh
 | BiLSTM với attention | 92,1 [90,4; 93,7] | 88,2 [87,2; 89,2]; -3,8, p < 0,001 | 82,4 [80,7; 84,1]; -9,6, p < 0,001 | 75,2 [71,2; 79,1]; -16,9, p < 0,001 |
 | PhoBERT tinh chỉnh | 95,0 [93,6; 96,3] | 92,8 [92,0; 93,6]; -2,2, p 0,006 | 89,9 [88,5; 91,2]; -5,1, p < 0,001 | 84,5 [80,8; 87,9]; -10,5, p < 0,001 |
 | ASGCN | 94,8 [93,6; 96,0] | 92,3 [91,5; 93,1]; -2,5, p < 0,001 | 89,7 [88,3; 91,0]; -5,2, p < 0,001 | 84,4 [80,6; 87,8]; -10,5, p < 0,001 |
-| ASGCN nối gốc | 94,9 [93,6; 96,1] | 92,5 [91,7; 93,3]; -2,4, p 0,002 | 89,9 [88,6; 91,3]; -5,0, p < 0,001 | 85,2 [81,5; 88,6]; -9,7, p < 0,001 |
+| ASGCN nối câu | 94,9 [93,6; 96,1] | 92,5 [91,7; 93,3]; -2,4, p 0,002 | 89,9 [88,6; 91,3]; -5,0, p < 0,001 | 85,2 [81,5; 88,6]; -9,7, p < 0,001 |
 | Sentic-GCN | 95,2 [93,8; 96,5] | 92,5 [91,7; 93,3]; -2,7, p 0,002 | 89,5 [88,1; 90,9]; -5,7, p < 0,001 | 84,7 [81,0; 88,0]; -10,6, p < 0,001 |
 
 Bảng D. Accuracy theo loại câu. Mỗi ô: trung bình các seed (%), khoảng tin cậy 95 % trong ngoặc vuông; nhóm khác nhóm đầu có thêm hiệu so với nhóm đầu (điểm phần trăm) và p hai phía. Bootstrap 10.000 lần theo câu (2.187 câu).
@@ -45,7 +45,7 @@ Bảng D. Accuracy theo loại câu. Mỗi ô: trung bình các seed (%), khoả
 | BiLSTM với attention | 94,5 [93,6; 95,2] | 88,0 [84,8; 91,1]; -6,5, p < 0,001 | 79,9 [78,7; 81,0]; -14,6, p < 0,001 |
 | PhoBERT tinh chỉnh | 96,9 [96,3; 97,5] | 91,8 [88,9; 94,4]; -5,1, p < 0,001 | 87,8 [86,7; 88,8]; -9,1, p < 0,001 |
 | ASGCN | 97,3 [96,7; 97,8] | 92,6 [89,8; 95,1]; -4,7, p < 0,001 | 86,8 [85,8; 87,8]; -10,5, p < 0,001 |
-| ASGCN nối gốc | 97,1 [96,5; 97,6] | 92,9 [90,1; 95,5]; -4,2, p 0,001 | 87,3 [86,3; 88,3]; -9,8, p < 0,001 |
+| ASGCN nối câu | 97,1 [96,5; 97,6] | 92,9 [90,1; 95,5]; -4,2, p 0,001 | 87,3 [86,3; 88,3]; -9,8, p < 0,001 |
 | Sentic-GCN | 96,4 [95,7; 97,0] | 93,0 [90,4; 95,4]; -3,4, p 0,008 | 87,7 [86,6; 88,7]; -8,7, p < 0,001 |
 
 Bảng E. Câu trái nhãn (986 câu). Sụp nhãn: câu bị đoán cùng một nhãn cho mọi khía cạnh. Hai cột cuối chỉ tính trên 836 câu có đúng hai nhãn khác nhau: trong các lỗi ở đó, bao nhiêu phần trăm rơi vào nhãn còn lại đang có trong câu chứ không phải nhãn thứ ba.
@@ -56,7 +56,7 @@ Bảng E. Câu trái nhãn (986 câu). Sụp nhãn: câu bị đoán cùng một
 | BiLSTM với attention | 18,9 | 561 | 64,5 |
 | PhoBERT tinh chỉnh | 11,3 | 340 | 63,4 |
 | ASGCN | 13,9 | 370 | 66,8 |
-| ASGCN nối gốc | 12,9 | 356 | 65,0 |
+| ASGCN nối câu | 12,9 | 356 | 65,0 |
 | Sentic-GCN | 10,2 | 345 | 60,3 |
 
 Bảng F. Số mẫu sai trên 6.722 mẫu kiểm tra. Luôn sai: sai ở mọi seed.
@@ -67,10 +67,10 @@ Bảng F. Số mẫu sai trên 6.722 mẫu kiểm tra. Luôn sai: sai ở mọi 
 | BiLSTM với attention | 419 (6,2 %) | 1.577 (23,5 %) |
 | PhoBERT tinh chỉnh | 307 (4,6 %) | 854 (12,7 %) |
 | ASGCN | 291 (4,3 %) | 946 (14,1 %) |
-| ASGCN nối gốc | 301 (4,5 %) | 876 (13,0 %) |
+| ASGCN nối câu | 301 (4,5 %) | 876 (13,0 %) |
 | Sentic-GCN | 322 (4,8 %) | 855 (12,7 %) |
 
-Bảng G. Giao lỗi của bốn mô hình dùng PhoBERT (PhoBERT tinh chỉnh, ASGCN, ASGCN nối gốc, Sentic-GCN).
+Bảng G. Giao lỗi của bốn mô hình dùng PhoBERT (PhoBERT tinh chỉnh, ASGCN, ASGCN nối câu, Sentic-GCN).
 
 | Số mô hình luôn sai trên mẫu | 0 | 1 | 2 | 3 | 4 |
 |---|---|---|---|---|---|

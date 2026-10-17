@@ -56,7 +56,7 @@ CAP_MAC_DINH: Tuple[Tuple[str, str], ...] = (
     ("senticgcn", "phobert"),
 )
 TEN_HIEN_THI = {"lexicon": "Từ điển cảm xúc", "bilstm": "BiLSTM với attention", "phobert": "PhoBERT tinh chỉnh",
-                "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối gốc", "senticgcn": "Sentic-GCN"}
+                "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối câu", "senticgcn": "Sentic-GCN"}
 
 
 def ma_cau(uid: str) -> str:

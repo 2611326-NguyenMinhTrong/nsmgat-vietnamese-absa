@@ -56,7 +56,7 @@ SO_LOP = 3
 TU_KHOA = (("tieu cuc", "negative"), ("trung tinh", "trung lap", "neutral"), ("tich cuc", "positive"))
 MO_HINH_SO = ("lexicon", "bilstm", "phobert", "asgcn", "asgcn_linked", "senticgcn")
 TEN_HIEN_THI = {"lexicon": "Từ điển cảm xúc", "bilstm": "BiLSTM với attention", "phobert": "PhoBERT tinh chỉnh",
-                "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối gốc", "senticgcn": "Sentic-GCN"}
+                "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối câu", "senticgcn": "Sentic-GCN"}
 
 
 # --- Đọc dữ liệu và cấu hình -------------------------------------------------

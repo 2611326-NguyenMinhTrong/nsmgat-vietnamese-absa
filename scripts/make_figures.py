@@ -127,7 +127,7 @@ def so_truc(v: float, _=None) -> str:
 
 
 MO_HINH_PHOBERT = ("phobert", "asgcn", "asgcn_linked", "senticgcn")
-TEN_NGAN = {"phobert": "PhoBERT", "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối gốc", "senticgcn": "Sentic-GCN"}
+TEN_NGAN = {"phobert": "PhoBERT", "asgcn": "ASGCN", "asgcn_linked": "ASGCN nối câu", "senticgcn": "Sentic-GCN"}
 
 
 def hinh_4_2(chi_phi: dict, ket_qua: Path, out: Path, co_lo: str = "1") -> None:
