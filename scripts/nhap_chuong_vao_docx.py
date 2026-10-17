@@ -330,6 +330,18 @@ def chuong_con_la_khung(doc: DocumentType, so: int) -> bool:
     return chu.startswith(DAU_KHUNG_RONG)
 
 
+def dinh_dang_tay(doc: DocumentType, dau_tieu_de: str) -> List[str]:
+    """Những thứ trong thân một mục cấp 1 mà bản nháp Markdown không giữ được, nên ghép đè sẽ làm mất.
+
+    Từ 16/10/2026 học viên sửa thẳng trong Word: phương trình Word (m:oMath) ở Chương 2, và từ 17/10/2026 cả ở Chương 4
+    cùng các chữ chỉ số dưới (w:vertAlign). Bản nháp chỉ có chữ thường, ghép lại thì những định dạng này mất hẳn.
+    """
+    than = _than_muc(*tim_muc_cap_mot(doc, dau_tieu_de))
+    so_pt = sum(1 for e in than for _ in e.iter(qn("m:oMath")))
+    so_chi_so = sum(1 for e in than for v in e.iter(qn("w:vertAlign")) if v.get(qn("w:val")) in ("subscript", "superscript"))
+    return ([f"{so_pt} phương trình Word"] if so_pt else []) + ([f"{so_chi_so} chỗ chỉ số trên hoặc dưới"] if so_chi_so else [])
+
+
 def thay_than_muc(doc: DocumentType, dau_tieu_de: str, khoi: List[Khoi]) -> int:
     """Xoá phần thân của một mục cấp 1 rồi chèn các khối vào. Trả về số khối đã chèn.
 
@@ -524,6 +536,16 @@ def main(argv=None) -> int:
         print(f"DỪNG: chương {da_co} và mục trang đầu {trang_dau_da_co} đã có nội dung trong Word. Dùng --ghi-de nếu chắc chắn "
               "muốn thay (chỗ sửa tay trong Word ở các phần này sẽ mất, chỉ còn trong bản sao lưu).")
         return 2
+    # Phần sẽ bị thay mà có định dạng bản nháp không giữ được thì không ghép, kể cả khi có --ghi-de.
+    se_thay = [f"Chương {so}." for so in khoi_chuong if chon_chuong is None or so in chon_chuong]
+    if khoi_pl is not None and chon_pl:
+        se_thay.append(TIEU_DE_PHU_LUC)
+    mat = {t: ly_do for t in se_thay if (ly_do := dinh_dang_tay(doc, t))}
+    if mat:
+        print("DỪNG: ghép sẽ làm mất định dạng sửa tay trong Word: "
+              + "; ".join(f"{t} có {', '.join(ly_do)}" for t, ly_do in mat.items())
+              + ". Sửa thẳng trong Word (COM) rồi sửa bản nháp cho khớp, hoặc dùng --chi để bỏ các phần này.")
+        return 3
     ban = sao_luu(a.docx)
     for so, khoi in khoi_chuong.items():
         if chon_chuong is None or so in chon_chuong:

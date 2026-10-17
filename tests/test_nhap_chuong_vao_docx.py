@@ -182,6 +182,29 @@ def test_chuong_da_co_noi_dung_thi_dung_tru_khi_ghi_de(tmp_path):
     assert [x.text for x in doc.paragraphs].count("[1] Tác giả B. Bài B. 2021.") == 1
 
 
+def test_phan_co_phuong_trinh_hoac_chi_so_thi_khong_ghep_ke_ca_ghi_de(tmp_path, capsys):
+    """17/10/2026: học viên tạo phương trình Word và chỉ số dưới thẳng trong Word; ghép đè sẽ làm mất chúng."""
+    from docx.oxml import OxmlElement
+
+    p = _cuon(tmp_path)
+    doc = Document(str(p))
+    dong = next(x for x in doc.paragraphs if x.text.startswith("(Ngân sách: khoảng 8"))
+    dong.add_run("ij").font.subscript = True  # chỉ số dưới trong Chương 4
+    doc.save(str(p))
+    truoc = p.read_bytes()
+    assert _chay(tmp_path, p, "--ghi-de") == 3
+    assert "Chương 4. có 1 chỗ chỉ số trên hoặc dưới" in capsys.readouterr().out and p.read_bytes() == truoc
+    assert _chay(tmp_path, p, "--chi", "3") == 0  # bỏ Chương 4 ra thì ghép được phần còn lại
+
+    doc = Document(str(p))
+    dong = next(x for x in doc.paragraphs if x.text == "Nội dung chương năm.")
+    toan = OxmlElement("m:oMath")
+    dong._p.append(toan)  # phương trình ở chương không bị thay thì không cản
+    doc.save(str(p))
+    assert m.dinh_dang_tay(Document(str(p)), "Chương 5.") == ["1 phương trình Word"]
+    assert _chay(tmp_path, p, "--chi", "3", "--ghi-de") == 0
+
+
 def test_them_trich_dan_o_chuong_truoc_thi_chuong_sau_doi_so(tmp_path):
     p = _cuon(tmp_path)
     _chay(tmp_path, p)
