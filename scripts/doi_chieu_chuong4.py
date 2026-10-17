@@ -51,7 +51,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import re
 import statistics as st
 import subprocess
@@ -84,11 +83,14 @@ DAU_TOM_TAT = "Tóm tắt, "  # mô tả của các chỗ kiểm chỉ tìm tron
 # Số bảng của bản đầy đủ -> số bảng của bản chính. None: bản chính không có bảng đó, mọi chỗ kiểm hàng của nó bị bỏ
 # qua ở bản chính. Ngày 16/10/2026 học viên bỏ bảng phân bố mẫu theo khía cạnh và nhãn (Hình 4.1 đã thể hiện), các
 # bảng C sau nó lùi một số.
-# Ngày 17/10/2026 bản chính có thêm bảng thí nghiệm đối chứng (khoá "4.17", bản đầy đủ không có) làm Bảng 4.5, các
-# bảng sau lùi một số.
-SO_BANG_RUT_GON = {"4.1": "4.1", "4.2": None, "4.4": "4.2", "4.5": "4.3", "4.6": "4.4", "4.7": "C.2", "4.8": "4.6",
-                   "4.9": "4.7", "4.10": "4.8", "4.11": "4.9", "4.12": "C.3", "4.13": "4.10", "4.14": "C.4",
-                   "4.15": "C.5", "4.16": "C.6", "4.17": "4.5"}
+# Ngày 17/10/2026 bản chính có thêm bảng thí nghiệm đối chứng (khoá "4.17", bản đầy đủ không có).
+# Cùng ngày (CD1.12o) học viên bảo Chương 4 chỉ giữ các bảng cốt lõi: còn năm bảng 4.1 đến 4.5 (kết quả, kiểm định,
+# đối chứng, chi phí, accuracy trên bốn nhóm). Bảng quy mô dữ liệu, hành vi trên lớp trung tính, thành phần tập chẩn
+# đoán và hiệu số so với nhóm thường chuyển sang Phụ lục C trực tuyến; bảng thang mô hình thay bằng một danh sách
+# (số tham số đã có ở bảng chi phí). Phụ lục C đánh số lại C.1 đến C.10 theo thứ tự được nhắc trong chương.
+SO_BANG_RUT_GON = {"4.1": "C.1", "4.2": None, "4.4": None, "4.5": "4.1", "4.6": "4.2", "4.7": "C.3", "4.8": "C.4",
+                   "4.9": "4.4", "4.10": "C.5", "4.11": "4.5", "4.12": "C.7", "4.13": "C.6", "4.14": "C.8",
+                   "4.15": "C.9", "4.16": "C.10", "4.17": "4.3"}
 # Tên bảng phải chứa cụm này: bắt trường hợp hai bảng cùng dạng hàng bị đổi chỗ cho nhau.
 TU_KHOA_BANG = {
     "4.1": "Quy mô và phân bố nhãn", "4.2": "Phân bố mẫu theo khía cạnh và nhãn", "4.4": "Thang mô hình",
@@ -129,7 +131,7 @@ def ma_cau(uid: str) -> str:
     return uid.rsplit("-", 1)[0]
 
 
-def so_lieu_du_lieu(goc: Path) -> Tuple[List[Tuple[str, str]], dict]:
+def so_lieu_du_lieu(goc: Path, ban: str = "rut_gon") -> Tuple[List[Tuple[str, Optional[str]]], dict]:
     """Bảng 4.1, 4.2 và các con số về câu nhiều khía cạnh. Trả về (danh sách (mô tả, chuỗi phải có), số thô)."""
     kiem: List[Tuple[str, str]] = []
     tap = {sp: doc_jsonl(goc / f"data/processed/visfd_{sp}.jsonl") for sp in ("train", "dev", "test")}
@@ -164,13 +166,33 @@ def so_lieu_du_lieu(goc: Path) -> Tuple[List[Tuple[str, str]], dict]:
     trai = sum(len(set(v)) >= 2 for v in theo_cau.values())
     tran = sum(max(Counter(v).values()) for v in theo_cau.values()) / len(test)
     n_cau = len(theo_cau)
+    ti_le_tt = tp(bang["PRICE"][1] / nhan["test"][1] * 100, 1)
     kiem += [
         ("Lời văn, câu nhiều khía cạnh", f"{nghin(da)} trong {nghin(n_cau)} bình luận, tức {tp(da / n_cau * 100, 1)} %"),
         ("Lời văn, câu trái nhãn", f"{nghin(trai)} bình luận, tức {tp(trai / n_cau * 100, 1)} %"),
         ("Lời văn, trần mù khía cạnh", f"{tp(tran * 100)} %"),
-        ("Lời văn, trung tính ở PRICE", f"{nghin(bang['PRICE'][1])} trong {nghin(nhan['test'][1])} mẫu trung tính của tập kiểm tra, tức {tp(bang['PRICE'][1] / nhan['test'][1] * 100, 1)} %"),
+        ("Lời văn, trung tính ở PRICE", theo_ban(
+            ban, day_du=f"{nghin(bang['PRICE'][1])} trong {nghin(nhan['test'][1])} mẫu trung tính của tập kiểm tra, tức {ti_le_tt} %",
+            rut_gon=f"Riêng khía cạnh PRICE chứa {ti_le_tt} % số mẫu trung tính của tập kiểm tra")),
         ("Lời văn, luôn đoán tích cực", f"accuracy {tp(nhan['test'][2] / len(test) * 100)} %"),
     ]
+    if ban == "rut_gon":
+        # Bản chính tóm tắt bảng quy mô dữ liệu (Bảng C.1) và bảng phân bố theo khía cạnh (Hình 4.1) bằng lời.
+        tl = {sp: [nhan[sp][i] / len(tap[sp]) * 100 for i in range(3)] for sp in sp3}
+        khac = [a for a in KHIA_CANH if a != "PRICE"]
+        am_hon_duong = [a for a in KHIA_CANH if bang[a][0] > bang[a][2]]
+        kiem += [
+            ("4.1.1, quy mô", f"dữ liệu có {nghin(sum(len(v) for v in tap.values()))} mẫu thuộc {nghin(sum(cau.values()))} bình luận: "
+                              f"{nghin(len(tap['train']))} mẫu huấn luyện, {nghin(len(tap['dev']))} mẫu phát triển và {nghin(len(tap['test']))} mẫu kiểm tra"),
+            neu(all(2.5 < len(tap[s]) / cau[s] < 3.5 for s in sp3), "mỗi bình luận có trung bình khoảng ba khía cạnh", "4.1.1, khía cạnh trung bình"),
+            neu(all(t[2] > 50 and 30 <= t[0] <= 34 and 11 <= t[1] <= 13 for t in tl.values()),
+                "tích cực chiếm hơn một nửa, tiêu cực gần một phần ba, còn trung tính chỉ khoảng 12 %", "4.1.1, tỉ lệ ba lớp"),
+            neu(all(bang[a][1] < min(bang[a][0], bang[a][2]) for a in khac),
+                f"ở {len(khac)} khía cạnh còn lại lớp trung tính luôn là lớp ít nhất", "4.1.1, trung tính ở các khía cạnh khác"),
+            neu(am_hon_duong == ["FEATURES"] and bang["FEATURES"][0] >= 1.5 * bang["FEATURES"][2],
+                "Khía cạnh FEATURES là khía cạnh duy nhất có số mẫu tiêu cực vượt xa số mẫu tích cực", "4.1.1, FEATURES"),
+            ("4.1.1, STORAGE", f"Khía cạnh STORAGE chỉ có {nghin(sum(bang['STORAGE'].values()))} mẫu"),
+        ]
     return kiem, {"so_mau_test": len(test), "so_cau_test": n_cau, "tran": tran, "trung_tinh_test": nhan["test"][1]}
 
 
@@ -189,14 +211,6 @@ def so_chu(n: int) -> str:
 def liet_ke(ds: Sequence[str]) -> str:
     """'a', 'a và b', 'a, b và c'."""
     return ds[0] if len(ds) == 1 else ", ".join(ds[:-1]) + " và " + ds[-1]
-
-
-def cau_tung_seed(hieu: Sequence[float], cum_duong: str, cum_am: str) -> str:
-    """Câu kể hiệu số theo seed: 'ở seed 42 và seed 7 <cum_duong> 0,20 và 0,38 điểm, ở ba seed còn lại <cum_am> 1,52, 2,30 và 1,18 điểm'."""
-    duong = [(sd, x) for sd, x in zip(cb.SEEDS, hieu) if x > 0]
-    am = [(sd, x) for sd, x in zip(cb.SEEDS, hieu) if x <= 0]
-    return (f"ở {' và '.join(f'seed {sd}' for sd, _ in duong)} {cum_duong} {liet_ke([tp(x) for _, x in duong])} điểm, "
-            f"ở {so_chu(len(am))} seed còn lại {cum_am} {liet_ke([tp(-x) for _, x in am])} điểm")
 
 
 def p_loi(p: float) -> str:
@@ -275,14 +289,16 @@ def so_lieu_ket_qua(goc: Path, tho: dict, ban: str = "rut_gon") -> Tuple[List[Tu
     f1s = {e: [x["test"]["macro_f1"] * 100 for x in m[e]] for e in MO_HINH}
     tt = {e: st.mean(x["test"]["f1_per_class"][1] * 100 for x in m[e]) for e in MO_HINH}
     ts = {e: m[e][0]["n_params"] for e in MO_HINH}
+    # Từ 17/10/2026 (CD1.12o) bản chính không đọc lại trong lời văn các số đã có ở Bảng 4.1, 4.2: những câu đó chỉ còn
+    # ở bản lưu (rut_gon=None).
     kiem += [
         ("Lời văn, BiLSTM vượt trần", f"vượt trần đó {tp(acc['bilstm'][0] - tho['tran'] * 100)} điểm"),
-        ("Lời văn, PhoBERT hơn BiLSTM", f"{tp(hieu(acc, 'phobert', 'bilstm'))} điểm accuracy và {tp(hieu(f1, 'phobert', 'bilstm'))} điểm macro-F1"),
-        ("Lời văn, F1 trung tính tăng", f"F1 lớp trung tính tăng {tp(tt['phobert'] - tt['bilstm'])} điểm"),
-        ("Lời văn, ASGCN kém PhoBERT", f"thấp hơn PhoBERT {tp(-hieu(acc, 'asgcn', 'phobert'))} điểm accuracy và {tp(-hieu(f1, 'asgcn', 'phobert'))} điểm macro-F1"),
+        ("Lời văn, PhoBERT hơn BiLSTM", theo_ban(ban, day_du=f"{tp(hieu(acc, 'phobert', 'bilstm'))} điểm accuracy và {tp(hieu(f1, 'phobert', 'bilstm'))} điểm macro-F1")),
+        ("Lời văn, F1 trung tính tăng", theo_ban(ban, day_du=f"F1 lớp trung tính tăng {tp(tt['phobert'] - tt['bilstm'])} điểm")),
+        ("Lời văn, ASGCN kém PhoBERT", theo_ban(ban, day_du=f"thấp hơn PhoBERT {tp(-hieu(acc, 'asgcn', 'phobert'))} điểm accuracy và {tp(-hieu(f1, 'asgcn', 'phobert'))} điểm macro-F1")),
         ("Lời văn, ASGCN từng seed", theo_ban(ban, day_du=f"nhỉnh hơn PhoBERT {tp(f1s['asgcn'][0] - f1s['phobert'][0])} điểm, ở hai hạt giống còn lại nó thấp hơn "
                                                          f"{tp(f1s['phobert'][1] - f1s['asgcn'][1])} và {tp(f1s['phobert'][2] - f1s['asgcn'][2])} điểm")),
-        ("Lời văn, nối gốc hơn ASGCN", f"cao hơn ASGCN {tp(hieu(f1, 'asgcn_linked', 'asgcn'))} điểm"),
+        ("Lời văn, nối gốc hơn ASGCN", theo_ban(ban, day_du=f"cao hơn ASGCN {tp(hieu(f1, 'asgcn_linked', 'asgcn'))} điểm")),
         ("Lời văn, nối gốc lấy lại", theo_ban(ban, day_du=f"khoảng {tp(hieu(f1, 'asgcn_linked', 'asgcn') / -hieu(f1, 'asgcn', 'phobert') * 100, 0)} %")),
         ("Lời văn, Sentic hơn ASGCN", theo_ban(
             ban,
@@ -291,9 +307,9 @@ def so_lieu_ket_qua(goc: Path, tho: dict, ban: str = "rut_gon") -> Tuple[List[Tu
         ("Lời văn, Sentic accuracy", theo_ban(ban, day_du=f"chỉ hơn ASGCN {tp(hieu(acc, 'senticgcn', 'asgcn'))} điểm và vẫn thấp hơn PhoBERT {tp(-hieu(acc, 'senticgcn', 'phobert'))} điểm")),
         ("Lời văn, Sentic từng seed", theo_ban(ban, day_du="âm " + tp(f1s["asgcn"][0] - f1s["senticgcn"][0]) + " điểm, dương " + tp(f1s["senticgcn"][1] - f1s["asgcn"][1])
                                                     + " điểm và dương " + tp(f1s["senticgcn"][2] - f1s["asgcn"][2]) + " điểm")),
-        ("Lời văn, Sentic sai nhiều hơn", f"nhiều hơn PhoBERT khoảng {tp(loi_tb['senticgcn'] - loi_tb['phobert'], 0)} mẫu"),
+        ("Lời văn, Sentic sai nhiều hơn", theo_ban(ban, day_du=f"nhiều hơn PhoBERT khoảng {tp(loi_tb['senticgcn'] - loi_tb['phobert'], 0)} mẫu")),
         ("Lời văn, tham số thêm", f"{nghin(ts['asgcn'] - ts['phobert'])} tham số so với PhoBERT, tức {tp((ts['asgcn'] - ts['phobert']) / ts['phobert'] * 100)} %"),
-        ("Lời văn, F1 trung tính cao nhất", f"F1 cao nhất đạt được là {tp(max(tt.values()))} %"),
+        ("Lời văn, F1 trung tính cao nhất", theo_ban(ban, day_du=f"F1 cao nhất đạt được là {tp(max(tt.values()))} %")),
     ]
     if ban == "rut_gon":
         kiem += cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_tt, kq)
@@ -325,62 +341,63 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
     ng_ag = cap[("asgcn_linked", "asgcn")]
     nho_nhat_f1 = min(hoc, key=lambda e: f1[e][1])
     kho_nhat = all(lop[e][1] < min(lop[e][0], lop[e][2]) for e in MO_HINH)  # F1 lớp trung tính thấp nhất ở mọi mô hình
+    # Từ 17/10/2026 (CD1.12o) lời văn của bản chính không đọc lại các số đã có ở Bảng 4.1 và 4.2, chỉ nói xu hướng: các
+    # câu dưới đây kiểm xu hướng đó bằng neu() thay cho kiểm con số.
+    asgcn_pb = cap[("asgcn", "phobert")]
+    duong_ag = [sd for sd, x in zip(cb.SEEDS, tung_seed("asgcn", "phobert")) if x > 0]
     return [
-        ("4.4, mô hình từ điển", f"mô hình từ điển đạt accuracy {tp(acc['lexicon'][0])} % nhưng macro-F1 chỉ {tp(f1['lexicon'][0])} %"),
-        neu(not any(so_doan_tt["lexicon"]), f"vì nó không đoán lớp trung tính một lần nào trong cả {so_chu(len(cb.SEEDS))} lần chạy", "4.4, mô hình từ điển không đoán trung tính"),
-        neu(acc["lexicon"][0] < tho["tran"] * 100, f"Accuracy của nó nằm dưới trần {tp(tho['tran'] * 100)} % của mô hình mù khía cạnh", "4.4, mô hình từ điển dưới trần"),
-        ("4.4, BiLSTM", f"BiLSTM đạt accuracy {tp(acc['bilstm'][0])} %, vượt trần đó {tp(acc['bilstm'][0] - tho['tran'] * 100)} điểm"),
+        neu(not any(so_doan_tt["lexicon"]) and acc["lexicon"][0] - f1["lexicon"][0] > 10,
+            f"Mô hình từ điển không đoán lớp trung tính một lần nào trong cả {so_chu(len(cb.SEEDS))} lần chạy, nên macro-F1 của nó thấp hơn hẳn accuracy",
+            "4.4, mô hình từ điển không đoán trung tính"),
+        neu(acc["lexicon"][0] < tho["tran"] * 100, "accuracy của nó nằm dưới trần của mô hình mù khía cạnh", "4.4, mô hình từ điển dưới trần"),
+        ("4.4, BiLSTM", f"BiLSTM vượt trần đó {tp(acc['bilstm'][0] - tho['tran'] * 100)} điểm accuracy"),
         neu(all(hs(f1, "phobert", "bilstm") > abs(hs(f1, a, b)) for a, b in (("asgcn", "phobert"), ("senticgcn", "asgcn"))),
             "tri thức tiền huấn luyện đem lại mức tăng lớn nhất trong các bậc có nhìn khía cạnh", "4.4, bậc tăng lớn nhất"),
-        ("4.4, độ lệch chuẩn BiLSTM và PhoBERT", f"Độ lệch chuẩn của macro-F1 giảm từ {tp(f1['bilstm'][1])} xuống {tp(f1['phobert'][1])}"),
-        ("4.4, F1 trung tính so với hai lớp còn lại", f"nhưng vẫn thấp hơn hai lớp còn lại hơn {math.floor(min(lop['phobert'][0], lop['phobert'][2]) - lop['phobert'][1])} điểm"),
-        ("4.4, độ lệch chuẩn ASGCN", f"độ lệch chuẩn của macro-F1 tăng lên {tp(f1['asgcn'][1])}"),
-        neu(doi_dau(tung_seed("asgcn", "phobert")), cau_tung_seed(tung_seed("asgcn", "phobert"), "ASGCN nhỉnh hơn PhoBERT", "nó thấp hơn"), "4.4, ASGCN từng seed"),
-        ("4.4, nối gốc", f"biến thể nối gốc đạt macro-F1 {tp(f1['asgcn_linked'][0])} %, cao hơn ASGCN {tp(hs(f1, 'asgcn_linked', 'asgcn'))} điểm với {p_loi(ng_ag['macro_f1']['p'])}"),
-        ("4.4, độ lệch chuẩn nối gốc", f"độ lệch chuẩn giảm từ {tp(f1['asgcn'][1])} xuống {tp(f1['asgcn_linked'][1])}"),
+        neu(hs(acc, "phobert", "bilstm") > 0 and all(lop["phobert"][i] > lop["bilstm"][i] for i in range(3)) and f1["phobert"][1] < f1["bilstm"][1],
+            "ở cả hai độ đo và ở cả ba lớp, đồng thời làm kết quả ổn định hơn giữa các seed", "4.4, PhoBERT hơn BiLSTM ở mọi lớp"),
+        neu(-1 < hs(acc, "asgcn", "phobert") < 0 and -1 < hs(f1, "asgcn", "phobert") < 0
+            and asgcn_pb["accuracy"]["p"] < 0.05 and asgcn_pb["macro_f1"]["p"] < 0.05,
+            "kết quả giảm nhẹ ở cả hai độ đo, với hiệu số có ý nghĩa theo bootstrap", "4.4, ASGCN kém PhoBERT"),
+        neu(max(MO_HINH, key=lambda e: f1[e][1]) == "asgcn", "độ lệch chuẩn macro-F1 của ASGCN lớn nhất trong các mô hình", "4.4, độ lệch chuẩn ASGCN"),
+        neu(doi_dau(tung_seed("asgcn", "phobert")),
+            f"ở {' và '.join(f'seed {sd}' for sd in duong_ag)} ASGCN nhỉnh hơn PhoBERT, ở {so_chu(len(cb.SEEDS) - len(duong_ag))} seed còn lại nó thấp hơn",
+            "4.4, ASGCN từng seed"),
+        neu(all(ng_ag[d]["hieu_so"] > 0 and ng_ag[d]["p"] < 0.05 for d in ("macro_f1", "accuracy")),
+            "biến thể nối gốc hơn ASGCN có ý nghĩa ở cả hai độ đo", "4.4, nối gốc hơn ASGCN"),
+        neu(f1["asgcn_linked"][1] < f1["asgcn"][1], "ổn định hơn ASGCN giữa các seed", "4.4, độ lệch chuẩn nối gốc"),
         neu(bool(am_ng := [str(sd) for sd, x in zip(cb.SEEDS, tung_seed("asgcn_linked", "asgcn")) if x < 0]),
             "Hiệu số với ASGCN còn đổi dấu ở " + " và ".join(f"seed {sd}" for sd in am_ng), "4.4, nối gốc đổi dấu theo seed"),
         neu(ng_pb["macro_f1"]["p"] >= 0.05 and ng_pb["accuracy"]["p"] >= 0.05,
-            f"so với PhoBERT, nó không khác biệt có ý nghĩa ở cả hai độ đo (p bằng {cb.p_chu(ng_pb['macro_f1']['p'])} và {cb.p_chu(ng_pb['accuracy']['p'])})",
-            "4.4, nối gốc so với PhoBERT"),
+            "và không khác PhoBERT có ý nghĩa ở cả hai độ đo", "4.4, nối gốc so với PhoBERT"),
         neu(f"{f1['senticgcn'][0]:.2f}" == f"{f1['phobert'][0]:.2f}",
-            f"Sentic-GCN đạt macro-F1 {tp(f1['senticgcn'][0])} %, cao hơn ASGCN {tp(hs(f1, 'senticgcn', 'asgcn'))} điểm và bằng PhoBERT tới hai chữ số thập phân",
-            "4.4, Sentic-GCN so với ASGCN và PhoBERT"),
-        neu(hs(acc, "senticgcn", "asgcn") > 0 > hs(acc, "senticgcn", "phobert"),
-            f"Accuracy của nó chỉ hơn ASGCN {tp(hs(acc, 'senticgcn', 'asgcn'))} điểm và thấp hơn PhoBERT {tp(-hs(acc, 'senticgcn', 'phobert'))} điểm",
-            "4.4, accuracy của Sentic-GCN"),
-        neu(sg_ag["macro_f1"]["p"] < 0.05 <= sg_ag["accuracy"]["p"] and sg_pb["macro_f1"]["p"] >= 0.05 and sg_pb["accuracy"]["p"] >= 0.05,
-            f"So với ASGCN, hiệu số macro-F1 có ý nghĩa ({p_loi(sg_ag['macro_f1']['p'])}) còn hiệu số accuracy thì không ({p_loi(sg_ag['accuracy']['p'])}); "
-            f"so với PhoBERT, cả hai độ đo đều không khác biệt có ý nghĩa (p bằng {cb.p_chu(sg_pb['macro_f1']['p'])} và {cb.p_chu(sg_pb['accuracy']['p'])})",
+            "Sentic-GCN có macro-F1 bằng PhoBERT tới hai chữ số thập phân", "4.4, Sentic-GCN so với PhoBERT"),
+        neu(sg_ag["macro_f1"]["hieu_so"] > 0 and sg_ag["macro_f1"]["p"] < 0.05 <= sg_ag["accuracy"]["p"]
+            and sg_pb["macro_f1"]["p"] >= 0.05 and sg_pb["accuracy"]["p"] >= 0.05,
+            "So với ASGCN, Sentic-GCN hơn có ý nghĩa về macro-F1 nhưng không về accuracy; so với PhoBERT, cả hai độ đo đều không khác biệt có ý nghĩa",
             "4.4, kiểm định của Sentic-GCN"),
         neu(len(am_sg := [(sd, x) for sd, x in zip(cb.SEEDS, tung_seed("senticgcn", "asgcn")) if x < 0]) == 1,
-            f"âm {tp(-am_sg[0][1])} điểm ở seed {am_sg[0][0]}, dương ở {so_chu(len(cb.SEEDS) - 1)} seed còn lại" if len(am_sg) == 1 else "",
+            f"âm ở seed {am_sg[0][0]}, dương ở {so_chu(len(cb.SEEDS) - 1)} seed còn lại" if len(am_sg) == 1 else "",
             "4.4, Sentic-GCN từng seed"),
         neu([e for e in MO_HINH if st.mean(so_doan_tt[e]) > n_tt] == ["senticgcn"],
             "Sentic-GCN là mô hình duy nhất đoán trung tính nhiều hơn số mẫu trung tính thật", "4.4, Sentic-GCN đoán trung tính nhiều"),
-        neu(max(rec_tt, key=rec_tt.get) == "senticgcn" and min(dung_phobert, key=lambda e: pre_tt[e]) == "senticgcn",
-            f"Recall của lớp này tăng lên {tp(rec_tt['senticgcn'])} %, cao nhất trong các mô hình, nhưng precision giảm còn {tp(pre_tt['senticgcn'])} %, "
-            f"thấp nhất trong bốn mô hình dùng PhoBERT, và tổng số mẫu đoán sai là {tp(loi_tb['senticgcn'], 0)}",
+        neu(max(rec_tt, key=rec_tt.get) == "senticgcn" and min(dung_phobert, key=lambda e: pre_tt[e]) == "senticgcn"
+            and loi_tb["senticgcn"] > loi_tb["phobert"],
+            f"Recall của lớp này ở Sentic-GCN cao nhất trong các mô hình, {tp(rec_tt['senticgcn'])} %, nhưng precision thấp nhất trong bốn mô hình "
+            f"dùng PhoBERT, {tp(pre_tt['senticgcn'])} %, và tổng số mẫu đoán sai vẫn nhiều hơn PhoBERT",
             "4.4, recall và precision của Sentic-GCN"),
+        neu(all(cap[(e, "phobert")][d]["p"] >= 0.05 for e in ("senticgcn", "asgcn_linked") for d in ("macro_f1", "accuracy")),
+            "Sentic-GCN và ASGCN nối gốc không khác PhoBERT có ý nghĩa ở cả hai độ đo", "4.7, ba mô hình ngang nhau"),
         neu(max(acc, key=lambda e: acc[e][0]) == "phobert" and nho_nhat_f1 == "phobert",
-            f"PhoBERT tinh chỉnh có accuracy cao nhất, {tp(acc['phobert'][0])} %, và trong năm mô hình học, nó có độ lệch chuẩn của macro-F1 "
-            f"nhỏ nhất giữa các seed ({tp(f1['phobert'][1])})", "4.7, mô hình đứng đầu"),
-        neu(f"{f1['senticgcn'][0]:.2f}" == f"{f1['phobert'][0]:.2f}" and sorted(hoc, key=lambda e: -f1[e][0])[2] == "asgcn_linked",
-            f"Về macro-F1, PhoBERT và Sentic-GCN cùng đạt {tp(f1['phobert'][0])} %, còn ASGCN nối gốc thấp hơn PhoBERT {tp(-hs(f1, 'asgcn_linked', 'phobert'))} điểm",
-            "4.7, hai mô hình đứng sau"),
-        neu(sg_pb["macro_f1"]["p"] >= 0.05 and ng_pb["macro_f1"]["p"] >= 0.05,
-            f"Kiểm định không bác bỏ được giả thuyết các khoảng cách này bằng không (p bằng {cb.p_chu(sg_pb['macro_f1']['p'])} và {cb.p_chu(ng_pb['macro_f1']['p'])})",
-            "4.7, kiểm định hai khoảng cách"),
-        neu(sg_pb["accuracy"]["p"] >= 0.05,
-            f"hiệu số accuracy giữa PhoBERT và Sentic-GCN cũng không có ý nghĩa (p bằng {cb.p_chu(sg_pb['accuracy']['p'])})",
-            "4.7, accuracy của PhoBERT và Sentic-GCN"),
-        neu(all(x > 0 for x in tung_seed("bilstm", "lexicon") + tung_seed("phobert", "bilstm")),
-            f"tăng {tp(hs(f1, 'bilstm', 'lexicon'))} điểm macro-F1, và bước thêm tri thức tiền huấn luyện, tăng {tp(hs(f1, 'phobert', 'bilstm'))} điểm",
+            "có accuracy cao nhất và, trong năm mô hình học, ổn định nhất giữa các seed", "4.7, mô hình đứng đầu"),
+        neu(all(x > 0 for x in tung_seed("bilstm", "lexicon") + tung_seed("phobert", "bilstm"))
+            and min(hs(f1, "bilstm", "lexicon"), hs(f1, "phobert", "bilstm")) > 5,
+            "hai bước có hiệu số lớn và cùng dấu ở mọi seed là bước cho mô hình nhìn khía cạnh và học biểu diễn, và bước thêm tri thức tiền huấn luyện",
             "4.7, hai bước có hiệu số lớn"),
         neu(max(abs(hs(f1, "asgcn", "phobert")), abs(hs(f1, "senticgcn", "asgcn"))) < 1.0
             and doi_dau(tung_seed("asgcn", "phobert")) and doi_dau(tung_seed("senticgcn", "asgcn")),
             "cho hiệu số nhỏ hơn 1 điểm và đổi dấu theo seed", "4.7, hai bước thêm cấu trúc"),
-        ("4.7, lớp trung tính so với hai lớp còn lại", f"F1 cao nhất đạt được là {tp(tt[tot])} %, thấp hơn lớp tiêu cực {round(lop[tot][0] - lop[tot][1])} điểm và lớp tích cực {round(lop[tot][2] - lop[tot][1])} điểm"),
+        neu(min(lop[tot][0], lop[tot][2]) - lop[tot][1] > 20,
+            "ngay ở mô hình có F1 lớp trung tính cao nhất, lớp này vẫn thấp hơn hai lớp còn lại hơn 20 điểm", "4.7, lớp trung tính so với hai lớp còn lại"),
         neu([e for e in dung_phobert if rec_tt[e] > rec_tt["phobert"]] == ["senticgcn"] and pre_tt["senticgcn"] < pre_tt["phobert"],
             "Mô hình duy nhất nâng được recall của lớp này làm điều đó bằng cách giảm precision", "4.7, recall đổi lấy precision"),
         neu(kho_nhat, "Lớp trung tính là lớp khó nhất ở mọi mô hình", "4.7, lớp trung tính khó nhất"),
@@ -447,13 +464,16 @@ def so_lieu_doi_chung(goc: Path) -> Tuple[List[Tuple[str, Optional[str]]], Dict[
         ("4.3, seed của PhoBERT fp32", f"PhoBERT fp32 chạy {so_chu(len(seed_fp32))} seed {liet_ke([str(x) for x in seed_fp32])}"),
         neu(tat["p"] >= 0.05 and tat["p_hoan_vi_seed"] >= 0.05, "Tắt độ chính xác hỗn hợp không làm kết quả khác có ý nghĩa", "4.4, tắt độ chính xác"),
         neu(hai_phep == [("asgcn_khong_gcn", "phobert_fp32")] and doc["hieu_so"] < 0,
-            f"Đổi cách đọc ra làm macro-F1 giảm {tp(-doc['hieu_so'] * 100)} điểm, và đây là hiệu số duy nhất trong bảng có ý nghĩa ở cả hai phép kiểm định",
+            "Chỉ một bước có hiệu số có ý nghĩa ở cả hai phép kiểm định, là đổi cách đọc ra, và bước này làm macro-F1 giảm",
             "4.4, đổi cách đọc ra"),
         neu(cay["hieu_so"] < 0 and cay["p_hoan_vi_seed"] >= 0.05,
-            f"cây phụ thuộc làm giảm thêm {tp(-cay['hieu_so'] * 100)} điểm nhưng không vượt được dao động giữa các seed (p hoán vị bằng {cb.p_chu(cay['p_hoan_vi_seed'])})",
-            "4.4, GCN trên cây phụ thuộc"),
+            "cây phụ thuộc làm giảm thêm nhưng không vượt được dao động giữa các seed", "4.4, GCN trên cây phụ thuộc"),
         neu(abs(noi["hieu_so"]) < 0.001, "cây nối gốc gần như không đổi gì", "4.4, GCN trên cây nối gốc"),
-        neu(sen["hieu_so"] > 0 and sen["p"] >= 0.05, f"còn trọng số cảm xúc tăng {tp(sen['hieu_so'] * 100)} điểm mà không có ý nghĩa", "4.4, GCN có trọng số cảm xúc"),
+        neu(0 < sen["hieu_so"] < 0.005 and sen["p"] >= 0.05, "còn trọng số cảm xúc tăng nhẹ mà không có ý nghĩa", "4.4, GCN có trọng số cảm xúc"),
+        # Trước 17/10/2026 câu này viết "phần lớn khoảng cách ... đến từ cách đọc ra chứ không từ cây phụ thuộc": nói quá,
+        # vì hai phần gần bằng nhau về độ lớn (0,63 và 0,58 điểm), chỉ khác ở phép hoán vị seed (GAP-042).
+        neu(hai_phep == [("asgcn_khong_gcn", "phobert_fp32")] and cay["p_hoan_vi_seed"] >= 0.05,
+            "chỉ phần do đổi cách đọc ra là vượt được dao động giữa các lần huấn luyện lại", "4.4, phần đo được chắc chắn"),
         neu(not gcn_co_ich, "không thành phần đồ thị nào cho lợi ích đo được", "4.4, không thành phần đồ thị nào có ích"),
         ("4.4, tỉ lệ bình luận trái cảm xúc", f"chiếm {tp(n_nhom['trai_cam_xuc'] / n_nhom['toan_bo'] * 100, 1)} % số mẫu kiểm tra"),
         neu(trai_fp["hieu_so"] < 0,
@@ -466,8 +486,8 @@ def so_lieu_doi_chung(goc: Path) -> Tuple[List[Tuple[str, Optional[str]]], Dict[
             f"{tp(mot['hieu_so'] * 100)} điểm ({p_loi(mot['p'])}); ở nhóm có đổi đồ thị nó chỉ hơn {tp(nhieu['hieu_so'] * 100)} điểm ({p_loi(nhieu['p'])})",
             "4.4, nối gốc theo nhóm một gốc và nhiều gốc"),
         neu(ng_toan["p_hoan_vi_seed"] >= 0.05, f"không qua được phép hoán vị seed (p bằng {cb.p_chu(ng_toan['p_hoan_vi_seed'])})", "4.4, nối gốc qua phép hoán vị"),
-        neu(not gcn_co_ich and doc["hieu_so"] < 0,
-            f"đổi cách đọc ra làm giảm {tp(-doc['hieu_so'] * 100)} điểm, còn GCN đặt lên trên không thêm lợi ích đo được ở cả ba cách dựng đồ thị",
+        neu(not gcn_co_ich and doc["hieu_so"] < 0 and hai_phep == [("asgcn_khong_gcn", "phobert_fp32")],
+            "phần giảm đo được chắc chắn đến từ việc đổi cách đọc ra, còn GCN đặt lên trên không thêm lợi ích đo được ở cả ba cách dựng đồ thị",
             "4.7, thí nghiệm đối chứng"),
         neu(not gcn_co_ich, "một thí nghiệm đối chứng cho thấy bản thân phần đồ thị không đem lại lợi ích đo được", "Tóm tắt, thí nghiệm đối chứng"),
     ]
@@ -580,10 +600,11 @@ def ket_qua_chi_phi(goc: Path, mh: Dict[str, dict]) -> List[Tuple[str, Optional[
         ("4.5, BiLSTM khác dự đoán", f"BiLSTM khác {khac['bilstm']['1']} trong {nghin(so_mau)} dự đoán ở lô 1 và {khac['bilstm']['32']} ở lô 32"),
         ("4.5, mô hình đồ thị chậm hơn", f"chậm hơn PhoBERT từ {min(cham['1']):.0f} đến {max(cham['1']):.0f} % ở lô 1 và từ {min(cham['32']):.0f} "
                                          f"đến {max(cham['32']):.0f} % ở lô 32"),
-        ("4.5, bộ nhớ thêm", f"bộ nhớ đỉnh chỉ cao hơn {tp(them_mb[0], 1)} MB" if len(them_mb) == 1 else f"[bộ nhớ thêm khác nhau: {them_mb}]"),
-        ("4.5, Sentic-GCN so với ASGCN", f"Sentic-GCN chỉ chậm hơn ASGCN {tp(ms['senticgcn']['1'] - ms['asgcn']['1'])} ms một mẫu ở lô 1"),
-        ("4.5, mô hình nhẹ nhanh hơn", f"mô hình từ điển nhanh hơn PhoBERT khoảng {ms['phobert']['1'] / ms['lexicon']['1']:.0f} lần và BiLSTM "
-                                       f"khoảng {tp(ms['phobert']['1'] / ms['bilstm']['1'], 1)} lần"),
+        # Từ 17/10/2026 (CD1.12o) ba so sánh dưới đây viết bằng lời, không đọc lại hiệu của hai số trong Bảng 4.4.
+        neu(all(0 <= x < 0.01 * mb["phobert"] for x in them_mb), "và bộ nhớ đỉnh gần như không đổi", "4.5, bộ nhớ thêm"),
+        neu(0 <= ms["senticgcn"]["1"] - ms["asgcn"]["1"] < 0.05 * ms["asgcn"]["1"], "Sentic-GCN gần như không chậm hơn ASGCN", "4.5, Sentic-GCN so với ASGCN"),
+        neu(all(ms["phobert"]["1"] / ms[e]["1"] >= 2 and f1[e] < f1["phobert"] - 0.05 for e in ("lexicon", "bilstm")),
+            "Hai mô hình nhẹ nhất nhanh hơn PhoBERT nhiều lần nhưng kém xa về chất lượng", "4.5, mô hình nhẹ nhanh hơn"),
         neu(all(ms[e][c] > ms["phobert"][c] for e in do_thi for c in ("1", "32"))
             and not any(r["b"] == "phobert" and r["a"] in do_thi and r["macro_f1"]["hieu_so"] > 0 and r["macro_f1"]["p"] < 0.05
                         for r in json.loads((goc / THU_MUC_KQ / "compare_baselines.json").read_text(encoding="utf-8"))["ket_qua"]),
@@ -793,33 +814,40 @@ def so_lieu_chan_doan(goc: Path, ban: str = "rut_gon"):
         ("4.6, tỉ lệ trung tính", f"chiếm {tp(tt['negation'] * 100, 1)} % ở nhóm phủ định so với {tp(tt['regular'] * 100, 1)} % ở nhóm thường"),
         ("4.6, nhóm cả hai", f"nhóm cả hai thấp hơn nhóm thường từ {khoang([o(e, 'both')['hieu_voi_moc'] for e in MO_HINH])} điểm accuracy, "
                              f"với p không vượt quá {cb.p_chu(max(o(e, 'both')['p'] for e in MO_HINH))}"),
-        (lambda cao: neu(cao != "", f"Accuracy cao nhất trên nhóm này là {tp1(o(cao, 'both')['gia_tri'])} %, của {TEN.get(cao, cao)}", "4.6, trần ở nhóm cả hai")
+        # Bản chính từ 17/10/2026 không đọc lại accuracy cao nhất ở nhóm cả hai (đã có ở Bảng 4.5).
+        (lambda cao: ("4.6, trần ở nhóm cả hai", None)
          if ban == "rut_gon" else neu(o(cao, "both")["gia_tri"] < 0.75, "Không mô hình nào đạt 75 % accuracy trên nhóm này", "4.6, trần ở nhóm cả hai"))(
             max(MO_HINH, key=lambda e: o(e, "both")["gia_tri"])),
         ("4.6, nhóm chuyển ý", f"Nhóm chuyển ý thấp hơn từ {khoang([o(e, 'contrast')['hieu_voi_moc'] for e in MO_HINH])} điểm, "
                                f"với p không vượt quá {cb.p_chu(max(o(e, 'contrast')['p'] for e in MO_HINH))}"),
         neu(all(o(e, g, "macro_f1")["p"] < 0.05 and o(e, g, "macro_f1")["hieu_voi_moc"] < 0 for e in MO_HINH for g in ("contrast", "both")),
             "Hai kết quả này giữ nguyên khi đo bằng macro-F1", "4.6, macro-F1 ở hai nhóm khó"),
-        ("4.6, nhóm phủ định, accuracy", f"với p từ {cb.p_chu(min(p_pd))} đến {cb.p_chu(max(p_pd))}"),
+        ("4.6, nhóm phủ định, accuracy", theo_ban(ban, day_du=f"với p từ {cb.p_chu(min(p_pd))} đến {cb.p_chu(max(p_pd))}")),
         ("4.6, nhóm phủ định, macro-F1", theo_ban(ban, day_du=f"BiLSTM thấp hơn {tri(f1_pd['bilstm']['hieu_voi_moc'])} điểm, ASGCN {tri(f1_pd['asgcn']['hieu_voi_moc'])} điểm và ASGCN nối gốc "
                                          f"{tri(f1_pd['asgcn_linked']['hieu_voi_moc'])} điểm"
                                          f" (p lần lượt bằng {cb.p_chu(f1_pd['bilstm']['p'])}, {cb.p_chu(f1_pd['asgcn']['p'])} và {cb.p_chu(f1_pd['asgcn_linked']['p'])})")),
         ("4.6, PhoBERT và Sentic-GCN ở nhóm phủ định", theo_ban(ban, day_du=f"PhoBERT và Sentic-GCN thì không (p bằng {cb.p_chu(f1_pd['phobert']['p'])} và {cb.p_chu(f1_pd['senticgcn']['p'])})")),
-        ("4.6, mô hình từ điển ở nhóm phủ định", f"cao hơn nhóm thường {tri(o('lexicon', 'negation')['hieu_voi_moc'])} điểm"),
+        ("4.6, mô hình từ điển ở nhóm phủ định", theo_ban(ban, day_du=f"cao hơn nhóm thường {tri(o('lexicon', 'negation')['hieu_voi_moc'])} điểm")),
         neu(lexicon_tt == 0 and o("lexicon", "negation")["hieu_voi_moc"] > 0, "không đoán lớp trung tính ở mẫu nào của tập chẩn đoán", "4.6, mô hình từ điển không đoán trung tính"),
         ("4.6, trần của mô hình từ điển", f"là {tp((1 - tt['regular']) * 100, 1)} % ở nhóm thường và {tp((1 - tt['negation']) * 100, 1)} % ở nhóm phủ định"),
         neu(all(gop_pd[e]["p"] < 0.05 and gop_pd[e]["hieu_voi_moc"] < 0 for e in hoc), "mẫu có phủ định thấp hơn nhóm thường ở cả năm mô hình học", "4.6, có phủ định, năm mô hình học"),
-        ("4.6, có phủ định, PhoBERT", f"PhoBERT thấp hơn nhóm thường {tri(gop_pd['phobert']['hieu_voi_moc'])} điểm (p bằng {cb.p_chu(gop_pd['phobert']['p'])}), "
-                                      f"các mô hình còn lại từ {khoang([gop_pd[e]['hieu_voi_moc'] for e in hoc if e != 'phobert'])} điểm"),
-        ("4.6, có chuyển ý", f"Mẫu có chuyển ý thấp hơn từ {khoang([gop_cy[e]['hieu_voi_moc'] for e in hoc])} điểm ở năm mô hình học, trong đó PhoBERT thấp hơn {tri(gop_cy['phobert']['hieu_voi_moc'])} điểm"),
+        ("4.6, có phủ định, PhoBERT", theo_ban(
+            ban, day_du=f"PhoBERT thấp hơn nhóm thường {tri(gop_pd['phobert']['hieu_voi_moc'])} điểm (p bằng {cb.p_chu(gop_pd['phobert']['p'])}), "
+                        f"các mô hình còn lại từ {khoang([gop_pd[e]['hieu_voi_moc'] for e in hoc if e != 'phobert'])} điểm",
+            rut_gon=f"thấp hơn nhóm thường ở cả năm mô hình học, từ {khoang([gop_pd[e]['hieu_voi_moc'] for e in hoc])} điểm")),
+        ("4.6, có chuyển ý", theo_ban(
+            ban, day_du=f"Mẫu có chuyển ý thấp hơn từ {khoang([gop_cy[e]['hieu_voi_moc'] for e in hoc])} điểm ở năm mô hình học, trong đó PhoBERT thấp hơn {tri(gop_cy['phobert']['hieu_voi_moc'])} điểm",
+            rut_gon=f"và mẫu có chuyển ý thấp hơn từ {khoang([gop_cy[e]['hieu_voi_moc'] for e in hoc])} điểm")),
         neu(all(gop_cy[e]["p"] < 0.05 for e in hoc), "mẫu có chuyển ý khó hơn mẫu thường, và mẫu có phủ định nói chung cũng khó hơn", "4.6, kết luận theo dấu hiệu"),
         neu(all(pb[e][g]["accuracy"]["p"] >= 0.05 for e in do_thi for g in fd.NHOM_CHAM if pb[e][g]["accuracy"]["hieu"] > 0),
             "Không mô hình đồ thị nào cao hơn PhoBERT có ý nghĩa ở bất kỳ nhóm nào", "4.6, mô hình đồ thị so với PhoBERT"),
-        ("4.6, Sentic-GCN so với PhoBERT", f"Sentic-GCN cao hơn PhoBERT {tri(st_['negation']['accuracy']['hieu'])} điểm ở nhóm phủ định, {tri(st_['contrast']['accuracy']['hieu'])} điểm ở nhóm chuyển ý "
-                                           f"và {tri(st_['both']['accuracy']['hieu'])} điểm ở nhóm cả hai"),
-        ("4.6, p của Sentic-GCN so với PhoBERT", "(p bằng " + ", ".join(cb.p_chu(st_[g]["accuracy"]["p"]) for g in co_hien_tuong[:2]) + f" và {cb.p_chu(st_['both']['accuracy']['p'])})"),
-        ("4.6, Sentic-GCN trên tập con đồng ý", "ba hiệu số này còn " + ", ".join(dau(sg["senticgcn"][g]["accuracy"]["hieu"]) for g in co_hien_tuong[:2])
-                                                + f" và {dau(sg['senticgcn']['both']['accuracy']['hieu'])} điểm"),
+        ("4.6, Sentic-GCN so với PhoBERT", theo_ban(ban, day_du=f"Sentic-GCN cao hơn PhoBERT {tri(st_['negation']['accuracy']['hieu'])} điểm ở nhóm phủ định, "
+                                                              f"{tri(st_['contrast']['accuracy']['hieu'])} điểm ở nhóm chuyển ý "
+                                                              f"và {tri(st_['both']['accuracy']['hieu'])} điểm ở nhóm cả hai")),
+        ("4.6, p của Sentic-GCN so với PhoBERT", theo_ban(ban, day_du="(p bằng " + ", ".join(cb.p_chu(st_[g]["accuracy"]["p"]) for g in co_hien_tuong[:2])
+                                                                     + f" và {cb.p_chu(st_['both']['accuracy']['p'])})")),
+        ("4.6, Sentic-GCN trên tập con đồng ý", theo_ban(ban, day_du="ba hiệu số này còn " + ", ".join(dau(sg["senticgcn"][g]["accuracy"]["hieu"]) for g in co_hien_tuong[:2])
+                                                                   + f" và {dau(sg['senticgcn']['both']['accuracy']['hieu'])} điểm")),
         ("4.6, ASGCN so với PhoBERT", theo_ban(
             ban,
             day_du=f"ASGCN thấp hơn PhoBERT {tri(pb['asgcn']['regular']['accuracy']['hieu'])} điểm ở nhóm thường (p bằng {cb.p_chu(pb['asgcn']['regular']['accuracy']['p'])}) "
@@ -833,16 +861,16 @@ def so_lieu_chan_doan(goc: Path, ban: str = "rut_gon"):
         ("4.6, tập con đồng ý tăng", theo_ban(ban, day_du=cau_tang)),
         ("4.6, PhoBERT trên tập con đồng ý", theo_ban(ban, day_du="PhoBERT đạt " + ", ".join(f"{tp1(o('phobert', g, ten='chi_dong_y')['gia_tri'])} %" for g in fd.NHOM_CHAM[:3])
                                                                        + f" và {tp1(o('phobert', 'both', ten='chi_dong_y')['gia_tri'])} % ở bốn nhóm")),
-        ("4.6, khoảng cách còn lại trên tập con", f"ở PhoBERT còn {tri(o('phobert', 'contrast', ten='chi_dong_y')['hieu_voi_moc'])} điểm ở nhóm chuyển ý (p bằng {cb.p_chu(o('phobert', 'contrast', ten='chi_dong_y')['p'])}) "
-                                                  f"và {tri(o('phobert', 'both', ten='chi_dong_y')['hieu_voi_moc'])} điểm ở nhóm cả hai (p bằng {cb.p_chu(o('phobert', 'both', ten='chi_dong_y')['p'])})"),
+        ("4.6, khoảng cách còn lại trên tập con", theo_ban(
+            ban, day_du=f"ở PhoBERT còn {tri(o('phobert', 'contrast', ten='chi_dong_y')['hieu_voi_moc'])} điểm ở nhóm chuyển ý (p bằng {cb.p_chu(o('phobert', 'contrast', ten='chi_dong_y')['p'])}) "
+                        f"và {tri(o('phobert', 'both', ten='chi_dong_y')['hieu_voi_moc'])} điểm ở nhóm cả hai (p bằng {cb.p_chu(o('phobert', 'both', ten='chi_dong_y')['p'])})",
+            rut_gon=f"ở PhoBERT, khoảng cách ở nhóm cả hai còn {tri(o('phobert', 'both', ten='chi_dong_y')['hieu_voi_moc'])} điểm")),
         neu(all(o(e, "both", ten="chi_dong_y")["hieu_voi_moc"] < 0 and o(e, "both", ten="chi_dong_y")["p"] < 0.05 for e in hoc),
             f"Nhóm cả hai vẫn thấp hơn nhóm thường có ý nghĩa ở cả năm mô hình học, với p không vượt quá {cb.p_chu(max(o(e, 'both', ten='chi_dong_y')['p'] for e in hoc))}",
             "4.6, nhóm cả hai trên tập con") if ban != "rut_gon" else
-        neu(all(o(e, "both", ten="chi_dong_y")["hieu_voi_moc"] < 0 and o(e, "both", ten="chi_dong_y")["p"] < 0.05 for e in hoc if e != "bilstm")
-            and o("bilstm", "both", ten="chi_dong_y")["p"] >= 0.05,
+        neu(all(o(e, "both", ten="chi_dong_y")["hieu_voi_moc"] < 0 and o(e, "both", ten="chi_dong_y")["p"] < 0.05 for e in hoc if e != "bilstm"),
             f"Nhóm cả hai vẫn thấp hơn nhóm thường có ý nghĩa ở cả bốn mô hình dùng PhoBERT, với p không vượt quá "
-            f"{cb.p_chu(max(o(e, 'both', ten='chi_dong_y')['p'] for e in hoc if e != 'bilstm'))}; ở BiLSTM, khoảng cách "
-            f"{tri(o('bilstm', 'both', ten='chi_dong_y')['hieu_voi_moc'])} điểm không còn có ý nghĩa (p bằng {cb.p_chu(o('bilstm', 'both', ten='chi_dong_y')['p'])})",
+            f"{cb.p_chu(max(o(e, 'both', ten='chi_dong_y')['p'] for e in hoc if e != 'bilstm'))}",
             "4.6, nhóm cả hai trên tập con"),
         ("4.6, độ rộng khoảng tin cậy ở nhóm cả hai", f"chỉ có {n['both']} mẫu, và khoảng tin cậy của accuracy ở nhóm này rộng khoảng {round(rong)} điểm"),
         ("4.7, nhóm cả hai", f"thấp hơn nhóm thường từ {khoang([o(e, 'both')['hieu_voi_moc'] for e in MO_HINH])} điểm accuracy ở cả sáu mô hình"),
@@ -857,8 +885,18 @@ def so_lieu_chan_doan(goc: Path, ban: str = "rut_gon"):
             ("4.1.2, cỡ mẫu gán lại", f"{kp['so_dong']} mẫu được gán lại mà không xem nhãn cũ"),
             ("4.1.2, khoảng cách so với quy ước", f"cách nhau không quá {kp['khoang_cach_toi_da_ngay']} ngày, ngắn hơn mức {fd.SO_NGAY_CHO} ngày mà chuyên đề dự định"),
             neu(all(o(e, "negation")["p"] >= 0.05 for e in hoc), "không mô hình học nào cho hiệu số có ý nghĩa giữa nhóm phủ định và nhóm thường", "4.6, nhóm phủ định không có ý nghĩa về accuracy"),
-            neu(co_y_nghia_pd == {"bilstm"}, f"Về macro-F1, chỉ BiLSTM thấp hơn có ý nghĩa ở nhóm phủ định, {tri(f1_pd['bilstm']['hieu_voi_moc'])} điểm",
-                "4.6, nhóm phủ định, macro-F1"),
+            neu(co_y_nghia_pd == {"bilstm"}, "Về macro-F1, chỉ BiLSTM thấp hơn có ý nghĩa", "4.6, nhóm phủ định, macro-F1"),
+            # Câu viết lại 17/10/2026 (CD1.12o) thay cho các con số của Bảng C.5, C.6, C.8, C.9 không còn trong chương
+            neu(sorted(fd.NHOM_CHAM, key=lambda g: -kdy(dem(dung, (g,))) / n[g])[:2] in (["both", "contrast"], ["contrast", "both"]),
+                "tỉ lệ mẫu mà người chú thích không đồng ý với nhãn gốc cao nhất ở hai nhóm có chuyển ý", "4.6, không đồng ý cao nhất ở hai nhóm có chuyển ý"),
+            neu(all(o(e, g)["gia_tri"] < min(o(e, "regular")["gia_tri"], o(e, "negation")["gia_tri"]) for e in MO_HINH for g in ("contrast", "both")),
+                "Hai nhóm khó nhất là nhóm cả hai và nhóm chuyển ý", "4.6, hai nhóm khó nhất"),
+            neu(o("lexicon", "negation")["hieu_voi_moc"] > 0, "Accuracy của mô hình từ điển ở nhóm phủ định còn cao hơn nhóm thường", "4.6, mô hình từ điển ở nhóm phủ định"),
+            neu(all(x[e]["p"] < 0.05 and x[e]["hieu_voi_moc"] < 0 for x in (gop_pd, gop_cy) for e in hoc), "mọi hiệu số này đều có ý nghĩa", "4.6, gộp theo dấu hiệu có ý nghĩa"),
+            neu(all(st_[g]["accuracy"]["hieu"] > 0 for g in co_hien_tuong), "Sentic-GCN nhỉnh hơn PhoBERT ở cả ba nhóm có hiện tượng", "4.6, Sentic-GCN nhỉnh hơn PhoBERT"),
+            neu(all(0 < sg["senticgcn"][g]["accuracy"]["hieu"] < st_[g]["accuracy"]["hieu"] for g in ("negation", "contrast"))
+                and sg["senticgcn"]["both"]["accuracy"]["hieu"] < 0 < st_["both"]["accuracy"]["hieu"],
+                "phần nhỉnh này thu nhỏ lại ở nhóm phủ định và nhóm chuyển ý, còn ở nhóm cả hai thì đổi dấu", "4.6, Sentic-GCN trên tập con đồng ý"),
             neu(all(st_[g]["accuracy"]["p"] >= 0.05 for g in co_hien_tuong), "nhưng không hiệu số nào có ý nghĩa", "4.6, Sentic-GCN so với PhoBERT không có ý nghĩa"),
             neu(all(abs(cd_pb[g]["hieu_voi_moc"]) < abs(o("phobert", g)["hieu_voi_moc"]) for g in cd_pb), "Trên tập con này, khoảng cách với nhóm thường thu hẹp lại", "4.6, khoảng cách thu hẹp trên tập con"),
             neu(all(gop_cy[e]["hieu_voi_moc"] < 0 for e in MO_HINH), "mẫu có chuyển ý cũng thấp hơn mẫu thường ở mọi mô hình", "4.7, mẫu có chuyển ý ở mọi mô hình"),
@@ -1050,7 +1088,7 @@ def main(argv=None) -> int:
     tom_tat = doc_tom_tat(a.goc / TEP_TRANG_DAU) if a.ban == "rut_gon" and not a.nhap else None
     van = chuan(tho_van + ("\n\n" + tom_tat if tom_tat else ""))
 
-    kiem, tho = so_lieu_du_lieu(a.goc)
+    kiem, tho = so_lieu_du_lieu(a.goc, a.ban)
     k2, bang = so_lieu_ket_qua(a.goc, tho, a.ban)
     kiem += k2
     kiem += kiem_thang_mo_hinh(cac_bang, a.ban, tho["tham_so"])

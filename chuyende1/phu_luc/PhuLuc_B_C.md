@@ -4,7 +4,7 @@
 
 Học viên: Nguyễn Minh Trộng. Ngành Khoa học máy tính, Trường Đại học Công nghệ Kỹ thuật Thành phố Hồ Chí Minh. Giảng viên hướng dẫn: TS. Phan Thị Huyền Trang.
 
-Phụ lục A in kèm báo cáo. Phụ lục B và Phụ lục C không in kèm mà được lưu ở file này. Số mục, số bảng được nhắc tới, như mục 4.1.2 hay Bảng 4.8, là số trong báo cáo.
+Phụ lục A in kèm báo cáo. Phụ lục B và Phụ lục C không in kèm mà được lưu ở file này. Số mục, số bảng được nhắc tới, như mục 4.1.2 hay Bảng 4.1, là số trong báo cáo.
 
 ## Phụ lục B. Tập chẩn đoán: quy trình chú thích và độ nhất quán
 
@@ -14,7 +14,7 @@ Bước đầu tiên là lọc ứng viên. Từ tập kiểm tra, 800 mẫu thu
 
 Bước tiếp theo là chú thích. Có từ khoá trong câu chưa có nghĩa là hiện tượng tác động tới khía cạnh đang xét. Vì vậy mỗi mẫu được gán tay một nhãn hiện tượng theo một bản hướng dẫn viết trước: phủ định, chuyển ý, cả hai, hoặc thường. Nhãn được gán cho cặp câu và khía cạnh chứ không cho cả câu: cùng một câu có thể thuộc nhóm phủ định với khía cạnh này và thuộc nhóm thường với khía cạnh khác. Người chú thích cũng ghi lại những mẫu mà mình không đồng ý với nhãn cảm xúc gốc; khi chấm mô hình, nhãn gốc được giữ nguyên. Việc chú thích do một người thực hiện, là học viên.
 
-Trong lúc chú thích, một mẫu bị loại. Còn lại 799 mẫu thuộc 603 bình luận: 415 mẫu thuộc nhóm thường, 119 mẫu thuộc nhóm phủ định, 181 mẫu thuộc nhóm chuyển ý và 84 mẫu thuộc nhóm cả hai. Số mẫu theo nhóm khác xa số mẫu theo kho ứng viên, vì có từ khoá chưa có nghĩa là có hiện tượng. Trong 250 mẫu của kho có từ phủ định, chỉ 115 mẫu, tức 46,0 %, được xếp vào nhóm phủ định hoặc nhóm cả hai. Ngược lại, 24 trong 200 mẫu của kho đối chứng được xếp vào một nhóm có hiện tượng, tức hiện tượng được diễn đạt bằng cách mà danh sách từ khoá không bắt được. Thành phần nhãn của từng nhóm được nêu ở Bảng 4.8, mục 4.6.
+Trong lúc chú thích, một mẫu bị loại. Còn lại 799 mẫu thuộc 603 bình luận: 415 mẫu thuộc nhóm thường, 119 mẫu thuộc nhóm phủ định, 181 mẫu thuộc nhóm chuyển ý và 84 mẫu thuộc nhóm cả hai. Số mẫu theo nhóm khác xa số mẫu theo kho ứng viên, vì có từ khoá chưa có nghĩa là có hiện tượng. Trong 250 mẫu của kho có từ phủ định, chỉ 115 mẫu, tức 46,0 %, được xếp vào nhóm phủ định hoặc nhóm cả hai. Ngược lại, 24 trong 200 mẫu của kho đối chứng được xếp vào một nhóm có hiện tượng, tức hiện tượng được diễn đạt bằng cách mà danh sách từ khoá không bắt được. Thành phần nhãn của từng nhóm được nêu ở Bảng C.5.
 
 Chuyên đề chưa có người chú thích thứ hai. Độ tin cậy của nhãn hiện tượng vì vậy được ước lượng bằng độ nhất quán của chính người chú thích: 60 mẫu, rút 15 mẫu mỗi nhóm theo nhãn của lần gán đầu, được gán lại mà không xem nhãn cũ. Sau khi rút, một mẫu được chuyển nhóm khi rà lại quy tắc chú thích, nên theo nhãn lần đầu bốn nhóm có 14, 15, 15 và 16 mẫu. Hệ số kappa của Cohen [1] giữa hai lần gán là 0,733, với 48 trên 60 mẫu trùng nhau, tức 80,0 %. Con số này cần được đọc với ba lưu ý. Thứ nhất, hai lần gán cách nhau không quá 8 ngày, và ít nhất 28 trong 60 mẫu có nhãn lần đầu được ghi nhận trong vòng 3 ngày trước lần gán lại. Khoảng cách này ngắn hơn mức 14 ngày mà chuyên đề dự định. Người chú thích có thể còn nhớ nhãn cũ, nên 0,733 là cận trên của độ nhất quán thật. Thứ hai, đây là độ nhất quán của một người, không phải độ đồng thuận giữa hai người. Thứ ba, chỗ không nhất quán không rải đều: 7 trong 12 mẫu lệch là lệch giữa nhóm cả hai và nhóm phủ định, và nhóm cả hai chỉ giữ nguyên nhãn ở 9 trên 15 mẫu. Tách theo từng dấu hiệu, việc xét mẫu có phủ định hay không cho kappa 0,900, còn việc xét mẫu có chuyển ý hay không cho kappa 0,700. Vì vậy mục 4.6 trình bày kết quả theo bốn nhóm và cả theo từng dấu hiệu.
 
@@ -22,7 +22,21 @@ Người chú thích không đồng ý với nhãn cảm xúc gốc ở 144 trê
 
 ## Phụ lục C. Các bảng bổ sung của Chương 4
 
-Bảng C.1: Cách viết mười khía cạnh khi đưa vào mô hình
+Phụ lục này gồm các bảng chi tiết của Chương 4; trong chương chỉ nêu ý chính của từng bảng. Các bảng được đánh số theo thứ tự được nhắc tới trong chương.
+
+Bảng C.1: Quy mô và phân bố nhãn của UIT-ViSFD sau khi chuyển về dạng mẫu
+
+| | Train | Dev | Test | Tổng |
+|---|---|---|---|---|
+| Số bình luận gốc | 7.786 | 1.112 | 2.224 | 11.122 |
+| Số bình luận sinh ra ít nhất một mẫu | 7.671 | 1.094 | 2.187 | 10.952 |
+| Số mẫu | 23.872 | 3.316 | 6.722 | 33.910 |
+| Số khía cạnh trung bình mỗi bình luận | 3,11 | 3,03 | 3,07 | |
+| Tiêu cực | 7.464 (31,27 %) | 1.011 (30,49 %) | 2.210 (32,88 %) | 10.685 |
+| Trung tính | 2.903 (12,16 %) | 381 (11,49 %) | 817 (12,15 %) | 4.101 |
+| Tích cực | 13.505 (56,57 %) | 1.924 (58,02 %) | 3.695 (54,97 %) | 19.124 |
+
+Bảng C.2: Cách viết mười khía cạnh khi đưa vào mô hình
 
 | Mã trong dữ liệu | Viết thành | Mã trong dữ liệu | Viết thành |
 |---|---|---|---|
@@ -32,7 +46,7 @@ Bảng C.1: Cách viết mười khía cạnh khi đưa vào mô hình
 | FEATURES | tính_năng | GENERAL | tổng_thể |
 | PERFORMANCE | hiệu_năng | SER&ACC | dịch_vụ và phụ_kiện |
 
-Bảng C.2: Macro-F1 từng seed của bốn mô hình dùng PhoBERT (%)
+Bảng C.3: Macro-F1 từng seed của bốn mô hình dùng PhoBERT (%)
 
 | Mô hình | Seed 42 | Seed 1337 | Seed 2024 | Seed 7 | Seed 123 |
 |---|---|---|---|---|---|
@@ -41,7 +55,39 @@ Bảng C.2: Macro-F1 từng seed của bốn mô hình dùng PhoBERT (%)
 | ASGCN nối gốc | 86,36 | 85,94 | 86,49 | 86,83 | 86,42 |
 | Sentic-GCN | 86,28 | 86,40 | 86,82 | 86,96 | 87,05 |
 
-Bảng C.3: Macro-F1 trên bốn nhóm của tập chẩn đoán (%, khoảng tin cậy 95 % trong ngoặc)
+Bảng C.4: Hành vi trên lớp trung tính, trung bình 5 seed (tập kiểm tra có 817 mẫu trung tính trong 6.722 mẫu)
+
+| Mô hình | Số lần đoán trung tính | Precision (%) | Recall (%) | Tổng số mẫu đoán sai |
+|---|---|---|---|---|
+| Từ điển cảm xúc | 0 |  | 0,00 | 1.702,0 |
+| BiLSTM với attention | 693,8 | 65,38 | 55,52 | 915,8 |
+| PhoBERT tinh chỉnh | 779,6 | 73,40 | 69,87 | 551,8 |
+| ASGCN | 711,4 | 74,87 | 64,94 | 573,8 |
+| ASGCN nối gốc | 719,8 | 75,63 | 66,56 | 558,0 |
+| Sentic-GCN | 845,6 | 70,54 | 72,90 | 565,4 |
+
+Bảng C.5: Thành phần của tập chẩn đoán theo nhóm hiện tượng và nhãn cảm xúc gốc
+
+| Nhóm | Số mẫu | Tiêu cực | Trung tính | Tích cực | Không đồng ý với nhãn gốc |
+|---|---|---|---|---|---|
+| Thường | 415 | 107 | 148 | 160 | 52 (12,5 %) |
+| Phủ định | 119 | 54 | 28 | 37 | 14 (11,8 %) |
+| Chuyển ý | 181 | 74 | 60 | 47 | 49 (27,1 %) |
+| Cả hai | 84 | 33 | 30 | 21 | 29 (34,5 %) |
+| Tổng | 799 | 268 | 266 | 265 | 144 (18,0 %) |
+
+Bảng C.6: Hiệu số so với nhóm thường của cùng mô hình (điểm phần trăm, giá trị p trong ngoặc)
+
+| Mô hình | Accuracy, phủ định | Accuracy, chuyển ý | Accuracy, cả hai | Macro-F1, phủ định | Macro-F1, chuyển ý | Macro-F1, cả hai |
+|---|---|---|---|---|---|---|
+| Từ điển cảm xúc | +11,7 (0,016) | -9,4 (0,033) | -17,3 (0,001) | +4,5 (0,121) | -9,2 (< 0,001) | -14,9 (< 0,001) |
+| BiLSTM với attention | -3,8 (0,260) | -14,1 (< 0,001) | -15,0 (0,001) | -8,4 (0,026) | -16,6 (< 0,001) | -16,9 (< 0,001) |
+| PhoBERT tinh chỉnh | -1,4 (0,593) | -6,3 (0,013) | -17,6 (< 0,001) | -3,4 (0,201) | -7,5 (0,003) | -19,1 (< 0,001) |
+| ASGCN | -1,6 (0,551) | -6,7 (0,004) | -16,1 (< 0,001) | -4,8 (0,084) | -8,2 (< 0,001) | -17,4 (< 0,001) |
+| ASGCN nối gốc | -1,8 (0,526) | -6,0 (0,013) | -16,7 (< 0,001) | -4,4 (0,127) | -7,2 (0,003) | -18,5 (< 0,001) |
+| Sentic-GCN | +0,5 (0,810) | -5,2 (0,028) | -17,1 (< 0,001) | -0,8 (0,782) | -6,1 (0,008) | -17,9 (< 0,001) |
+
+Bảng C.7: Macro-F1 trên bốn nhóm của tập chẩn đoán (%, khoảng tin cậy 95 % trong ngoặc)
 
 | Mô hình | Thường (415 mẫu) | Phủ định (119) | Chuyển ý (181) | Cả hai (84) |
 |---|---|---|---|---|
@@ -52,7 +98,7 @@ Bảng C.3: Macro-F1 trên bốn nhóm của tập chẩn đoán (%, khoảng ti
 | ASGCN nối gốc | 91,4 (89,0 đến 93,6) | 87,0 (81,1 đến 92,0) | 84,2 (79,6 đến 88,3) | 72,9 (63,6 đến 80,9) |
 | Sentic-GCN | 92,6 (90,2 đến 94,6) | 91,8 (86,7 đến 95,9) | 86,4 (81,9 đến 90,4) | 74,7 (65,8 đến 82,4) |
 
-Bảng C.4: Accuracy theo từng dấu hiệu (%, khoảng tin cậy 95 % trong ngoặc) và hiệu số so với nhóm thường (điểm phần trăm, giá trị p trong ngoặc)
+Bảng C.8: Accuracy theo từng dấu hiệu (%, khoảng tin cậy 95 % trong ngoặc) và hiệu số so với nhóm thường (điểm phần trăm, giá trị p trong ngoặc)
 
 | Mô hình | Thường (415 mẫu) | Có phủ định (203) | Hiệu số | Có chuyển ý (265) | Hiệu số |
 |---|---|---|---|---|---|
@@ -63,7 +109,7 @@ Bảng C.4: Accuracy theo từng dấu hiệu (%, khoảng tin cậy 95 % trong 
 | ASGCN nối gốc | 91,2 (88,8 đến 93,5) | 83,3 (78,5 đến 87,6) | -8,0 (0,003) | 81,8 (77,6 đến 85,7) | -9,4 (< 0,001) |
 | Sentic-GCN | 92,3 (89,9 đến 94,5) | 85,5 (81,0 đến 89,6) | -6,8 (0,007) | 83,3 (79,3 đến 87,0) | -9,0 (< 0,001) |
 
-Bảng C.5: Hiệu số accuracy so với PhoBERT tinh chỉnh trong từng nhóm (điểm phần trăm, mô hình trừ PhoBERT; khoảng tin cậy 95 % trong ngoặc)
+Bảng C.9: Hiệu số accuracy so với PhoBERT tinh chỉnh trong từng nhóm (điểm phần trăm, mô hình trừ PhoBERT; khoảng tin cậy 95 % trong ngoặc)
 
 | Mô hình | Thường | Phủ định | Chuyển ý | Cả hai |
 |---|---|---|---|---|
@@ -75,7 +121,7 @@ Bảng C.5: Hiệu số accuracy so với PhoBERT tinh chỉnh trong từng nhó
 
 ASGCN thấp hơn PhoBERT 1,3 điểm ở nhóm thường (p bằng 0,048); ở nhóm phủ định, khoảng cách 1,5 điểm không có ý nghĩa (p bằng 0,258). Ở nhóm cả hai, BiLSTM chỉ thấp hơn PhoBERT 3,3 điểm (p bằng 0,303), tức với 84 mẫu của nhóm này, lợi thế của mô hình tiền huấn luyện không còn đo được.
 
-Bảng C.6: Accuracy trên 655 mẫu mà người chú thích đồng ý với nhãn gốc (%; trong ngoặc là hiệu số so với nhóm thường và giá trị p)
+Bảng C.10: Accuracy trên 655 mẫu mà người chú thích đồng ý với nhãn gốc (%; trong ngoặc là hiệu số so với nhóm thường và giá trị p)
 
 | Mô hình | Thường (363 mẫu) | Phủ định (105) | Chuyển ý (132) | Cả hai (55) |
 |---|---|---|---|---|

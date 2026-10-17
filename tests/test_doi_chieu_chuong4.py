@@ -16,19 +16,19 @@ VAN = """## 4.4. Kết quả
 
 Lời văn có câu cần tìm, cao hơn 1,07 điểm.
 
-Bảng 4.3: Kết quả trên tập kiểm tra của X
+Bảng 4.1: Kết quả trên tập kiểm tra của X
 
 | Mô hình | Accuracy |
 |---|---|
 | PhoBERT   tinh chỉnh | 91,86 |
 
-Bảng C.3: Macro-F1 trên bốn nhóm của tập chẩn đoán
+Bảng C.7: Macro-F1 trên bốn nhóm của tập chẩn đoán
 
 | Mô hình | Thường |
 |---|---|
 | PhoBERT tinh chỉnh | 90,0 |
 
-Bảng 4.2: Thang mô hình và thành phần được thêm ở mỗi bậc
+Bảng 4.4: Thang mô hình và thành phần được thêm ở mỗi bậc
 
 | Bậc | Mô hình | Số tham số |
 |---|---|---|
@@ -40,29 +40,30 @@ Bảng 4.2: Thang mô hình và thành phần được thêm ở mỗi bậc
 
 def test_moi_bang_duoc_kiem_deu_co_so_o_ban_chinh_va_tu_khoa():
     assert set(m.SO_BANG_RUT_GON) == set(m.TU_KHOA_BANG)
-    assert len(set(m.SO_BANG_RUT_GON.values())) == len(m.SO_BANG_RUT_GON)  # không hai bảng nào trỏ về cùng một số
+    co_so = [v for v in m.SO_BANG_RUT_GON.values() if v]  # None: bảng không còn ở bản chính
+    assert len(set(co_so)) == len(co_so)  # không hai bảng nào trỏ về cùng một số
 
 
 def test_tach_bang_lay_ten_va_hang_bo_khoang_trang_thua():
     b = m.tach_bang(VAN)
-    assert list(b) == ["4.3", "C.3", "4.2"]
-    assert b["4.3"]["ten"] == "Kết quả trên tập kiểm tra của X"
-    assert "| PhoBERT tinh chỉnh | 91,86 |" in b["4.3"]["van"]
-    assert b["4.2"]["hang"][-1] == "| 4b | ASGCN nối gốc | 136.181.763 |"
+    assert list(b) == ["4.1", "C.7", "4.4"]
+    assert b["4.1"]["ten"] == "Kết quả trên tập kiểm tra của X"
+    assert "| PhoBERT tinh chỉnh | 91,86 |" in b["4.1"]["van"]
+    assert b["4.4"]["hang"][-1] == "| 4b | ASGCN nối gốc | 136.181.763 |"
     with pytest.raises(ValueError):
-        m.tach_bang(VAN + "\nBảng 4.3: Trùng số\n\n| a |\n")
+        m.tach_bang(VAN + "\nBảng 4.1: Trùng số\n\n| a |\n")
 
 
 def test_hang_bang_phai_nam_o_dung_bang():
     b, van = m.tach_bang(VAN), m.chuan(VAN)
-    # Bảng 4.5 của bản đầy đủ là Bảng 4.3 của bản chính
+    # Bảng 4.5 của bản đầy đủ là Bảng 4.1 của bản chính
     da_kiem, lech, bo_qua = m.tim([("Bảng 4.5, phobert", "| PhoBERT tinh chỉnh | 91,86 |")], van, b, "rut_gon")
     assert (da_kiem, lech, bo_qua) == (1, [], 0)
-    # hàng của bảng macro-F1 (4.12, tức C.3) không được tính là có ở bảng accuracy 4.11 (tức 4.8)
+    # hàng của bảng macro-F1 (4.12, tức C.7) không được tính là có ở bảng kết quả (4.5, tức 4.1)
     _, lech, _ = m.tim([("Bảng 4.12, dòng 1", "| PhoBERT tinh chỉnh | 91,86 |")], van, b, "rut_gon")
-    assert len(lech) == 1 and "nằm ở Bảng 4.3 chứ không ở Bảng C.3" in lech[0][2] and lech[0][0] == "Bảng C.3, dòng 1"
+    assert len(lech) == 1 and "nằm ở Bảng 4.1 chứ không ở Bảng C.7" in lech[0][2] and lech[0][0] == "Bảng C.7, dòng 1"
     _, lech, _ = m.tim([("Bảng 4.11, dòng 1", "| PhoBERT tinh chỉnh | 90,0 |")], van, b, "rut_gon")
-    assert "bản nháp không có Bảng 4.9" in lech[0][2]
+    assert "bản nháp không có Bảng 4.5" in lech[0][2]
     # ở bản đầy đủ số bảng giữ nguyên
     _, lech, _ = m.tim([("Bảng 4.5, phobert", "| PhoBERT tinh chỉnh | 91,86 |")], van, b, "day_du")
     assert "bản nháp không có Bảng 4.5" in lech[0][2]
@@ -83,7 +84,7 @@ def test_cum_chu_loi_van_cau_bo_qua_va_cau_cua_phan_tom_tat():
 
 def test_theo_ban_va_doi_so_bang():
     assert m.theo_ban("day_du", day_du="a", rut_gon="b") == "a" and m.theo_ban("rut_gon", day_du="a") is None
-    assert m.doi_so_bang("rut_gon", "4.6, số phép so ở Bảng 4.15") == "4.6, số phép so ở Bảng C.5"
+    assert m.doi_so_bang("rut_gon", "4.6, số phép so ở Bảng 4.15") == "4.6, số phép so ở Bảng C.9"
     assert m.doi_so_bang("day_du", "Bảng 4.15, dòng 2") == "Bảng 4.15, dòng 2"
 
 
@@ -108,15 +109,17 @@ def test_ten_bang_phai_chua_tu_khoa():
     lech = m.tim(m.kiem_ten_bang(b2, "rut_gon", ["4.5"]), m.chuan(doi), b2, "rut_gon")[1]
     assert len(lech) == 1 and "Kết quả trên tập kiểm tra" in lech[0][1]
     # bảng không có trong bản nháp cũng bị báo
-    assert len(m.tim(m.kiem_ten_bang(b, "rut_gon", ["4.9"]), van, b, "rut_gon")[1]) == 1
+    assert len(m.tim(m.kiem_ten_bang(b, "rut_gon", ["4.11"]), van, b, "rut_gon")[1]) == 1
 
 
 def test_so_tham_so_phai_o_dung_hang_cua_bac():
     b, van = m.tach_bang(VAN), m.chuan(VAN)
-    dung = m.kiem_thang_mo_hinh(b, "rut_gon", {"1": "9", "4": "136.181.763", "4b": "136.181.763"})
-    assert m.tim(dung, van, b, "rut_gon")[1] == []
-    sai = m.kiem_thang_mo_hinh(b, "rut_gon", {"1": "136.181.763", "5": "9"})  # sai số ở bậc 1, không có hàng của bậc 5
-    assert [x[0] for x in m.tim(sai, van, b, "rut_gon")[1]] == ["Bảng 4.2, số tham số của bậc 1", "Bảng 4.2, số tham số của bậc 5"]
+    dung = m.kiem_thang_mo_hinh(b, "day_du", {"1": "9", "4": "136.181.763", "4b": "136.181.763"})
+    assert m.tim(dung, van, b, "day_du")[1] == []
+    sai = m.kiem_thang_mo_hinh(b, "day_du", {"1": "136.181.763", "5": "9"})  # sai số ở bậc 1, không có hàng của bậc 5
+    assert [x[0] for x in m.tim(sai, van, b, "day_du")[1]] == ["Bảng 4.4, số tham số của bậc 1", "Bảng 4.4, số tham số của bậc 5"]
+    # từ 17/10/2026 bản chính thay bảng thang mô hình bằng một danh sách: chỗ kiểm này bị bỏ qua ở bản chính
+    assert m.tim(m.kiem_thang_mo_hinh(b, "rut_gon", {"1": "9"}), van, b, "rut_gon") == (0, [], 1)
 
 
 def test_doc_tom_tat_va_so_la(tmp_path):
@@ -217,9 +220,10 @@ def test_ket_qua_chi_phi_tinh_lai_tu_file(tmp_path):
     assert kq["4.5, GPU"] == "Phép đo chạy trên GPU Tesla T4"
     assert kq["4.5, BiLSTM khác dự đoán"] == "BiLSTM khác 3 trong 6.722 dự đoán ở lô 1 và 1 ở lô 32"
     assert kq["4.5, mô hình đồ thị chậm hơn"] == "chậm hơn PhoBERT từ 30 đến 32 % ở lô 1 và từ 10 đến 14 % ở lô 32"
-    assert kq["4.5, bộ nhớ thêm"] == "bộ nhớ đỉnh chỉ cao hơn 4,5 MB"
-    assert kq["4.5, Sentic-GCN so với ASGCN"] == "Sentic-GCN chỉ chậm hơn ASGCN 0,20 ms một mẫu ở lô 1"
-    assert kq["4.5, mô hình nhẹ nhanh hơn"] == "mô hình từ điển nhanh hơn PhoBERT khoảng 50 lần và BiLSTM khoảng 5,0 lần"
+    assert kq["4.5, bộ nhớ thêm"] == "và bộ nhớ đỉnh gần như không đổi"  # 4,5 MB trên 600 MB
+    assert kq["4.5, Sentic-GCN so với ASGCN"] == "Sentic-GCN gần như không chậm hơn ASGCN"  # 0,2 ms trên 13 ms
+    # hai mô hình nhẹ nhanh hơn nhiều lần, nhưng ở dữ liệu giả chúng chỉ kém PhoBERT 1 điểm: câu "kém xa" không còn đúng
+    assert kq["4.5, mô hình nhẹ nhanh hơn"].startswith("SỐ LIỆU KHÔNG CÒN ĐỠ CÂU")
     assert not kq["4.5, đánh đổi"].startswith("SỐ LIỆU KHÔNG CÒN")
     assert not kq["4.5, dự đoán trùng"].startswith("SỐ LIỆU KHÔNG CÒN")
 
