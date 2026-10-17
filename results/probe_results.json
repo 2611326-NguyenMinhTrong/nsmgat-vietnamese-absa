@@ -1,0 +1,152 @@
+{
+  "mo_hinh": "phobert",
+  "seeds": [
+    42,
+    1337,
+    2024,
+    7,
+    123
+  ],
+  "so_lan": 10000,
+  "seed": 20261018,
+  "p1": {
+    "tap_chan_doan": {
+      "negation": {
+        "n": 119,
+        "loi": 11.6,
+        "loi_nguoc_cuc": 1.2,
+        "loi_goc_trung_tinh": 8.8,
+        "loi_o_dong_khong_dong_y": 6.0,
+        "macro_f1": 0.8844697214468955,
+        "macro_f1_sau_khi_lat": 0.8932354564936731,
+        "tang": 0.008765735046777579
+      },
+      "contrast": {
+        "n": 181,
+        "loi": 26.6,
+        "loi_nguoc_cuc": 1.4,
+        "loi_goc_trung_tinh": 21.0,
+        "loi_o_dong_khong_dong_y": 15.2,
+        "macro_f1": 0.8431827656718875,
+        "macro_f1_sau_khi_lat": 0.8502823587717716,
+        "tang": 0.007099593099884061
+      },
+      "both": {
+        "n": 84,
+        "loi": 21.8,
+        "loi_nguoc_cuc": 0.6,
+        "loi_goc_trung_tinh": 15.8,
+        "loi_o_dong_khong_dong_y": 13.0,
+        "macro_f1": 0.7268276832170075,
+        "macro_f1_sau_khi_lat": 0.7332530796416232,
+        "tang": 0.006425396424615704
+      },
+      "regular": {
+        "n": 415,
+        "loi": 34.8,
+        "loi_nguoc_cuc": 2.8,
+        "loi_goc_trung_tinh": 23.8,
+        "loi_o_dong_khong_dong_y": 18.6,
+        "macro_f1": 0.9181752263024965,
+        "macro_f1_sau_khi_lat": 0.9252793342487923,
+        "tang": 0.00710410794629579
+      }
+    },
+    "toan_tap_kiem_tra": {
+      "n": 6722,
+      "mau_o_cau_co_phu_dinh": 3676,
+      "mau_o_cau_co_tu_khoa": 4268,
+      "loi": 551.8,
+      "loi_nguoc_cuc": 96.8,
+      "macro_f1": 0.8670050651769874,
+      "accuracy": 0.917911335911931,
+      "nguoc_cuc_o_cau_co_phu_dinh": {
+        "so_loi_sua": 59.4,
+        "tang_macro_f1": 0.007132874950563273,
+        "tang_accuracy": 0.008836655757215128
+      },
+      "nguoc_cuc_moi_cho": {
+        "so_loi_sua": 96.8,
+        "tang_macro_f1": 0.011593289882246394,
+        "tang_accuracy": 0.014400476048795019
+      },
+      "moi_loi_o_cau_co_tu_khoa": {
+        "so_loi_sua": 420.0,
+        "tang_macro_f1": 0.10230415802774975,
+        "tang_accuracy": 0.062481404343945265
+      }
+    }
+  },
+  "p2": {
+    "quan_the": 4071,
+    "mau_cau_chi_co_tu_ngo": 574,
+    "mau_ngoai_do_dai": 2077,
+    "dong_dung_de_uoc_luong": 794,
+    "dong_ngoai_quan_the": 5,
+    "phu_dinh": {
+      "bo_sot_tren_tap_chan_doan": {
+        "dong": 12,
+        "co_tu_ngo": 2
+      },
+      "do_chinh_xac": 0.4945622944143406,
+      "do_chinh_xac_ci95": [
+        0.4382585754313084,
+        0.5520930670087479
+      ],
+      "do_phu": 0.946947306625005,
+      "do_phu_ci95": [
+        0.901550373395274,
+        0.9805794311613589
+      ],
+      "mau_luat_bat_tren_tap_kiem_tra": 1933,
+      "tho": {
+        "dong_luat_bat": 399,
+        "dong_luat_bat_dung": 191,
+        "dong_co_hien_tuong": 203
+      }
+    },
+    "chuyen_y": {
+      "bo_sot_tren_tap_chan_doan": {
+        "dong": 52,
+        "co_tu_ngo": 19
+      },
+      "do_chinh_xac": 0.5817238590596799,
+      "do_chinh_xac_ci95": [
+        0.5256616382373847,
+        0.6379486315715793
+      ],
+      "do_phu": 0.5991601023902504,
+      "do_phu_ci95": [
+        0.520579464629616,
+        0.6879406074874631
+      ],
+      "mau_luat_bat_tren_tap_kiem_tra": 840,
+      "tho": {
+        "dong_luat_bat": 345,
+        "dong_luat_bat_dung": 211,
+        "dong_co_hien_tuong": 263
+      }
+    }
+  },
+  "p3": {
+    "so_cau": 2187,
+    "chuan": {
+      "luot": 1010,
+      "co_tu_sau": 969,
+      "ti_le_pho_tu": 0.9969040247678018,
+      "ti_le_ke_nhau": 0.9442724458204335,
+      "ti_le_tu_3_canh": 0.013415892672858616,
+      "khoang_cach_tb": 1.0773993808049536,
+      "khoang_cach_trung_vi": 1.0
+    },
+    "viet_tat": {
+      "luot": 1009,
+      "co_tu_sau": 961,
+      "ti_le_pho_tu": 0.0,
+      "ti_le_ke_nhau": 0.7252861602497399,
+      "ti_le_tu_3_canh": 0.12174817898022892,
+      "khoang_cach_tb": 1.5067637877211237,
+      "khoang_cach_trung_vi": 1.0
+    }
+  }
+}
