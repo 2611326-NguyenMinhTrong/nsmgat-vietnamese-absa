@@ -466,6 +466,9 @@ def main(argv=None) -> int:
     ap.add_argument("--chi", nargs="+", default=None, metavar="PHAN",
                     help="chỉ thay các phần này: số chương (1 đến 6) và/hoặc phu_luc. Không đụng trang đầu, tài liệu tham khảo "
                          "và các chương khác (dùng từ 17/10/2026: Chương 2 có phương trình Word, học viên sửa thẳng trong Word)")
+    ap.add_argument("--ghep-thu", action="store_true",
+                    help="chỉ dùng khi ghép vào BẢN SAO để so chữ (kiem_sua_tay_word.py): bỏ qua lớp chặn phương trình "
+                         "và chỉ số trên, dưới. Không dùng với file thật")
     ap.add_argument("--sua-dinh-dang", action="store_true",
                     help="áp lại khổ A4, lề và font của các style lên file (file dựng trước 13/10/2026 ở khổ Letter, tiêu đề Calibri)")
     a = ap.parse_args(argv)
@@ -541,7 +544,7 @@ def main(argv=None) -> int:
     if khoi_pl is not None and chon_pl:
         se_thay.append(TIEU_DE_PHU_LUC)
     mat = {t: ly_do for t in se_thay if (ly_do := dinh_dang_tay(doc, t))}
-    if mat:
+    if mat and not a.ghep_thu:
         print("DỪNG: ghép sẽ làm mất định dạng sửa tay trong Word: "
               + "; ".join(f"{t} có {', '.join(ly_do)}" for t, ly_do in mat.items())
               + ". Sửa thẳng trong Word (COM) rồi sửa bản nháp cho khớp, hoặc dùng --chi để bỏ các phần này.")

@@ -76,7 +76,7 @@ Bảng G. Giao lỗi của bốn mô hình dùng PhoBERT (PhoBERT tinh chỉnh, 
 |---|---|---|---|---|---|
 | Số mẫu | 6.272 | 126 | 68 | 65 | 191 |
 
-Cả bốn mô hình luôn sai trên 191 mẫu (2,8 % tập kiểm tra). Không lần chạy nào trong 12 lần sai trên 5.520 mẫu (82,1 %).
+Cả bốn mô hình luôn sai trên 191 mẫu (2,8 % tập kiểm tra). Không lần chạy nào trong 20 lần sai trên 5.520 mẫu (82,1 %).
 
 Bảng H. Đặc điểm của 191 mẫu cả bốn mô hình luôn sai, so với toàn tập kiểm tra.
 
@@ -97,7 +97,7 @@ Bảng H. Đặc điểm của 191 mẫu cả bốn mô hình luôn sai, so vớ
 | Khía cạnh SCREEN | 7 | 3,7 | 4,0 |
 | Khía cạnh STORAGE | 2 | 1,0 | 0,4 |
 
-Bảng I. Trong 191 mẫu đó, nhãn thật bị đoán thành nhãn nào (nhãn được đoán nhiều nhất trong 12 lần chạy).
+Bảng I. Trong 191 mẫu đó, nhãn thật bị đoán thành nhãn nào (nhãn được đoán nhiều nhất trong 20 lần chạy).
 
 | Nhãn thật thành nhãn đoán | Số mẫu | Tỉ lệ (%) |
 |---|---|---|

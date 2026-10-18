@@ -59,6 +59,16 @@ def test_lenh_bao_cho_sua_tay_va_khong_dung_file_that(tmp_path, monkeypatch, cap
     assert that.read_bytes() == truoc, "file Word thật bị sửa"
 
 
+def test_ghep_thu_qua_duoc_lop_chan_phuong_trinh(tmp_path, monkeypatch):
+    """GAP-043: lệnh ghép dừng (mã 3) khi phần sắp thay có phương trình; ghép thử vào bản sao phải bỏ qua lớp chặn đó."""
+    nhan = []
+    monkeypatch.setattr(k.nc, "main", lambda argv: (nhan.append(argv), 0)[1])
+    tam = tmp_path / "tam"
+    tam.mkdir()
+    k.ghep_thu(_word(tmp_path / "a.docx", ["x"]), tmp_path, tam)
+    assert "--ghep-thu" in nhan[0] and "--ghi-de" in nhan[0]
+
+
 def test_lenh_tra_0_khi_trung(tmp_path, monkeypatch):
     that = _word(tmp_path / "bao_cao.docx", ["Đoạn chung"])
     monkeypatch.setattr(k.nc, "main", lambda argv: (_word(Path(argv[argv.index("--docx") + 1]), ["Đoạn chung"]), 0)[1])

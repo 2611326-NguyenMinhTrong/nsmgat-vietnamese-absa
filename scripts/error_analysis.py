@@ -133,7 +133,7 @@ def lat_giao_loi(test: Sequence[dict], vang: np.ndarray, doan: Dict[str, np.ndar
     so_mh = np.sum([luon_sai[e] for e in manh], axis=0)
     cung = so_mh == len(manh)
     kc = np.asarray([r["aspect"] for r in test])
-    tat_ca_doan = np.concatenate([doan[e] for e in manh])  # (4 mô hình x 3 seed, N)
+    tat_ca_doan = np.concatenate([doan[e] for e in manh])  # (4 mô hình x số seed, N)
     nhan_doan = np.asarray([Counter(c).most_common(1)[0][0] for c in tat_ca_doan[:, cung].T], dtype=int)
     cap = Counter(zip(vang[cung].tolist(), nhan_doan.tolist()))
     return {
@@ -212,7 +212,7 @@ def bang_tat_ca(kq: dict, so_lan: int) -> str:
     k.append("|---|" + "---|" * len(g["theo_so_mo_hinh_luon_sai"]))
     k.append("| Số mẫu | " + " | ".join(nghin(v) for v in g["theo_so_mo_hinh_luon_sai"].values()) + " |")
     k.append(f"\nCả bốn mô hình luôn sai trên {nghin(c)} mẫu ({pt(c / n)} % tập kiểm tra). "
-             f"Không lần chạy nào trong 12 lần sai trên {nghin(g['khong_lan_chay_nao_sai'])} mẫu ({pt(g['khong_lan_chay_nao_sai'] / n)} %).")
+             f"Không lần chạy nào trong {len(g['mo_hinh_xet']) * len(cb.SEEDS)} lần sai trên {nghin(g['khong_lan_chay_nao_sai'])} mẫu ({pt(g['khong_lan_chay_nao_sai'] / n)} %).")
     k.append(f"\nBảng H. Đặc điểm của {nghin(c)} mẫu cả bốn mô hình luôn sai, so với toàn tập kiểm tra.\n")
     k.append("| Đặc điểm | Trong nhóm cùng sai | Tỉ lệ trong nhóm (%) | Tỉ lệ trong toàn tập (%) |")
     k.append("|---|---|---|---|")
@@ -222,7 +222,7 @@ def bang_tat_ca(kq: dict, so_lan: int) -> str:
     for a, v in g["tat_ca_theo_khia_canh"].items():
         m = g["cung_sai_theo_khia_canh"].get(a, 0)
         k.append(f"| Khía cạnh {a} | {m} | {pt(m / c)} | {pt(v / n)} |")
-    k.append(f"\nBảng I. Trong {nghin(c)} mẫu đó, nhãn thật bị đoán thành nhãn nào (nhãn được đoán nhiều nhất trong 12 lần chạy).\n")
+    k.append(f"\nBảng I. Trong {nghin(c)} mẫu đó, nhãn thật bị đoán thành nhãn nào (nhãn được đoán nhiều nhất trong {len(g['mo_hinh_xet']) * len(cb.SEEDS)} lần chạy).\n")
     k.append("| Nhãn thật thành nhãn đoán | Số mẫu | Tỉ lệ (%) |")
     k.append("|---|---|---|")
     for cp, v in g["cung_sai_nhan_that_sang_nhan_doan"].items():

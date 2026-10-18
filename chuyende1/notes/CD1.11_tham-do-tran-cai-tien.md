@@ -207,3 +207,12 @@ pytest tests -q                                   558 passed, 1 skipped in 121.2
 
 **Kết:**
 > Bạn có câu hỏi phụ nào về phần này không, hay tôi đi tiếp sang **viết Chương 5**?
+
+---
+
+## 8. GHI CHÚ SAU KHI TRAO ĐỔI
+
+| Câu hỏi của học viên | Trả lời tóm tắt | Có dẫn tới thay đổi code không |
+|---|---|---|
+| Luật từ khoá: 94,7 % và 49,5 % nghĩa là gì? | Độ phủ: trong 100 mẫu thật có phủ định, luật bắt khoảng 95. Độ chính xác: trong 100 mẫu luật gắn "có phủ định", khoảng 50 mẫu đúng; sai chủ yếu vì câu nhiều khía cạnh mà "không" chỉ tác động lên một | Không |
+| "Gắn hiện tượng vào đúng khía cạnh" NLP đã giải quyết chưa? | Không phải bài toán mới: gắn ý kiến vào khía cạnh là cốt lõi của ABSA (attention, đồ thị cú pháp, AC-MIMLLN cho nhóm khía cạnh, tập MAMS), phủ định theo đối tượng có Moore và Barnes 2021 (trong ma trận). Đề xuất ở mục 7 được rút từ số đo, CHƯA đối chiếu tài liệu: rút lại đề xuất đó làm hướng Chuyên đề 2 cho tới khi tìm tài liệu có chủ đích. Số đo P1 đến P3 không đổi | Không |

@@ -392,11 +392,12 @@ def cau_cua_ban_chinh(m, acc, f1, f1s, tt, tho, loi_tb, so_doan_tt, pre_tt, rec_
             "có accuracy cao nhất và, trong năm mô hình học, ổn định nhất giữa các seed", "4.7, mô hình đứng đầu"),
         neu(all(x > 0 for x in tung_seed("bilstm", "lexicon") + tung_seed("phobert", "bilstm"))
             and min(hs(f1, "bilstm", "lexicon"), hs(f1, "phobert", "bilstm")) > 5,
-            "hai bước có hiệu số lớn và cùng dấu ở mọi seed là bước cho mô hình nhìn khía cạnh và học biểu diễn, và bước thêm tri thức tiền huấn luyện",
+            # Học viên viết lại đoạn này trong Word ngày 17/10/2026 (17:47); điều kiện giữ nguyên, câu chữ theo bản của học viên.
+            "bổ sung thông tin khía cạnh và sử dụng mô hình ngôn ngữ tiền huấn luyện mang lại cải thiện rõ ràng, nhất quán",
             "4.7, hai bước có hiệu số lớn"),
-        neu(max(abs(hs(f1, "asgcn", "phobert")), abs(hs(f1, "senticgcn", "asgcn"))) < 1.0
+        neu(max(abs(hs(f1, "asgcn", "phobert")), abs(hs(f1, "senticgcn", "asgcn")), abs(hs(f1, "senticgcn", "phobert"))) < 1.0
             and doi_dau(tung_seed("asgcn", "phobert")) and doi_dau(tung_seed("senticgcn", "asgcn")),
-            "cho hiệu số nhỏ hơn 1 điểm và đổi dấu theo seed", "4.7, hai bước thêm cấu trúc"),
+            "chỉ tạo chênh lệch dưới 1 điểm và kết quả thay đổi theo seed", "4.7, hai bước thêm cấu trúc"),
         neu(min(lop[tot][0], lop[tot][2]) - lop[tot][1] > 20,
             "ngay ở mô hình có F1 lớp trung tính cao nhất, lớp này vẫn thấp hơn hai lớp còn lại hơn 20 điểm", "4.7, lớp trung tính so với hai lớp còn lại"),
         neu([e for e in dung_phobert if rec_tt[e] > rec_tt["phobert"]] == ["senticgcn"] and pre_tt["senticgcn"] < pre_tt["phobert"],
@@ -488,7 +489,7 @@ def so_lieu_doi_chung(goc: Path) -> Tuple[List[Tuple[str, Optional[str]]], Dict[
             "4.4, nối gốc theo nhóm một gốc và nhiều gốc"),
         neu(ng_toan["p_hoan_vi_seed"] >= 0.05, f"không qua được phép hoán vị seed (p bằng {cb.p_chu(ng_toan['p_hoan_vi_seed'])})", "4.4, nối gốc qua phép hoán vị"),
         neu(not gcn_co_ich and doc["hieu_so"] < 0 and hai_phep == [("asgcn_khong_gcn", "phobert_fp32")],
-            "phần giảm đo được chắc chắn đến từ việc đổi cách đọc ra, còn GCN đặt lên trên không thêm lợi ích đo được ở cả ba cách dựng đồ thị",
+            "Thí nghiệm đối chứng cho thấy GCN chưa mang lại lợi ích đo được ở cả ba cách xây dựng đồ thị",
             "4.7, thí nghiệm đối chứng"),
         neu(not gcn_co_ich, "một thí nghiệm đối chứng cho thấy bản thân phần đồ thị không đem lại lợi ích đo được", "Tóm tắt, thí nghiệm đối chứng"),
     ]

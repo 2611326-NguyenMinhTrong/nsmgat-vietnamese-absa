@@ -101,7 +101,8 @@ def ghep_thu(docx_that: Path, nhap: Path, tam: Path) -> Path:
     ban_sao = tam / docx_that.name
     shutil.copy2(docx_that, ban_sao)
     with contextlib.redirect_stdout(io.StringIO()) as ra:
-        ma = nc.main(["--nhap", str(nhap), "--docx", str(ban_sao), "--ghi-de"])
+        # --ghep-thu: bản sao có phương trình thì lệnh ghép vẫn chạy, vì ở đây chỉ cần chữ để so (GAP-043).
+        ma = nc.main(["--nhap", str(nhap), "--docx", str(ban_sao), "--ghi-de", "--ghep-thu"])
     if ma != 0:
         raise RuntimeError(f"lệnh ghép thử báo lỗi (mã {ma}):\n{ra.getvalue()}")
     return ban_sao

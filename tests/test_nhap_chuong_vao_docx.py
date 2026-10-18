@@ -203,6 +203,8 @@ def test_phan_co_phuong_trinh_hoac_chi_so_thi_khong_ghep_ke_ca_ghi_de(tmp_path, 
     doc.save(str(p))
     assert m.dinh_dang_tay(Document(str(p)), "Chương 5.") == ["1 phương trình Word"]
     assert _chay(tmp_path, p, "--chi", "3", "--ghi-de") == 0
+    # Ghép thử vào bản sao để so chữ (kiem_sua_tay_word.py) thì không bị chặn (GAP-043).
+    assert _chay(tmp_path, p, "--ghi-de", "--ghep-thu") == 0
 
 
 def test_them_trich_dan_o_chuong_truoc_thi_chuong_sau_doi_so(tmp_path):
