@@ -110,3 +110,12 @@ pytest tests -q               564 passed, 1 skipped in 135.25s
 
 **Kết:**
 > Bạn đọc Chương 5 trong Word (trang 38 đến 43) rồi cho ý kiến, hay tôi làm tiếp lượt tìm tài liệu cho mục 5.5?
+
+---
+
+## 8. GHI CHÚ SAU KHI TRAO ĐỔI
+
+| Câu hỏi hay yêu cầu của học viên | Trả lời tóm tắt | Có dẫn tới thay đổi không |
+|---|---|---|
+| Câu 1: định viết "có ba điều"; "Việc" viết hoa là viết sai, nhờ sửa | Sửa thẳng trong Word bằng COM (chạy thử trên bản sao: đúng hai chỗ đổi, 9 phương trình còn nguyên), sao lưu `..._rutgon.20261018-160013.docx.bak`, lưu lúc 16:00:21; bản nháp Chương 1, 4 sửa theo; `kiem_sua_tay_word.py` mã 2, Chương 4 khớp 234/234, Chương 5 khớp 50/50 | Có: file Word và bản nháp |
+| Câu 2: đọc xong Chương 5, 6 rồi mới quyết có cắt không | Chờ | Chưa |
