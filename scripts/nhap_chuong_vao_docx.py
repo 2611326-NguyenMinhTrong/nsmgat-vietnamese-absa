@@ -464,21 +464,22 @@ def main(argv=None) -> int:
     ap.add_argument("--ghi-de", action="store_true",
                     help="ghi cả khi có chương đã có nội dung (mất chỗ sửa tay trong Word ở các chương đó, có sao lưu)")
     ap.add_argument("--chi", nargs="+", default=None, metavar="PHAN",
-                    help="chỉ thay các phần này: số chương (1 đến 6) và/hoặc phu_luc. Không đụng trang đầu, tài liệu tham khảo "
-                         "và các chương khác (dùng từ 17/10/2026: Chương 2 có phương trình Word, học viên sửa thẳng trong Word)")
+                    help="chỉ thay các phần này: số chương (1 đến 6), phu_luc và/hoặc tai_lieu (danh mục tài liệu tham khảo). "
+                         "Không đụng trang đầu và các phần không chọn (dùng từ 17/10/2026: Chương 2 có phương trình Word, học viên "
+                         "sửa thẳng trong Word). Trích dẫn mới làm đổi số ở chương sau hay ở phụ lục thì phải chọn cả các phần đó")
     ap.add_argument("--ghep-thu", action="store_true",
                     help="chỉ dùng khi ghép vào BẢN SAO để so chữ (kiem_sua_tay_word.py): bỏ qua lớp chặn phương trình "
                          "và chỉ số trên, dưới. Không dùng với file thật")
     ap.add_argument("--sua-dinh-dang", action="store_true",
                     help="áp lại khổ A4, lề và font của các style lên file (file dựng trước 13/10/2026 ở khổ Letter, tiêu đề Calibri)")
     a = ap.parse_args(argv)
-    chon_chuong, chon_pl = None, True
+    chon_chuong, chon_pl, chon_tl = None, True, True
     if a.chi:
-        la = [x for x in a.chi if not (x.isdigit() or x == "phu_luc")]
+        la = [x for x in a.chi if not (x.isdigit() or x in ("phu_luc", "tai_lieu"))]
         if la:
-            print(f"DỪNG: --chi chỉ nhận số chương và phu_luc, có {la}")
+            print(f"DỪNG: --chi chỉ nhận số chương, phu_luc và tai_lieu, có {la}")
             return 1
-        chon_chuong, chon_pl = {int(x) for x in a.chi if x.isdigit()}, "phu_luc" in a.chi
+        chon_chuong, chon_pl, chon_tl = {int(x) for x in a.chi if x.isdigit()}, "phu_luc" in a.chi, "tai_lieu" in a.chi
 
     cac_file = tim_file_chuong(a.nhap)
     if not cac_file:
@@ -543,6 +544,8 @@ def main(argv=None) -> int:
     se_thay = [f"Chương {so}." for so in khoi_chuong if chon_chuong is None or so in chon_chuong]
     if khoi_pl is not None and chon_pl:
         se_thay.append(TIEU_DE_PHU_LUC)
+    if chon_tl:
+        se_thay.append(TIEU_DE_TAI_LIEU)
     mat = {t: ly_do for t in se_thay if (ly_do := dinh_dang_tay(doc, t))}
     if mat and not a.ghep_thu:
         print("DỪNG: ghép sẽ làm mất định dạng sửa tay trong Word: "
@@ -553,12 +556,14 @@ def main(argv=None) -> int:
     for so, khoi in khoi_chuong.items():
         if chon_chuong is None or so in chon_chuong:
             thay_than_muc(doc, f"Chương {so}.", khoi)
-    if chon_chuong is None:
+    if chon_tl:
         thay_than_muc(doc, TIEU_DE_TAI_LIEU, khoi_tl)
     if khoi_pl is not None and chon_pl:
         thay_than_muc(doc, TIEU_DE_PHU_LUC, khoi_pl)
     if chon_chuong is not None:
-        print(f"Chỉ thay: chương {sorted(chon_chuong)}{' và phụ lục' if chon_pl else ''}; giữ nguyên trang đầu, tài liệu tham khảo, các chương khác")
+        them = [ten for ten, co in (("phụ lục", chon_pl), ("danh mục tài liệu", chon_tl)) if co]
+        giu = ["trang đầu", "các chương khác"] + [ten for ten, co in (("phụ lục", chon_pl), ("tài liệu tham khảo", chon_tl)) if not co]
+        print(f"Chỉ thay: chương {sorted(chon_chuong)}{''.join(' và ' + t for t in them)}; giữ nguyên {', '.join(giu)}")
     elif trang_dau is not None:
         kq = ghep_trang_dau(doc, trang_dau)
         print(f"Trang đầu: {kq['so_muc']} mục trước Chương 1, mỗi mục một trang mới; dựng {kq['danh_sach']} danh sách tự động; "
