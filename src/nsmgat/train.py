@@ -29,6 +29,7 @@ from nsmgat.models.bilstm import BiLSTMModel
 from nsmgat.models.dummy import DummyModel
 from nsmgat.models.lexicon import LexiconModel
 from nsmgat.models.phobert import PhoBERTClassifier
+from nsmgat.models.phobert_luat import PhoBERTLuatModel
 from nsmgat.models.senticgcn import SenticGCNModel
 from nsmgat.trainer import Trainer, resolve_device
 # load_config nam o utils/io.py de cong cu nho khong bi keo theo transformers
@@ -53,6 +54,8 @@ MODEL_REGISTRY: Dict[str, Type[BaseModel]] = {
     # [CD1.6b] + tri thuc cam xuc. Ke thua ASGCNModel, khac dung GIA TRI
     # trong o ma tran ke: A_ij = D_ij x (s_i + s_j + 1), cong thuc (4).
     "senticgcn": SenticGCNModel,
+    # [CD1.11d] Thi nghiem can thiep: + tin hieu luat ve phu dinh, chuyen y.
+    "phobert_luat": PhoBERTLuatModel,
 }
 
 

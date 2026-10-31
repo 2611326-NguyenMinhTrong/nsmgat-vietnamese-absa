@@ -100,6 +100,8 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 | `scripts/doi_chieu_chuong5.py` + `tests/test_doi_chieu_chuong5.py` | [CD1.11] Đối chiếu Chương 5 của bản chính với `results/error_analysis.json`, `results/probe_results.json`, dự đoán đã công bố và tập chẩn đoán: con số, câu định tính (`neu`), hàng Bảng 5.1, bốn ca ở mục 5.3. Quét ngược: con số nào của chương không nằm trong chỗ kiểm nào thì báo |
 | `scripts/doi_chieu_chuong6.py` + `tests/test_doi_chieu_chuong6.py` | [CD1.12] Đối chiếu Chương 6 của bản chính với Chương 3, 4, 5: mỗi nhận định phải còn câu làm chứng ở chương nguồn, một nhận định về phần lỗi tính lại từ `results/error_analysis.json`, mỗi việc ở mục 6.3 dẫn chiếu sang mục 5.5, và chương không có con số nào |
 | `scripts/phan_tich_bo_sung.py` + `tests/test_phan_tich_bo_sung.py` | [CD1.12r] Ba phép đo cho Chương 5, chỉ đọc dự đoán đã công bố: loại lỗi của PhoBERT theo nhóm hiện tượng (mục 5.2), phần lỗi do hai hiện tượng chiếm và mức tăng tối đa (mục 5.6.2), vì sao đồ thị không giúp (mục 5.4). Ghi `results/phan_tich_bo_sung.json`, `doi_chieu_chuong5.py` đọc file này. Tách khỏi `doi_chung_do_thi.py` để không đổi dãy số ngẫu nhiên của các giá trị p đã in ở Chương 4 |
+| `src/nsmgat/data/tin_hieu_luat.py`, `src/nsmgat/models/phobert_luat.py`, `configs/phobert_luat*.yaml`, `notebooks/kaggle_tin_hieu_luat.ipynb` + `tests/test_tin_hieu_luat.py` | [CD1.11d] Thí nghiệm can thiệp: PhoBERT cộng thêm nhãn phủ định, chuyển ý ở đầu vào, lớp nhúng khởi tạo bằng 0 và không rút số ngẫu nhiên nên cùng seed thì phần còn lại trùng `phobert`. Danh sách từ khoá là bản chép của `build_diagnostic_candidates.py`, có test canh. Không phải S2.2, xem mục 2.3 |
+| `scripts/phan_tich_tin_hieu_luat.py` + `tests/test_phan_tich_tin_hieu_luat.py` | [CD1.11d] `do-phu`: luật bắt được bao nhiêu. `cham`: chấm `phobert_luat` theo tiêu chí đặt trước ở phiếu CD1.11d, ghi `results/tin_hieu_luat.json`. Tiêu chí commit trước khi có kết quả, không sửa sau khi xem số |
 | `scripts/doi_chieu_ban_goc.py` + `tests/test_doi_chieu_ban_goc.py` | [CD1.12b] `tai`: tải bản gốc của các công trình về `data/cache/nguon_goc/` và trích chữ. `kiem`: với mỗi con số dẫn từ công trình khác, tìm nó trong văn bản bản gốc. Không kiểm được ngữ cảnh (GAP-031) Từ 13/10/2026 mặc định đọc bản chính (`nhap_rut_gon/`); `kiem PhuLuc.md` kiểm phần phụ lục. |
 | `scripts/do_phu_tu_dien.py` + `tests/test_do_phu_tu_dien.py` | [CD1.12b] Đo độ phủ của VietSentiWordNet và SenticNet tiếng Việt trên UIT-ViSFD. File từ điển không nằm trong repo |
 | `scripts/build_lexicon_external.py` + `tests/test_build_lexicon_external.py` | [CD1.6c] `senticnet`, `vswn`: đổi SenticNet tiếng Việt và VietSentiWordNet sang bảng điểm mà `senticgcn` đọc được, ghi vào `data/processed/` (không lên GitHub). `kiem`: đo độ phủ và mẫu số chuẩn hoá của một bảng điểm bằng chính lớp mô hình; mã thoát 1 nếu lần huấn luyện sẽ dừng vì mẫu số bằng 0. Khác `scripts/build_affective_lexicon.py` của S3.2, vẫn chưa viết |
@@ -122,6 +124,10 @@ nhưng cuốn báo cáo của ba nơi không bao giờ lẫn vào nhau.
 > Ngoại lệ duy nhất cho `rules/`: thăm dò **P2** ở CD1.11 cần một bộ nhận diện phủ định
 > tối giản. Cài nó trong `scripts/probe_oracle_rules.py`, **không** trong `src/nsmgat/rules/engine.py`.
 > Đó là bản thăm dò dùng một lần, không phải bản cài đặt thật của S2.2.
+>
+> Ngoại lệ thứ hai, học viên quyết 01/11/2026: thí nghiệm can thiệp CD1.11d cần nhãn phủ định, chuyển ý ngay trong lúc huấn luyện nên mã phải nằm
+> trong gói. Đặt ở `src/nsmgat/data/tin_hieu_luat.py`, **không** ở `src/nsmgat/rules/`. Luật từ khoá, không có độ tin cậy, không theo khía cạnh:
+> không phải S2.2, Chuyên đề 2 vẫn viết bộ luật riêng.
 
 ---
 

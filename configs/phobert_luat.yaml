@@ -1,0 +1,12 @@
+# [CD1.11d] phobert_luat — thi nghiem can thiep: PhoBERT + tin hieu luat ve phu dinh, chuyen y.
+#
+# Xem models/phobert_luat.py. Khac phobert.yaml DUNG MOT khoa (test: tests/test_tin_hieu_luat.py).
+#
+# Chay — PHAI co --exp-name, nhu moi config doi chung:
+#     python -m nsmgat.train --config configs/phobert_luat.yaml --model phobert_luat \
+#         --exp-name phobert_luat --seed 42
+
+extends: phobert.yaml
+
+model:
+  tin_hieu_luat: [phu_dinh, chuyen_y]

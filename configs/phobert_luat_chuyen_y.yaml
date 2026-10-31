@@ -1,0 +1,8 @@
+# [CD1.11d] Thi nghiem loai bo: chi giu kenh chuyen y, tat kenh phu dinh.
+#     python -m nsmgat.train --config configs/phobert_luat_chuyen_y.yaml --model phobert_luat \
+#         --exp-name phobert_luat_chuyen_y --seed 42
+
+extends: phobert_luat.yaml
+
+model:
+  tin_hieu_luat: [chuyen_y]
