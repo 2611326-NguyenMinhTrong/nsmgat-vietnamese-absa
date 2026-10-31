@@ -107,6 +107,11 @@ MAU_MO_TA_BANG = re.compile(r"^Bảng (\d+\.\d+), ")
 MAU_TEN_BANG = re.compile(r"^Bảng ((?:\d+|[A-Z])\.\d+): (.*)$")
 MAU_SO = re.compile(r"\d[\d.,]*\d|\d")
 MO_HINH = ("lexicon", "bilstm", "phobert", "asgcn", "asgcn_linked", "senticgcn")
+# Ví dụ của bốn tiêu chí xếp nhóm ở mục 4.1.2: (uid, nhãn hiện tượng phải có, đoạn câu trích trong báo cáo).
+VI_DU_TIEU_CHI = (("visfd-test-00837-BATTERY", "negation", "Máy ok trong tầm giá đúng là đt ko lo về pin"),
+                  ("visfd-test-01055-BATTERY", "contrast", "Tất cả đều ổn trừ Pin mau tuột"),
+                  ("visfd-test-00096-BATTERY", "both", "Sản phẩm tốt, nhưng pin không trâu như mình nghĩ"),
+                  ("visfd-test-00264-BATTERY", "regular", "Máy xài mượt chụp ảnh đẹp nhưng chụp ban đêm thì không được rỏ lắm. Điểm yếu của máy là pin nhanh hết quá."))
 TEN = cb.TEN_HIEN_THI
 TEN_BAN_LUU = {"asgcn_linked": "ASGCN nối gốc"}  # tên cũ, bản lưu (bản đầy đủ) vẫn dùng; xem main()
 KHIA_CANH =("GENERAL", "PERFORMANCE", "BATTERY", "FEATURES", "SER&ACC", "CAMERA", "PRICE", "DESIGN", "SCREEN", "STORAGE")
@@ -879,10 +884,45 @@ def so_lieu_chan_doan(goc: Path, ban: str = "rut_gon"):
         ("4.7, kappa", theo_ban(ban, day_du=f"hệ số kappa {tp(ph['kappa'], 3)} đo khi hai lần gán cách nhau không quá {kp['khoang_cach_toi_da_ngay']} ngày")),
     ]
     if ban == "rut_gon":
+        import build_diagnostic_candidates as bd
+
+        # Mục 4.1.1 (lý do chọn UIT-ViSFD) và 4.1.2 (cách dựng tập, tiêu chí xếp nhóm): thêm 31/10/2026 theo câu hỏi của giảng viên hướng dẫn.
+        kho_ung_vien = Counter(r["nhom_ung_vien"] for r in rows)
+        nhom_mau, van_mau = {r["uid"]: r["phenomenon"] for r in rows}, {r["uid"]: r["text"] for r in rows}
+        nhan_binh_luan: Dict[str, set] = {}
+        tu_binh_luan: Dict[str, List[str]] = {}
+        with (goc / "data/processed/visfd_test.jsonl").open(encoding="utf-8") as fh:
+            for dong_tk in fh:
+                if dong_tk.strip():
+                    m_tk = json.loads(dong_tk)
+                    nhan_binh_luan.setdefault(ma_cau(m_tk["uid"]), set()).add(m_tk["label"])
+                    tu_binh_luan[ma_cau(m_tk["uid"])] = [str(t).lower() for t in m_tk["tokens"]]
+        co_tu_pd = sum(any(t in bd.PHU_DINH for t in ts) for ts in tu_binh_luan.values())
+        p_vlsp = goc / "data/cache/nguon_goc/VLSP-2018.txt"
+        chu_vlsp = re.sub(r"\s+", " ", p_vlsp.read_text(encoding="utf-8")) if p_vlsp.exists() else ""
+        vlsp_12_34 = (not chu_vlsp) or all(c in chu_vlsp for c in ("we have 12 aspect categories", "we have 34 aspect categories", "accessible for research purpose"))
+        p_bs = goc / "results/phan_tich_bo_sung.json"
+        kq_bo_sung = json.loads(p_bs.read_text(encoding="utf-8")) if p_bs.exists() else None
+        tt_pho_bien = kq_bo_sung is not None and all(
+            (x["cap"].get("1->0", 0) + x["cap"].get("1->2", 0)) / x["loi"] > 0.5 and (x["cap"].get("0->2", 0) + x["cap"].get("2->0", 0)) / x["loi"] < 0.2
+            for g, x in kq_bo_sung["loai_loi"]["tat_ca"].items() if g != "regular")
         co_y_nghia_pd = {e for e in MO_HINH if f1_pd[e]["p"] < 0.05 and f1_pd[e]["hieu_voi_moc"] < 0}
         cd_pb = {g: o("phobert", g, ten="chi_dong_y") for g in ("contrast", "both")}
         kiem += [
-            ("4.1.2, số ứng viên", f"{len(rows)} mẫu thuộc {len({ma_cau(r['uid']) for r in rows})} bình luận được lọc theo từ khoá phủ định và chuyển ý"),
+            ("4.1.2, số ứng viên", f"{len(rows)} mẫu thuộc {len({ma_cau(r['uid']) for r in rows})} bình luận của tập kiểm tra được rút vào bốn kho"),
+            ("4.1.2, bốn kho", f"kho có từ phủ định ({kho_ung_vien['phu_dinh']} mẫu), kho có từ nối chuyển ý ({kho_ung_vien['chuyen_y']}), kho có cả hai ({kho_ung_vien['ca_hai']}) "
+                               f"và kho đối chứng không có từ khoá nào ({kho_ung_vien['doi_chung']})"),
+            neu({"không", "chẳng", "chả", "chưa", "ko", "k", "kh"} <= bd.PHU_DINH, "Từ phủ định gồm không, chẳng, chả, chưa và các dạng viết tắt như ko, k, kh", "4.1.2, từ phủ định"),
+            neu({"nhưng", "tuy_nhiên", "mặc_dù", "dù", "song", "trừ", "có_điều", "mỗi_tội", "được_cái"} <= bd.CHUYEN_Y,
+                "từ nối chuyển ý gồm nhưng, tuy nhiên, mặc dù, dù, song, trừ, có điều, mỗi tội, được cái và một số từ khác", "4.1.2, từ nối chuyển ý"),
+            neu({"mà", "còn", "chứ"} <= bd.NGO, "Bình luận chỉ chứa từ đa nghĩa như mà, còn, chứ không được đưa vào kho nào", "4.1.2, từ đa nghĩa"),
+            *[neu(nhom_mau.get(u) == g and doan_mau in van_mau.get(u, ""), f"\"{doan_mau}\"", f"4.1.2, ví dụ của nhóm {g}") for u, g, doan_mau in VI_DU_TIEU_CHI],
+            neu(0.4 < sum(len(v) > 1 for v in nhan_binh_luan.values()) / len(nhan_binh_luan) < 0.5,
+                "gần một nửa số bình luận có ít nhất hai khía cạnh mang nhãn khác nhau", "4.1.1, lý do chọn, bình luận trái nhãn"),
+            neu(co_tu_pd / len(tu_binh_luan) > 0.5, "Hơn một nửa số bình luận của tập kiểm tra có từ phủ định (mục 4.1.2)", "4.1.1, lý do chọn, từ phủ định"),
+            neu(vlsp_12_34, "gồm miền nhà hàng và miền khách sạn với 12 và 34 nhóm khía cạnh, có cách chia sẵn và được công khai cho nghiên cứu", "4.1.1, VLSP 2018"),
+            ("4.1.1, số lần chạy thêm", f"mỗi miền thêm sẽ cần {len(MO_HINH) * len(cb.SEEDS)} lần chạy nữa"),
+            neu(kq_bo_sung is None or tt_pho_bien, "Lỗi phổ biến nhất của PhoBERT là đoán có cực cho mẫu trung tính", "Tóm tắt, lỗi phổ biến nhất"),
             neu(len(rows) - len(dung) == 1, f"Sau khi loại một mẫu, tập gồm {len(dung)} mẫu thuộc {len({ma_cau(r['uid']) for r in dung})} bình luận", "4.1.2, cỡ tập ở bản chính"),
             ("4.1.2, cỡ mẫu gán lại", f"{kp['so_dong']} mẫu được gán lại mà không xem nhãn cũ"),
             ("4.1.2, khoảng cách so với quy ước", f"cách nhau không quá {kp['khoang_cach_toi_da_ngay']} ngày, ngắn hơn mức {fd.SO_NGAY_CHO} ngày mà chuyên đề dự định"),

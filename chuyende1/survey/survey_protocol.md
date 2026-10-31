@@ -190,6 +190,25 @@ Ghi **ngay lúc đang tìm**, không ghi lại từ trí nhớ. Cột "Truy vấ
 | 22/09/2026 | Web search (Claude Code) | `Moore Barnes 2021 "Multi-task Learning of Negation and Speculation for Targeted Sentiment Classification" NAACL` | 9 | 1 |
 | 05/10/2026 | Web search (Claude Code) | `"Multi-task Solution for Aspect Category Sentiment Analysis on Vietnamese Datasets" pdf` | 9 | 1 *(bài cần tìm nằm trên IEEE, không có bản mở; giữ lại bài của Thin và Nguyen 2023 trên VNU Journal of Science hiện ra trong kết quả, truy cập mở)* |
 | 05/10/2026 | Web search (Claude Code) | `"A New Approach for Vietnamese Aspect-Based Sentiment Analysis" PhoBERT UIT-ViSFD pdf` | 9 | 0 *(bài cần tìm nằm trên IEEE, không có bản mở; kết quả lặp lại bài của Thin và Nguyen 2023 đã giữ ở dòng trên)* |
+| 23/10/2026 | Web search (Claude Code) | `"Exploring Scope Detection for Aspect-Based Sentiment Analysis"` | 9 | 0 *(lượt tìm có chủ đích cho mục 5.5, sau khi có kết quả mục 5.1 đến 5.4; bài ở IEEE/ACM TASLP 2024, không có bản mở, xem dòng cuối)* |
+| 23/10/2026 | Web search (Claude Code) | `aspect-based sentiment analysis negation scope target-specific dataset` | 9 | 0 |
+| 23/10/2026 | Web search (Claude Code) | `"Multi-Instance Multi-Label Learning Networks for Aspect-Category Sentiment Analysis"` | 9 | 1 |
+| 23/10/2026 | Web search (Claude Code) | `"A Challenge Dataset and Effective Models for Aspect-Based Sentiment Analysis" MAMS` | 10 | 1 |
+| 23/10/2026 | Web search (Claude Code) | `"Revisiting the Importance of Encoding Logic Rules in Sentiment Classification"` | 10 | 1 |
+| 23/10/2026 | Web search (Claude Code) | `"Data Programming" labeling functions learned accuracies weak supervision Ratner` | 9 | 1 |
+| 23/10/2026 | Web search (Claude Code) | `aspect-level sentiment analysis contrastive conjunction "but" clause discourse multi-aspect sentence` | 10 | 1 *(Wang và cộng sự, IJCAI 2018; bài chú ý theo EDU chỉ có bản arXiv, không giữ)* |
+| 23/10/2026 | Web search (Claude Code) | `Vietnamese aspect-based sentiment analysis negation contrast handling` | 9 | 0 *(không có công trình tiếng Việt nào xử lý chuyển ý ở mức khía cạnh trong kết quả)* |
+| 23/10/2026 | Web search (Claude Code) | `"Sentiment Analysis Is Not Solved! Assessing and Probing Sentiment Classification"` | 10 | 1 |
+| 23/10/2026 | Web search (Claude Code) | `"CAN: Constrained Attention Networks for Multi-Aspect Sentiment Analysis"` | 10 | 1 |
+| 23/10/2026 | Web search (Claude Code) | `"Learn from Structural Scope: Improving Aspect-Level Sentiment Analysis with Hybrid Graph Convolutional Networks" venue` | 9 | 0 *(chỉ có bản arXiv)* |
+| 23/10/2026 | Web search (Claude Code) | `aspect category sentiment analysis joint detection "not mentioned" polarity class hierarchical opinion presence` | 10 | 0 *(Schmitt và cộng sự 2018 phát hiện khía cạnh cùng lúc với phân loại, khác bài toán cho sẵn khía cạnh của đề tài)* |
+| 23/10/2026 | Web search (Claude Code) | `logic rules distillation BERT contextual embeddings "but" rule sentiment does not help` | 9 | 0 *(chỉ lặp lại bài đã giữ ở dòng Krishna)* |
+| 23/10/2026 | Web search (Claude Code) | `"Improving sentiment analysis with multi-task learning of negation" Barnes Velldal Ovrelid` | 10 | 0 *(toàn văn sau tường phí; hướng này đã có Moore và Barnes 2021 trong ma trận)* |
+| 23/10/2026 | Web search (Claude Code) | `"Aspect-based Sentiment Analysis through EDU-level Attentions" venue` | 9 | 0 *(chỉ có bản arXiv)* |
+| 23/10/2026 | Web search (Claude Code) | `"Data Programming: Creating Large Training Sets, Quickly" NIPS 2016 proceedings` | 10 | 0 *(xác minh nơi công bố: NIPS 2016)* |
+| 23/10/2026 | Web search (Claude Code) | `Jiang You Chen Wang Zhou "scope detection" aspect-based sentiment analysis TASLP 2024 pdf` | 9 | 0 *(không có bản mở; không trích được vì chưa đọc toàn văn)* |
+| 31/10/2026 | ACL Anthology (tra đích danh, Claude Code) | `2021.naacl-main.146` Dai và cộng sự, `Does syntax matter?` | 1 | 1 *(cho mục 5.4, sau câu hỏi của giảng viên hướng dẫn: vì sao mô hình đồ thị chưa phát huy hiệu quả; khoá DaiDoesSyntaxMatter2021)* |
+| 31/10/2026 | ACL Anthology (tra đích danh, Claude Code) | `2021.eacl-main.228` Sachan và cộng sự, `Do Syntax Trees Help Pre-trained Transformers Extract Information?` | 1 | 0 *(tác vụ trích xuất thông tin, không phải phân tích cảm xúc; bài của Dai và cộng sự đã trả lời đúng bài toán nên không giữ)* |
 
 *(ví dụ, giữ lại để tham khảo định dạng)* 21/09/2026 · Google Scholar · `"aspect-based sentiment analysis" Vietnamese` · 47 · 6
 

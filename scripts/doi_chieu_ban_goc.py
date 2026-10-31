@@ -3,7 +3,7 @@
 Hai lệnh:
 
     python scripts/doi_chieu_ban_goc.py tai                       # tải bản gốc về data/cache/nguon_goc/ và trích chữ
-    python scripts/doi_chieu_ban_goc.py kiem                      # kiểm Chương 1 đến 4
+    python scripts/doi_chieu_ban_goc.py kiem                      # kiểm Chương 1 đến 6
     python scripts/doi_chieu_ban_goc.py kiem Chuong3_KhaoSat.md   # kiểm một chương
     python scripts/doi_chieu_ban_goc.py kiem --tat-ca             # in cả những con số đã thấy
 
@@ -42,7 +42,8 @@ if hasattr(sys.stdout, "reconfigure"):
 NGUON_MAC_DINH = Path("data/cache/nguon_goc")
 NHAP_MAC_DINH = Path("chuyende1/report/nhap_rut_gon")  # bản chính từ 13/10/2026; bản đầy đủ: --nhap chuyende1/report/nhap
 MA_TRAN = Path("chuyende1/survey/survey_matrix.csv")
-CHUONG_MAC_DINH = ("Chuong1_TongQuan.md", "Chuong2_CoSoLyThuyet.md", "Chuong3_KhaoSat.md", "Chuong4_ThucNghiem.md")
+CHUONG_MAC_DINH = ("Chuong1_TongQuan.md", "Chuong2_CoSoLyThuyet.md", "Chuong3_KhaoSat.md", "Chuong4_ThucNghiem.md",
+                   "Chuong5_HanCheVaDinhHuong.md", "Chuong6_KetLuan.md")
 # Đường dẫn bản mở cho những công trình mà cột nguon_url của ma trận không suy ra được file PDF,
 # và cho tài liệu nền của Chương 2 không nằm trong ma trận.
 DUONG_DAN_RIENG = {
@@ -58,6 +59,9 @@ DUONG_DAN_RIENG = {
     "GAT": "https://arxiv.org/pdf/1710.10903",
     "VnCoreNLP": "https://aclanthology.org/N18-5012.pdf",
     "BootstrapNLP": "https://aclanthology.org/D12-1091.pdf",
+    # Tìm thêm cho mục 5.5 ngày 23/10/2026
+    "WangClauseAttention2018": "https://www.ijcai.org/proceedings/2018/0617.pdf",
+    "DataProgramming": "https://arxiv.org/pdf/1605.07723v3",
 }
 MAU_KHOA = re.compile(r"\[@([^\]]+)\]")
 MAU_SO = re.compile(r"(?<![\w.,])\d[\d.]*(?:,\d+)?(?![\w])")
@@ -221,7 +225,7 @@ def main(argv=None) -> int:
     p.add_argument("--ma-tran", type=Path, default=MA_TRAN)
     p.add_argument("--nguon", type=Path, default=NGUON_MAC_DINH, help=f"thư mục chứa bản gốc (mặc định {NGUON_MAC_DINH})")
     p = sub.add_parser("kiem", help="kiểm con số trong các bản nháp chương")
-    p.add_argument("chuong", nargs="*", default=list(CHUONG_MAC_DINH), help="tên file chương trong thư mục nháp (mặc định: Chương 1 đến 4)")
+    p.add_argument("chuong", nargs="*", default=list(CHUONG_MAC_DINH), help="tên file chương trong thư mục nháp (mặc định: Chương 1 đến 6)")
     p.add_argument("--nhap", type=Path, default=NHAP_MAC_DINH)
     p.add_argument("--nguon", type=Path, default=NGUON_MAC_DINH)
     p.add_argument("--tat-ca", action="store_true", help="in cả những con số đã thấy")
