@@ -93,8 +93,10 @@ chuyende1/report/nhap_rut_gon/
 data/diagnostic/candidates*.csv
 data/diagnostic/*.xlsx
 data/diagnostic/*.bak
-# Tap chan doan da chot chua cau cua UIT-ViSFD, khong dua len GitHub (cung quyet dinh 06/10/2026).
+# Tap chan doan da chot chua cau cua UIT-ViSFD: 06/10/2026 quyet dinh khong dua len GitHub, 02/11/2026 hoc vien
+# quyet dua len de bao cao gan link. Chi rieng file da chot, cac .jsonl khac trong thu muc nay van bi chan.
 data/diagnostic/*.jsonl
+!data/diagnostic/diagnostic_300.jsonl
 
 # Bang diem cam xuc dung tu tu dien co san (SenticNet tieng Viet, VietSentiWordNet). SenticNet chi cho
 # dung phi thuong mai, kho VietSentiWordNet khong ghi giay phep: khong dua len GitHub. Quyet dinh 13/10/2026.
