@@ -1,6 +1,6 @@
 # Phụ lục B và Phụ lục C của báo cáo Chuyên đề 1
 
-Đề tài: A Neuro-Symbolic Multi-Graph Network with Explicit Modeling of Negation and Contrast for Vietnamese Aspect-Category Sentiment Analysis.
+Đề tài: Mạng Neuro-Symbolic đa đồ thị với mô hình hóa tường minh phủ định và chuyển ý cho phân loại cảm xúc theo khía cạnh tiếng Việt.
 
 Học viên: Nguyễn Minh Trộng. Ngành Khoa học máy tính, Trường Đại học Công nghệ Kỹ thuật Thành phố Hồ Chí Minh. Giảng viên hướng dẫn: TS. Phan Thị Huyền Trang.
 
